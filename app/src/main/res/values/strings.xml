@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">WaterSpot</string>
+
+    // Welcome Screen
+    <string name="welcome_to">Welcome to</string>
+    <string name="welcome_description">Discover free water sources around you. \n Get involved. Share. Refresh yourself.</string>
+    <string name="login_button">Login</string>
+    <string name="register_button">Register</string>
 </resources>
