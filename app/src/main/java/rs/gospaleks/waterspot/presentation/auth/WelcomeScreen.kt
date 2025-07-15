@@ -2,6 +2,7 @@ package rs.gospaleks.waterspot.presentation.auth
 
 import rs.gospaleks.waterspot.R
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -9,10 +10,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 @Composable
 fun WelcomeScreen(
@@ -47,24 +51,28 @@ fun WelcomeScreen(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Logo or visual
-                Box(
+                // Logo
+                Surface(
                     modifier = Modifier
                         .size(120.dp)
-                        .clip(RoundedCornerShape(32.dp))
-                        .background(MaterialTheme.colorScheme.primaryContainer),
-                    contentAlignment = Alignment.Center
+                        .clip(RoundedCornerShape(32.dp)),
+                    color = Color.White,
+                    tonalElevation = 8.dp,
+                    shadowElevation = 8.dp,
+                    shape = RoundedCornerShape(32.dp),
+
                 ) {
-                    Text(
-                        text = "💧",
-                        style = MaterialTheme.typography.displayMedium,
-                        textAlign = TextAlign.Center,
-                        color = MaterialTheme.colorScheme.primary
+                    Icon(
+                        painter = painterResource(id = R.drawable.logo_v1_providno_512),
+                        contentDescription = stringResource(id = R.string.app_name),
+                        tint = Color.Unspecified,
+                        modifier = Modifier.size(100.dp)
                     )
                 }
 
                 Spacer(modifier = Modifier.height(32.dp))
 
+                // Welcome text
                 Text(
                     text = stringResource(id = R.string.welcome_to),
                     style = MaterialTheme.typography.headlineLarge,
@@ -73,7 +81,9 @@ fun WelcomeScreen(
                 )
                 Text(
                     text = stringResource(id = R.string.app_name),
-                    style = MaterialTheme.typography.displayLarge.copy(fontWeight = FontWeight.Bold),
+                    style = MaterialTheme.typography.displayLarge.copy(
+                        fontSize = 52.sp
+                    ),
                     color = MaterialTheme.colorScheme.primary,
                     textAlign = TextAlign.Center
                 )
@@ -89,6 +99,7 @@ fun WelcomeScreen(
 
                 Spacer(modifier = Modifier.height(48.dp))
 
+                // Login/Register buttons
                 Column(
                     modifier = Modifier.fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
