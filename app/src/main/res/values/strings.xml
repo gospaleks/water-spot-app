@@ -1,9 +1,28 @@
 <resources>
-    <string name="app_name">WaterSpot</string>
+    <string name="app_name">Water Spot</string>
 
     // Welcome Screen
     <string name="welcome_to">Welcome to</string>
     <string name="welcome_description">Discover free water sources around you. \n Get involved. Share. Refresh yourself.</string>
     <string name="login_button">Login</string>
     <string name="register_button">Register</string>
+
+    // Login Screen
+    <string name="login_title">Login</string>
+    <string name="login_welcome">Welcome back!</string>
+    <string name="login_welcome_description">Enter your credentials to continue</string>
+    <string name="forgot_password">Forgot password?</string>
+
+    // Register Screen
+    <string name="register_title">Register</string>
+
+    // Login/Register Common
+    <string name="email_label">Email</string>
+    <string name="email_icon_content_description">Email Icon</string>
+    <string name="password_label">Password</string>
+    <string name="password_icon_content_description">Password Icon</string>
+    <string name="toggle_password_visibility">Tooggle Password Visibility</string>
+
+
+    <string name="back_button_content_description">Back</string>
 </resources>

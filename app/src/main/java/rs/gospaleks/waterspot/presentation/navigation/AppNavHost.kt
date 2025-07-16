@@ -1,11 +1,19 @@
 package rs.gospaleks.waterspot.presentation.navigation
 
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
+import rs.gospaleks.waterspot.presentation.auth.LoginScreen
+import rs.gospaleks.waterspot.presentation.auth.RegisterScreen
 import rs.gospaleks.waterspot.presentation.auth.WelcomeScreen
 import rs.gospaleks.waterspot.presentation.main.MainScaffold
 import rs.gospaleks.waterspot.presentation.main.map.GoogleMapScreen
@@ -17,7 +25,10 @@ fun AppNavHost(
 ) {
     NavHost(
         navController = navController,
-        startDestination = if (isUserLoggedIn) Graph.Main.route else Graph.Auth.route
+        startDestination = if (isUserLoggedIn) Graph.Main.route else Graph.Auth.route,
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
     ) {
         authGraph(navController)
         mainGraph(navController)
@@ -58,13 +69,28 @@ fun NavGraphBuilder.authGraph(navController: NavHostController) {
     ) {
         composable(Screen.Welcome.route) {
             WelcomeScreen(
-                onLoginClick = {  },
-                onRegisterClick = {  }
+                onLoginClick = { navController.navigate(Screen.Login.route)},
+                onRegisterClick = { navController.navigate(Screen.Register.route) }
             )
         }
-        composable(Screen.Login.route) {
+        composable(
+            Screen.Login.route,
+            enterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Left, animationSpec = tween(durationMillis = 400)) },
+            exitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Right, animationSpec = tween(durationMillis = 400)) }
+        ) {
+            LoginScreen(
+                onBackClick = { navController.navigateUp() },
+                isLoading = false // Replace with actual loading state from ViewModel
+            )
         }
-        composable(Screen.Register.route) {
+        composable(
+            Screen.Register.route,
+            enterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Left, animationSpec = tween(durationMillis = 400)) },
+            exitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Right, animationSpec = tween(durationMillis = 400)) }
+        ) {
+            RegisterScreen(
+                onBackClick = { navController.navigateUp() }
+            )
         }
     }
 }
