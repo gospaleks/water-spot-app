@@ -5,6 +5,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 
 private val DarkColorScheme = darkColorScheme(
     primary = PrimaryDark,
@@ -30,7 +31,6 @@ private val LightColorScheme = lightColorScheme(
     onTertiary = OnTertiaryLight,
     onBackground = OnBackgroundLight,
     onSurface = OnSurfaceLight,
-
 )
 
 @Composable
@@ -46,3 +46,10 @@ fun WaterSpotTheme(
         content = content
     )
 }
+
+// Custom colors for specific use cases
+val warning: Color
+    get() = Color(0xFFFFC107)
+
+val success: Color
+    get() = Color(0xFF4CAF50)

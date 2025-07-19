@@ -23,6 +23,12 @@
     <string name="password_icon_content_description">Password Icon</string>
     <string name="toggle_password_visibility">Tooggle Password Visibility</string>
 
+    // Error Messages
+    <string name="error_empty_email">Email field can\'t be empty</string>
+    <string name="error_invalid_email">Invalid email address</string>
+    <string name="error_empty_password">Password field can\'t be empty</string>
+    <string name="error_short_password">Password must be at least 6 characters</string>
+
 
     <string name="back_button_content_description">Back</string>
 </resources>

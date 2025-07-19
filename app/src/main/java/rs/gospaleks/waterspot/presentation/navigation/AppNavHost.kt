@@ -12,7 +12,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
-import rs.gospaleks.waterspot.presentation.auth.LoginScreen
+import rs.gospaleks.waterspot.presentation.auth.login.LoginScreen
 import rs.gospaleks.waterspot.presentation.auth.RegisterScreen
 import rs.gospaleks.waterspot.presentation.auth.WelcomeScreen
 import rs.gospaleks.waterspot.presentation.main.MainScaffold
@@ -80,7 +80,6 @@ fun NavGraphBuilder.authGraph(navController: NavHostController) {
         ) {
             LoginScreen(
                 onBackClick = { navController.navigateUp() },
-                isLoading = false // Replace with actual loading state from ViewModel
             )
         }
         composable(

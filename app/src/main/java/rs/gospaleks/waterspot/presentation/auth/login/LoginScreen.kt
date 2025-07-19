@@ -1,4 +1,4 @@
-package rs.gospaleks.waterspot.presentation.auth
+package rs.gospaleks.waterspot.presentation.auth.login
 
 import androidx.compose.foundation.background
 import androidx.compose.material.icons.Icons
@@ -10,7 +10,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.ui.res.stringResource
 import rs.gospaleks.waterspot.R
 import androidx.compose.material3.OutlinedTextField
@@ -21,52 +20,68 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
+import rs.gospaleks.waterspot.presentation.components.AlertCard
+import rs.gospaleks.waterspot.presentation.components.AlertType
 import rs.gospaleks.waterspot.presentation.components.BasicTopAppBar
 
 @Composable
 fun LoginScreen(
     onBackClick: () -> Unit,
-    isLoading: Boolean
+    viewModel: LoginViewModel = hiltViewModel()
 ) {
-    var email by rememberSaveable { mutableStateOf("") }
-    var password by rememberSaveable { mutableStateOf("") }
-    var passwordVisible by rememberSaveable { mutableStateOf(false) }
+    val email = viewModel.uiState.email
+    val password = viewModel.uiState.password
+    val passwordVisible = viewModel.uiState.isPasswordVisible
+
+    val emailErrorResourceId = viewModel.uiState.emailError
+    val passwordErrorResourceId = viewModel.uiState.passwordError
+
+    val isLoading = viewModel.uiState.isLoading
 
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-        ,
+            .background(MaterialTheme.colorScheme.background),
         topBar = {
             BasicTopAppBar(
                 title = stringResource(id = R.string.login_title),
                 onBackClick = onBackClick
             )
-        }
+        },
+        contentWindowInsets = WindowInsets(0, 0, 0, 0)
     ) { innerPadding ->
         Column(
             modifier = Modifier
                 .padding(innerPadding)
-                .fillMaxSize()
-                .padding(dimensionResource(R.dimen.padding_extra_large)),
+                .consumeWindowInsets(innerPadding)
+                .padding(horizontal = dimensionResource(R.dimen.padding_extra_large))
+                .verticalScroll(rememberScrollState())
+                .imePadding()
         ) {
             Text(
                 text = stringResource(R.string.login_welcome),
                 style = MaterialTheme.typography.headlineLarge,
-                color = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(top = dimensionResource(R.dimen.padding_extra_large))
             )
+
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
@@ -79,7 +94,8 @@ fun LoginScreen(
 
             OutlinedTextField(
                 value = email,
-                onValueChange = { email = it },
+                onValueChange = { viewModel.onEmailChange(it) },
+                isError = viewModel.uiState.emailError != null,
                 label = { Text(stringResource(id = R.string.email_label)) },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
@@ -92,11 +108,21 @@ fun LoginScreen(
                 modifier = Modifier.fillMaxWidth(),
             )
 
+            Spacer(modifier = Modifier.height(8.dp))
+
+            if (emailErrorResourceId != null) {
+                AlertCard(
+                    type = AlertType.ERROR,
+                    message = stringResource(id = emailErrorResourceId),
+                )
+            }
+
             Spacer(modifier = Modifier.height(16.dp))
 
             OutlinedTextField(
                 value = password,
-                onValueChange = { password = it },
+                onValueChange = { viewModel.onPasswordChange(it) },
+                isError = viewModel.uiState.passwordError != null,
                 label = { Text(stringResource(id = R.string.password_label)) },
                 singleLine = true,
                 visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
@@ -108,13 +134,26 @@ fun LoginScreen(
                     )
                 },
                 trailingIcon = {
-                    val image = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
-                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                        Icon(imageVector = image, contentDescription = stringResource(id = R.string.toggle_password_visibility))
+                    val image =
+                        if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
+                    IconButton(onClick = { viewModel.onPasswordVisibilityChange() }) {
+                        Icon(
+                            imageVector = image,
+                            contentDescription = stringResource(id = R.string.toggle_password_visibility)
+                        )
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
             )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            if (passwordErrorResourceId != null) {
+                AlertCard(
+                    type = AlertType.ERROR,
+                    message = stringResource(id = passwordErrorResourceId),
+                )
+            }
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -130,8 +169,8 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Button (
-                onClick = { /* Handle login */ },
+            Button(
+                onClick = { viewModel.login() },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp),
@@ -151,8 +190,6 @@ fun LoginScreen(
                     )
                 }
             }
-
-            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
@@ -162,6 +199,5 @@ fun LoginScreen(
 fun LoginScreenPreview() {
     LoginScreen(
         onBackClick = {},
-        isLoading = false
     )
 }
