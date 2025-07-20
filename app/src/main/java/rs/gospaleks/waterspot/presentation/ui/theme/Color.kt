@@ -2,25 +2,19 @@ package rs.gospaleks.waterspot.presentation.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Blue80 = Color(0xFFB3E5FC)         // light water accent
-val BlueGrey80 = Color(0xFF90A4AE)     // soft grey-blue mist
-val Aqua80 = Color(0xFF4DD0E1)         // aqua highlight
-
-val Blue40 = Color(0xFF0288D1)       // duboka voda
-val BlueGrey40 = Color(0xFF546E7A)   // tamna magla
-val Aqua40 = Color(0xFF26C6DA)       // svetli tirkiz
-
-val BackgroundLight = Color(0xFFE1F5FE)   // nebo-plavičasta pozadina
-val SurfaceLight = Color(0xFFB3E5FC)      // površina vode
+// Light theme colors
+val BackgroundLight = Color(0xFFE1F5FE)
+val SurfaceLight = Color(0xFFB3E5FC)
+val PrimaryLight = Color(0xFF0288D1)
+val SecondaryLight = Color(0xFF546E7A)
+val TertiaryLight = Color(0xFF26C6DA)
 val OnPrimaryLight = Color.White
 val OnSecondaryLight = Color.White
 val OnTertiaryLight = Color.Black
-val OnBackgroundLight = Color(0xFF003C5F) // tamna plava za kontrast
+val OnBackgroundLight = Color(0xFF003C5F)
 val OnSurfaceLight = Color(0xFF003C5F)
 
-val PrimaryContainerLight = Color(0xFFB3E5FC)      // container for primary (light)
-val OnPrimaryContainerLight = Color(0xFF003C5F)    // text/icon on primary container (light)
-
+// Dark theme colors
 val BackgroundDark = Color(0xFF102027)     // deep sea night
 val SurfaceDark = Color(0xFF1A2A33)        // slightly lighter surface
 val PrimaryDark = Color(0xFF4FC3F7)        // brighter water accent
@@ -32,5 +26,6 @@ val OnTertiaryDark = Color.Black
 val OnBackgroundDark = Color(0xFFE0F7FA)   // light aqua text
 val OnSurfaceDark = Color(0xFFB2EBF2)      // light cyan text
 
-val PrimaryContainerDark = Color(0xFF102027)       // container for primary (dark)
-val OnPrimaryContainerDark = Color(0xFFE0F7FA)     // text/icon on primary container (dark
+// Common
+val PrimaryContainer = Color(0xFFB3E5FC)      // container for primary
+val OnPrimaryContainer = Color(0xFF003C5F)    // text/icon on primary container
