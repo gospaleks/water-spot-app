@@ -14,9 +14,6 @@ import androidx.compose.ui.res.stringResource
 import rs.gospaleks.waterspot.R
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.TextButton
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.foundation.layout.*
@@ -25,18 +22,23 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.Alignment
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import kotlinx.coroutines.launch
 import rs.gospaleks.waterspot.presentation.components.AlertCard
 import rs.gospaleks.waterspot.presentation.components.AlertType
 import rs.gospaleks.waterspot.presentation.components.BasicTopAppBar
@@ -44,8 +46,17 @@ import rs.gospaleks.waterspot.presentation.components.BasicTopAppBar
 @Composable
 fun LoginScreen(
     onBackClick: () -> Unit,
+    onLoginSuccess: () -> Unit,
     viewModel: LoginViewModel = hiltViewModel()
 ) {
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    // Snackbar state and scope for showing error messages
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope ()
+    val errorMessage = stringResource(R.string.error_login_failed)
+
+    // Collecting UI state from the ViewModel
     val email = viewModel.uiState.email
     val password = viewModel.uiState.password
     val passwordVisible = viewModel.uiState.isPasswordVisible
@@ -55,7 +66,33 @@ fun LoginScreen(
 
     val isLoading = viewModel.uiState.isLoading
 
+    LaunchedEffect(true) {
+        viewModel.eventFlow.collect { event ->
+            when (event) {
+                is UiEvent.NavigateToHome -> {
+                    onLoginSuccess()
+                }
+                is UiEvent.Error -> {
+                    scope.launch {
+                        snackbarHostState.showSnackbar(message = errorMessage, withDismissAction = true)
+                    }
+                }
+            }
+        }
+    }
+
     Scaffold(
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState) { data ->
+                Snackbar(
+                    snackbarData = data,
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    actionColor = MaterialTheme.colorScheme.secondary,
+                    dismissActionContentColor = MaterialTheme.colorScheme.secondary
+                )
+            }
+        },
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background),
@@ -65,7 +102,7 @@ fun LoginScreen(
                 onBackClick = onBackClick
             )
         },
-        contentWindowInsets = WindowInsets(0, 0, 0, 0)
+        contentWindowInsets = WindowInsets(0.dp, 0.dp, 0.dp, dimensionResource(R.dimen.padding_extra_large))
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -170,7 +207,10 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(
-                onClick = { viewModel.login() },
+                onClick = {
+                    keyboardController?.hide()
+                    viewModel.login()
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp),
@@ -199,5 +239,6 @@ fun LoginScreen(
 fun LoginScreenPreview() {
     LoginScreen(
         onBackClick = {},
+        onLoginSuccess = {}
     )
 }

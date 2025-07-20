@@ -8,19 +8,26 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import rs.gospaleks.waterspot.domain.auth.model.ValidationErrorType
 import rs.gospaleks.waterspot.domain.auth.use_case.ValidateEmailUseCase
 import rs.gospaleks.waterspot.domain.auth.use_case.ValidateLoginPasswordUseCase
 import javax.inject.Inject
 import rs.gospaleks.waterspot.R
+import rs.gospaleks.waterspot.domain.auth.use_case.LoginUseCase
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val validateEmailUseCase: ValidateEmailUseCase,
-    private val validateLoginPasswordUseCase: ValidateLoginPasswordUseCase
+    private val validateLoginPasswordUseCase: ValidateLoginPasswordUseCase,
+    private val loginUseCase: LoginUseCase
 ) : ViewModel() {
     var uiState by mutableStateOf(LoginUiState())
+        private set
+
+    var eventFlow = MutableSharedFlow<UiEvent>()
         private set
 
     fun onEmailChange(email: String) {
@@ -57,8 +64,13 @@ class LoginViewModel @Inject constructor(
 
         uiState = uiState.copy(isLoading = true)
 
-        // Simulate login process
-        delay(2000)
+        val result = loginUseCase(email, password)
+        if (result.isSuccess) {
+            eventFlow.emit(UiEvent.NavigateToHome)
+        } else {
+            eventFlow.emit(UiEvent.Error)
+            Log.e("LoginViewModel", "Login failed: ${result.exceptionOrNull()?.message}")
+        }
 
         uiState = uiState.copy(
             isLoading = false,

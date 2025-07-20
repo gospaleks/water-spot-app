@@ -80,6 +80,11 @@ fun NavGraphBuilder.authGraph(navController: NavHostController) {
         ) {
             LoginScreen(
                 onBackClick = { navController.navigateUp() },
+                onLoginSuccess = {
+                    navController.navigate(Graph.Main.route) {
+                        popUpTo(Screen.Welcome.route) { inclusive = true }
+                    }
+                }
             )
         }
         composable(

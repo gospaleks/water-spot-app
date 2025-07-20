@@ -28,6 +28,7 @@
     <string name="error_invalid_email">Invalid email address</string>
     <string name="error_empty_password">Password field can\'t be empty</string>
     <string name="error_short_password">Password must be at least 6 characters</string>
+    <string name="error_login_failed">Login failed. Please check your credentials and try again.</string>
 
 
     <string name="back_button_content_description">Back</string>
