@@ -13,19 +13,31 @@ val OnSecondaryLight = Color.White
 val OnTertiaryLight = Color.Black
 val OnBackgroundLight = Color(0xFF003C5F)
 val OnSurfaceLight = Color(0xFF003C5F)
+val PrimaryContainerLight = Color(0xFFB3E5FC)
+val OnPrimaryContainerLight = Color(0xFF003C5F)
+val SurfaceContainerLight = Color(0xFFE3F2FD)
+val SecondaryContainerLight = Color(0xFF90CAF9)
+val OnSecondaryContainerLight = Color(0xFF003C5F)
+val OnSurfaceVariantLight = Color(0xFF455A64)
 
 // Dark theme colors
-val BackgroundDark = Color(0xFF102027)     // deep sea night
-val SurfaceDark = Color(0xFF1A2A33)        // slightly lighter surface
-val PrimaryDark = Color(0xFF4FC3F7)        // brighter water accent
-val SecondaryDark = Color(0xFF607D8B)      // blue-grey neutral
-val TertiaryDark = Color(0xFF00ACC1)       // aqua sparkle
-val OnPrimaryDark = Color(0xFF001E2D)      // dark text on light water
+val BackgroundDark = Color(0xFF102027)
+val SurfaceDark = Color(0xFF1A2A33)
+val PrimaryDark = Color(0xFF4FC3F7)
+val SecondaryDark = Color(0xFF607D8B)
+val TertiaryDark = Color(0xFF00ACC1)
+val OnPrimaryDark = Color(0xFF001E2D)
 val OnSecondaryDark = Color.White
 val OnTertiaryDark = Color.Black
-val OnBackgroundDark = Color(0xFFE0F7FA)   // light aqua text
-val OnSurfaceDark = Color(0xFFB2EBF2)      // light cyan text
+val OnBackgroundDark = Color(0xFFE0F7FA)
+val OnSurfaceDark = Color(0xFFB2EBF2)
+val PrimaryContainerDark = Color(0xFF01579B)
+val OnPrimaryContainerDark = Color(0xFFE1F5FE)
+val SurfaceContainerDark = Color(0xFF263238)
+val SecondaryContainerDark = Color(0xFF37474F)
+val OnSecondaryContainerDark = Color.White
+val OnSurfaceVariantDark = Color(0xFFB0BEC5)
 
-// Common
-val PrimaryContainer = Color(0xFFB3E5FC)      // container for primary
-val OnPrimaryContainer = Color(0xFF003C5F)    // text/icon on primary container
+// Custom status colors
+val warning: Color get() = Color(0xFFFFB300)
+val success: Color get() = Color(0xFF4CAF50)

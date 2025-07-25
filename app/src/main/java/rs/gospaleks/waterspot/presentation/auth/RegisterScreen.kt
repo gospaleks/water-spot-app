@@ -16,7 +16,8 @@ import rs.gospaleks.waterspot.presentation.components.BasicTopAppBar
 
 @Composable
 fun RegisterScreen(
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onRegisterSuccess: () -> Unit,
 ) {
     Scaffold (
         modifier = Modifier

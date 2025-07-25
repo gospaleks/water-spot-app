@@ -66,7 +66,7 @@ fun LoginScreen(
 
     val isLoading = viewModel.uiState.isLoading
 
-    LaunchedEffect(true) {
+    LaunchedEffect(viewModel) {
         viewModel.eventFlow.collect { event ->
             when (event) {
                 is UiEvent.NavigateToHome -> {

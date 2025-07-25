@@ -12,4 +12,13 @@ class AuthRepositoryImpl : AuthRepository {
         delay(2000)
         return Result.success(Unit)
     }
+
+    override fun isUserLoggedIn(): Boolean {
+        // Simulate user login status
+        return false
+    }
+
+    override fun logout() {
+        TODO("Not yet implemented")
+    }
 }

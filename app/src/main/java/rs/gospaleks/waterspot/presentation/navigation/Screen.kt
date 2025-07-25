@@ -6,9 +6,13 @@ sealed class Screen(val route: String) {
     object Login : Screen("login")
     object Register : Screen("register")
 
-    // Main screens for bottom navigation bar
+    // Main (with bottom bar)
     object Map : Screen("map")
     object AllSpots : Screen("all_spots")
     object Scoreboard : Screen("scoreboard")
     object Profile : Screen("profile")
+
+    // Main (without bottom bar)
+    object AddSpot : Screen("add_spot")
+    object Settings : Screen("settings")
 }

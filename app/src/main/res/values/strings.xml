@@ -1,6 +1,15 @@
 <resources>
     <string name="app_name">Water Spot</string>
 
+    // Bottom Navigation Labels
+    <string name="map_label">Explore</string>
+    <string name="all_spots_label">All Spots</string>
+    <string name="scoreboard_label">Scoreboard</string>
+    <string name="profile_label">Profile</string>
+
+    // FAB
+    <string name="add_spot_fab_content_description">Add Spot</string>
+
     // Welcome Screen
     <string name="welcome_to">Welcome to</string>
     <string name="welcome_description">Discover free water sources around you. \n Get involved. Share. Refresh yourself.</string>

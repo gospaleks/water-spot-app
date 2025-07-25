@@ -18,8 +18,7 @@ class MainActivity : ComponentActivity() {
             val navController = rememberNavController()
             WaterSpotTheme {
                 AppNavHost(
-                    navController = navController,
-                    isUserLoggedIn = false
+                    navController = navController
                 )
             }
         }
