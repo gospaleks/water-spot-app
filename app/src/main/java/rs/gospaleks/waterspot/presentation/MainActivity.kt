@@ -1,25 +1,30 @@
 package rs.gospaleks.waterspot.presentation
 
+import android.graphics.Color
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
-import rs.gospaleks.waterspot.presentation.navigation.AppNavHost
+import rs.gospaleks.waterspot.presentation.navigation.graphs.RootNavGraph
 import rs.gospaleks.waterspot.presentation.ui.theme.WaterSpotTheme
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.light(
+                Color.TRANSPARENT, Color.TRANSPARENT
+            ),
+            navigationBarStyle = SystemBarStyle.light(
+                Color.TRANSPARENT, Color.TRANSPARENT
+            )
+        )
         setContent {
-            val navController = rememberNavController()
             WaterSpotTheme {
-                AppNavHost(
-                    navController = navController
-                )
+                RootNavGraph()
             }
         }
     }

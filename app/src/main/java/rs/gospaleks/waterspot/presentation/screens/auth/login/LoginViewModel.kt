@@ -1,4 +1,4 @@
-package rs.gospaleks.waterspot.presentation.auth.login
+package rs.gospaleks.waterspot.presentation.screens.auth.login
 
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
@@ -7,9 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import rs.gospaleks.waterspot.domain.auth.model.ValidationErrorType
 import rs.gospaleks.waterspot.domain.auth.use_case.ValidateEmailUseCase

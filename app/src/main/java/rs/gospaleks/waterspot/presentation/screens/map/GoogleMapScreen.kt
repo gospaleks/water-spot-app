@@ -1,4 +1,4 @@
-package rs.gospaleks.waterspot.presentation.main.map
+package rs.gospaleks.waterspot.presentation.screens.map
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize

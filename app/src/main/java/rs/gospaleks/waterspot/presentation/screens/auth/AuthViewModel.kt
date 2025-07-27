@@ -1,4 +1,4 @@
-package rs.gospaleks.waterspot.presentation.auth
+package rs.gospaleks.waterspot.presentation.screens.auth
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue

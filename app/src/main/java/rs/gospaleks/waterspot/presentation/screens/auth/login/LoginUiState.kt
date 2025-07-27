@@ -1,4 +1,4 @@
-package rs.gospaleks.waterspot.presentation.auth.login
+package rs.gospaleks.waterspot.presentation.screens.auth.login
 
 data class LoginUiState(
     val email: String = "",

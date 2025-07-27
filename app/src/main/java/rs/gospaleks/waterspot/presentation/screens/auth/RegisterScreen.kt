@@ -1,4 +1,4 @@
-package rs.gospaleks.waterspot.presentation.auth
+package rs.gospaleks.waterspot.presentation.screens.auth
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box

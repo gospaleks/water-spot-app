@@ -1,4 +1,4 @@
-package rs.gospaleks.waterspot.presentation.auth
+package rs.gospaleks.waterspot.presentation.screens.auth
 
 sealed class AuthUiState {
     object Authenticated : AuthUiState()
