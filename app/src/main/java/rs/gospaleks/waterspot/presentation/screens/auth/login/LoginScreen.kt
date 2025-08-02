@@ -42,6 +42,7 @@ import kotlinx.coroutines.launch
 import rs.gospaleks.waterspot.presentation.components.AlertCard
 import rs.gospaleks.waterspot.presentation.components.AlertType
 import rs.gospaleks.waterspot.presentation.components.BasicTopAppBar
+import rs.gospaleks.waterspot.presentation.screens.auth.UiEvent
 
 @Composable
 fun LoginScreen(

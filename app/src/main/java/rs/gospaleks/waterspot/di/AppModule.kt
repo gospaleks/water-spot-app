@@ -10,6 +10,7 @@ import rs.gospaleks.waterspot.domain.auth.repository.AuthRepository
 import rs.gospaleks.waterspot.domain.auth.use_case.IsUserLoggedInUseCase
 import rs.gospaleks.waterspot.domain.auth.use_case.LoginUseCase
 import rs.gospaleks.waterspot.domain.auth.use_case.LogoutUseCase
+import rs.gospaleks.waterspot.domain.auth.use_case.RegisterUseCase
 import rs.gospaleks.waterspot.domain.auth.use_case.ValidateEmailUseCase
 import rs.gospaleks.waterspot.domain.auth.use_case.ValidateLoginPasswordUseCase
 import javax.inject.Singleton
@@ -30,6 +31,11 @@ object AppModule {
     @Provides
     fun provideIsUserLoggedInUseCase(authRepository: AuthRepository): IsUserLoggedInUseCase {
         return IsUserLoggedInUseCase(authRepository)
+    }
+
+    @Provides
+    fun provideRegisterUseCase(authRepository: AuthRepository): RegisterUseCase {
+        return RegisterUseCase(authRepository)
     }
 
     @Provides

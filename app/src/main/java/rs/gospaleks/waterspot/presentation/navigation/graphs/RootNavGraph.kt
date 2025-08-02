@@ -31,7 +31,15 @@ fun RootNavGraph(
         modifier = Modifier.background(MaterialTheme.colorScheme.background)
     ) {
         composable (route = Graph.MAIN_SCREEN_GRAPH) {
-            MainScreen(rootNavHostController = rootNavController)
+            MainScreen(
+                rootNavHostController = rootNavController,
+                onLogout = {
+                    rootNavController.navigate(Graph.AUTH_GRAPH) {
+                        popUpTo(Graph.ROOT_GRAPH) { inclusive = true }
+                    }
+                    viewModel.logout()
+                },
+            )
         }
         authNavGraph(rootNavHostController = rootNavController)
         settingsNavGraph(rootNavHostController = rootNavController)

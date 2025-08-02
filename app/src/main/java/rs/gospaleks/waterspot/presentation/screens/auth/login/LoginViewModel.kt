@@ -15,6 +15,7 @@ import rs.gospaleks.waterspot.domain.auth.use_case.ValidateLoginPasswordUseCase
 import javax.inject.Inject
 import rs.gospaleks.waterspot.R
 import rs.gospaleks.waterspot.domain.auth.use_case.LoginUseCase
+import rs.gospaleks.waterspot.presentation.screens.auth.UiEvent
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(

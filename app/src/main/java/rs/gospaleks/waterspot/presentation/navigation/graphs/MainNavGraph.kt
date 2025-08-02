@@ -15,7 +15,8 @@ import rs.gospaleks.waterspot.presentation.navigation.SettingsRouteScreen
 fun MainNavGraph(
     rootNavHostController: NavHostController,   // Navigira na rute van bottom bar navigacije
     homeNavController: NavHostController,       // navigira unutar bottom bar navigacije
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onLogout: () -> Unit,
 ) {
     NavHost(
         navController = homeNavController,
@@ -36,7 +37,8 @@ fun MainNavGraph(
                  modifier = modifier,
                  onSettingsNavigation = {
                      rootNavHostController.navigate(SettingsRouteScreen.Settings.route)
-                 }
+                 },
+                 onLogout = onLogout
              )
         }
     }

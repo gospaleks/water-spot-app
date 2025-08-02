@@ -6,7 +6,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
-import rs.gospaleks.waterspot.presentation.screens.auth.RegisterScreen
+import rs.gospaleks.waterspot.presentation.screens.auth.register.RegisterScreen
 import rs.gospaleks.waterspot.presentation.screens.auth.WelcomeScreen
 import rs.gospaleks.waterspot.presentation.screens.auth.login.LoginScreen
 import rs.gospaleks.waterspot.presentation.navigation.AuthRouteScreen
@@ -48,7 +48,13 @@ fun NavGraphBuilder.authNavGraph(
         ) {
             RegisterScreen(
                 onBackClick = { rootNavHostController.popBackStack() },
-                onRegisterSuccess = {  },
+                onRegisterSuccess = {
+                    rootNavHostController.navigate(Graph.MAIN_SCREEN_GRAPH) {
+                        popUpTo(Graph.AUTH_GRAPH) {
+                            inclusive = true
+                        }
+                    }
+                },
             )
         }
     }

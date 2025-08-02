@@ -24,6 +24,12 @@
 
     // Register Screen
     <string name="register_title">Register</string>
+    <string name="register_welcome">Create an account</string>
+    <string name="register_welcome_description">Join us to discover and share water spots</string>
+    <string name="add_photo">Add profile image</string>
+    <string name="profile_photo_description">Profile photo</string>
+    <string name="full_name_label">Full Name</string>
+    <string name="phone_number_label">Phone Number</string>
 
     // Login/Register Common
     <string name="email_label">Email</string>
@@ -38,6 +44,7 @@
     <string name="error_empty_password">Password field can\'t be empty</string>
     <string name="error_short_password">Password must be at least 6 characters</string>
     <string name="error_login_failed">Login failed. Please check your credentials and try again.</string>
+    <string name="error_register_failed">Registration failed. Please try again.</string>
 
 
     <string name="back_button_content_description">Back</string>

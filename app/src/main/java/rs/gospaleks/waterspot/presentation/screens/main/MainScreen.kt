@@ -25,6 +25,7 @@ import rs.gospaleks.waterspot.presentation.navigation.graphs.MainNavGraph
 fun MainScreen(
     rootNavHostController: NavHostController,
     homeNavController: NavHostController = rememberNavController(),
+    onLogout: () -> Unit,
 ) {
     val backStackEntry by homeNavController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination?.route
@@ -50,7 +51,8 @@ fun MainScreen(
         MainNavGraph(
             rootNavHostController = rootNavHostController,
             homeNavController = homeNavController,
-            modifier = Modifier.padding(innerPadding).background(MaterialTheme.colorScheme.background)
+            modifier = Modifier.padding(innerPadding).background(MaterialTheme.colorScheme.background),
+            onLogout = onLogout,
         )
     }
 }

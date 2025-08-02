@@ -22,6 +22,7 @@ private val DarkColorScheme = darkColorScheme(
     surfaceContainer = SurfaceContainerDark,
     secondaryContainer = SecondaryContainerDark,
     onSecondaryContainer = OnSecondaryContainerDark,
+    surfaceVariant =  SurfaceVariantDark,
     onSurfaceVariant = OnSurfaceVariantDark,
 )
 
@@ -41,6 +42,7 @@ private val LightColorScheme = lightColorScheme(
     surfaceContainer = SurfaceContainerLight,
     secondaryContainer = SecondaryContainerLight,
     onSecondaryContainer = OnSecondaryContainerLight,
+    surfaceVariant = SurfaceVariantLight,
     onSurfaceVariant = OnSurfaceVariantLight,
 )
 

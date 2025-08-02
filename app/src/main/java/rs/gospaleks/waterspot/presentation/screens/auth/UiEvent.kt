@@ -1,4 +1,4 @@
-package rs.gospaleks.waterspot.presentation.screens.auth.login
+package rs.gospaleks.waterspot.presentation.screens.auth
 
 sealed class UiEvent {
     object NavigateToHome : UiEvent()
