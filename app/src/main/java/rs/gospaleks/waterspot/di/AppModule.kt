@@ -9,7 +9,9 @@ import dagger.hilt.components.SingletonComponent
 import rs.gospaleks.waterspot.data.remote.firebase.FirebaseAuthDataSource
 import rs.gospaleks.waterspot.data.remote.firebase.FirestoreUserDataSource
 import rs.gospaleks.waterspot.data.repository.AuthRepositoryImpl
+import rs.gospaleks.waterspot.data.repository.UserRepositoryImpl
 import rs.gospaleks.waterspot.domain.auth.repository.AuthRepository
+import rs.gospaleks.waterspot.domain.auth.use_case.GetCurrentUserUseCase
 import rs.gospaleks.waterspot.domain.auth.use_case.IsUserLoggedInUseCase
 import rs.gospaleks.waterspot.domain.auth.use_case.LoginUseCase
 import rs.gospaleks.waterspot.domain.auth.use_case.LogoutUseCase
@@ -19,6 +21,8 @@ import rs.gospaleks.waterspot.domain.auth.use_case.ValidateFullNameUseCase
 import rs.gospaleks.waterspot.domain.auth.use_case.ValidateLoginPasswordUseCase
 import rs.gospaleks.waterspot.domain.auth.use_case.ValidatePhoneNumberUseCase
 import rs.gospaleks.waterspot.domain.auth.use_case.ValidateRegisterPasswordUseCase
+import rs.gospaleks.waterspot.domain.repository.UserRepository
+import rs.gospaleks.waterspot.domain.use_case.GetUserDataUseCase
 import javax.inject.Singleton
 
 @Module
@@ -52,7 +56,24 @@ object AppModule {
         return AuthRepositoryImpl(authDataSource, firestoreUserDataSource)
     }
 
+    @Provides
+    @Singleton
+    fun provideUserRepository(firestoreUserDataSource: FirestoreUserDataSource): UserRepository {
+        return UserRepositoryImpl(firestoreUserDataSource)
+    }
+
+    // Use Cases
+    @Provides
+    fun provideGetUserDataUseCase(userRepository: UserRepository): GetUserDataUseCase {
+        return GetUserDataUseCase(userRepository)
+    }
+
     // Auth Use Cases
+    @Provides
+    fun provideGetCurrentUserUserCase(authRepository: AuthRepository): GetCurrentUserUseCase {
+        return GetCurrentUserUseCase(authRepository)
+    }
+
     @Provides
     fun provideIsUserLoggedInUseCase(authRepository: AuthRepository): IsUserLoggedInUseCase {
         return IsUserLoggedInUseCase(authRepository)

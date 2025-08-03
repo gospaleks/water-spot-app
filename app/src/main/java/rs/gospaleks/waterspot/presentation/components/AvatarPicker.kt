@@ -6,12 +6,13 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -31,7 +32,8 @@ import java.io.File
 fun AvatarPicker(
     currentImageUri: Uri?,
     onImagePicked: (Uri) -> Unit,
-    size: Dp = 120.dp
+    size: Dp = 96.dp,
+    showEditIcon: Boolean = true
 ) {
     val context = LocalContext.current
 
@@ -58,7 +60,7 @@ fun AvatarPicker(
         }
     }
 
-    // Launcher za trazenje permisije
+    // Launcher za traženje permisije
     val cameraPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
@@ -68,28 +70,51 @@ fun AvatarPicker(
     }
 
     Box(
-        modifier = Modifier
-            .size(size)
-            .clip(CircleShape)
-            .background(MaterialTheme.colorScheme.surfaceVariant)
-            .clickable { cameraPermissionLauncher.launch(Manifest.permission.CAMERA) },
-        contentAlignment = Alignment.Center
+        modifier = Modifier.size(size),
+        contentAlignment = Alignment.BottomEnd
     ) {
-        if (currentImageUri != null) {
-            Image(
-                painter = rememberAsyncImagePainter(currentImageUri),
-                contentDescription = "Avatar",
+        // Avatar
+        Box(
+            modifier = Modifier
+                .size(size)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.surfaceVariant)
+                .clickable { cameraPermissionLauncher.launch(Manifest.permission.CAMERA) },
+            contentAlignment = Alignment.Center
+        ) {
+            if (currentImageUri != null) {
+                Image(
+                    painter = rememberAsyncImagePainter(currentImageUri),
+                    contentDescription = "Avatar",
+                    modifier = Modifier.matchParentSize(),
+                    contentScale = ContentScale.Crop
+                )
+            } else {
+                Icon(
+                    imageVector = Icons.Default.CameraAlt,
+                    contentDescription = "Add photo",
+                    tint = MaterialTheme.colorScheme.onPrimary
+                )
+            }
+        }
+
+        // Edit dugme
+        if (showEditIcon) {
+            Box(
                 modifier = Modifier
-                    .matchParentSize()
-                    .align(Alignment.Center),
-                contentScale = ContentScale.Crop
-            )
-        } else {
-            Icon(
-                imageVector = Icons.Default.CameraAlt,
-                contentDescription = "Add photo",
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+                    .size(28.dp)
+                    .background(MaterialTheme.colorScheme.secondary, CircleShape)
+                    .border(2.dp, MaterialTheme.colorScheme.background, CircleShape)
+                    .clickable { cameraPermissionLauncher.launch(Manifest.permission.CAMERA) },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Edit,
+                    contentDescription = "Edit profile photo",
+                    tint = MaterialTheme.colorScheme.onSecondary,
+                    modifier = Modifier.size(16.dp)
+                )
+            }
         }
     }
 }

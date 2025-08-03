@@ -51,7 +51,7 @@ fun MainScreen(
         MainNavGraph(
             rootNavHostController = rootNavHostController,
             homeNavController = homeNavController,
-            modifier = Modifier.padding(innerPadding).background(MaterialTheme.colorScheme.background),
+            innerPadding = innerPadding,
             onLogout = onLogout,
         )
     }

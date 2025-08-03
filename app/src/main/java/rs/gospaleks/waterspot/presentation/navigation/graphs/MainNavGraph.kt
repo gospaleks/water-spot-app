@@ -1,5 +1,6 @@
 package rs.gospaleks.waterspot.presentation.navigation.graphs
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
@@ -9,13 +10,14 @@ import rs.gospaleks.waterspot.presentation.screens.map.GoogleMapScreen
 import rs.gospaleks.waterspot.presentation.screens.profile.ProfileScreen
 import rs.gospaleks.waterspot.presentation.navigation.Graph
 import rs.gospaleks.waterspot.presentation.navigation.MainRouteScreen
+import rs.gospaleks.waterspot.presentation.navigation.ProfileRouteScreen
 import rs.gospaleks.waterspot.presentation.navigation.SettingsRouteScreen
 
 @Composable
 fun MainNavGraph(
     rootNavHostController: NavHostController,   // Navigira na rute van bottom bar navigacije
     homeNavController: NavHostController,       // navigira unutar bottom bar navigacije
-    modifier: Modifier = Modifier,
+    innerPadding: PaddingValues,
     onLogout: () -> Unit,
 ) {
     NavHost(
@@ -24,7 +26,7 @@ fun MainNavGraph(
         startDestination = MainRouteScreen.Map.route
     ) {
         composable (route = MainRouteScreen.Map.route) {
-            GoogleMapScreen(modifier)
+            GoogleMapScreen(innerPadding = innerPadding)
         }
         composable (route = MainRouteScreen.AllSpots.route) {
             // AllSpotsScreen()
@@ -34,11 +36,13 @@ fun MainNavGraph(
         }
         composable (route = MainRouteScreen.Profile.route) {
              ProfileScreen(
-                 modifier = modifier,
-                 onSettingsNavigation = {
-                     rootNavHostController.navigate(SettingsRouteScreen.Settings.route)
+                 innerPadding = innerPadding,
+                 onLogout = onLogout,
+                 onEditProfileClick = {
+                        rootNavHostController.navigate(ProfileRouteScreen.EditProfile.route)
                  },
-                 onLogout = onLogout
+                 onMyWaterSpotsClick = {},
+                 onChangePasswordClick = {},
              )
         }
     }

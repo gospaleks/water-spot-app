@@ -6,6 +6,8 @@ object Graph {
     const val MAIN_SCREEN_GRAPH = "main_screen_graph"
     const val ADD_SPOT_GRAPH = "add_spot_graph"
     const val SETTINGS_GRAPH = "settings_graph"
+
+    const val PROFILE_GRAPH = "profile_graph"
     // Other graphs here
 }
 
@@ -26,6 +28,12 @@ sealed class MainRouteScreen(val route: String) {
 sealed class AddSpotRouteScreen(val route: String) {
     object AddSpot : AddSpotRouteScreen("add_spot")
     // more screens related to adding spots here (e.g., AddSpotDetails, AddSpotConfirmation...)
+}
+
+sealed class ProfileRouteScreen(val route: String) {
+    object EditProfile : ProfileRouteScreen("edit_profile")
+    // change password
+    // my water spots
 }
 
 sealed class SettingsRouteScreen(val route: String) {

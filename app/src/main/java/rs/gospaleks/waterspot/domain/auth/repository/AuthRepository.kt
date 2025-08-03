@@ -1,6 +1,7 @@
 package rs.gospaleks.waterspot.domain.auth.repository
 
 import android.net.Uri
+import rs.gospaleks.waterspot.domain.model.User
 
 interface AuthRepository {
     suspend fun register(
@@ -19,4 +20,6 @@ interface AuthRepository {
     fun isUserLoggedIn(): Boolean
 
     fun logout()
+
+    fun getCurrentUserId(): Result<String?>
 }

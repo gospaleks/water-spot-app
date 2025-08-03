@@ -8,6 +8,7 @@ import kotlinx.coroutines.tasks.await
 import rs.gospaleks.waterspot.data.remote.firebase.FirebaseAuthDataSource
 import rs.gospaleks.waterspot.data.remote.firebase.FirestoreUserDataSource
 import rs.gospaleks.waterspot.domain.auth.repository.AuthRepository
+import rs.gospaleks.waterspot.domain.model.User
 import javax.inject.Inject
 
 class AuthRepositoryImpl @Inject constructor(
@@ -62,5 +63,14 @@ class AuthRepositoryImpl @Inject constructor(
 
     override fun logout() {
         authDataSource.logout()
+    }
+
+    override fun getCurrentUserId(): Result<String?> {
+        val userId = authDataSource.getCurrentUserId()
+        if (userId == null) {
+            return Result.failure(Exception("User not logged in"))
+        }
+
+        return Result.success(userId)
     }
 }

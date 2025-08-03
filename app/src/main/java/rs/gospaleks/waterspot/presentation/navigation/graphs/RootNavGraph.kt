@@ -42,6 +42,7 @@ fun RootNavGraph(
             )
         }
         authNavGraph(rootNavHostController = rootNavController)
+        profileNavGraph(rootNavHostController = rootNavController)
         settingsNavGraph(rootNavHostController = rootNavController)
         addSpotNavGraph(rootNavHostController = rootNavController)
 

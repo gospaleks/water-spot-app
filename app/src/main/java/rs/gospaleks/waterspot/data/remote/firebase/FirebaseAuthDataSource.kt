@@ -1,6 +1,5 @@
 package rs.gospaleks.waterspot.data.remote.firebase
 
-import android.net.Uri
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
@@ -8,6 +7,10 @@ import javax.inject.Inject
 class FirebaseAuthDataSource @Inject constructor(
     private val firebaseAuth: FirebaseAuth
 ) {
+    fun getCurrentUserId(): String? {
+        return firebaseAuth.currentUser?.uid
+    }
+
     fun isUserLoggedIn(): Boolean {
         return firebaseAuth.currentUser != null
     }

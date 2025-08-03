@@ -50,6 +50,17 @@
     <string name="error_login_failed">Login failed. Please check your credentials and try again.</string>
     <string name="error_register_failed">Registration failed. Please try again.</string>
 
+    // Profile Screen
+    <string name="account_overview">Account overview</string>
+    <string name="edit_profile">Edit Profile</string>
+    <string name="my_spots">My Water Spots</string>
+    <string name="change_password">Change Password</string>
+    <string name="change_language">Change Language</string>
+    <string name="logout">Logout</string>
+
+    // Edit Profile Screen
+    <string name="edit_profile_title">Edit Profile</string>
+
 
     <string name="back_button_content_description">Back</string>
 </resources>
