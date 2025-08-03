@@ -61,6 +61,8 @@
     // Edit Profile Screen
     <string name="edit_profile_title">Edit Profile</string>
 
+    // Google Maps Screen
+    <string name="permission_denied_message">"Location permission is required.\nPlease enable it in settings."</string>
 
     <string name="back_button_content_description">Back</string>
 </resources>
