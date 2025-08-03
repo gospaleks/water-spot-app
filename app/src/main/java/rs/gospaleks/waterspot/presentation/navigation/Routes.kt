@@ -27,7 +27,8 @@ sealed class MainRouteScreen(val route: String) {
 
 sealed class AddSpotRouteScreen(val route: String) {
     object AddSpot : AddSpotRouteScreen("add_spot")
-    // more screens related to adding spots here (e.g., AddSpotDetails, AddSpotConfirmation...)
+    object AddSpotPhoto: AddSpotRouteScreen("add_spot_photo")
+    object AddSpotDetails: AddSpotRouteScreen("add_spot_details")
 }
 
 sealed class ProfileRouteScreen(val route: String) {

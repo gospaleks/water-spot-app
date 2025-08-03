@@ -1,30 +1,30 @@
 package rs.gospaleks.waterspot.presentation.screens.map
 
 import android.Manifest
-import android.app.Application
-import android.content.pm.PackageManager
 import android.os.Looper
+import androidx.annotation.RequiresPermission
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
-import androidx.core.app.ActivityCompat
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
+import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
-import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.model.LatLng
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class MapViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class MapViewModel @Inject constructor(
+    private val fusedLocationClient: FusedLocationProviderClient
+) : ViewModel() {
+
     var uiState by mutableStateOf(MapUiState())
         private set
 
     private var hasCenteredMap = false
-
-    private val context = application
-
-    private val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
 
     private val locationRequest = LocationRequest.Builder(3000L)
         .setMinUpdateIntervalMillis(2000L)
@@ -42,27 +42,18 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     fun startLocationUpdates() {
-        if (ActivityCompat.checkSelfPermission(
-                context, Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
-            fusedLocationClient.requestLocationUpdates(
-                locationRequest,
-                locationCallback,
-                Looper.getMainLooper()
-            )
+        fusedLocationClient.requestLocationUpdates(
+            locationRequest,
+            locationCallback,
+            Looper.getMainLooper()
+        )
 
-            uiState = uiState.copy(
-                properties = uiState.properties.copy(isMyLocationEnabled = true),
-                isLocationPermissionGranted = true
-            )
-        } else {
-            uiState = uiState.copy(
-                properties = uiState.properties.copy(isMyLocationEnabled = false),
-                isLocationPermissionGranted = false
-            )
-        }
+        uiState = uiState.copy(
+            properties = uiState.properties.copy(isMyLocationEnabled = true),
+            isLocationPermissionGranted = true
+        )
     }
 
     fun stopLocationUpdates() {

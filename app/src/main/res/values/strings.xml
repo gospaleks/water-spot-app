@@ -64,5 +64,17 @@
     // Google Maps Screen
     <string name="permission_denied_message">"Location permission is required.\nPlease enable it in settings."</string>
 
+    // Add Spot Screen (step 1)
+    <string name="add_spot_title">Add Spot: Location</string>
+    <string name="add_spot_instructions">Move the marker to\nthe precise location</string>
+    <string name="add_spot_confirmation">Confirm Location</string>
+    <string name="add_spot_location_error">Please Move Closer</string>
+
+    // Add Spot Photo Screen (step 2)
+    <string name="add_spot_photo_title">Add Spot: Photo</string>
+
+    // Add Spot Details Screen (step 3)
+    <string name="add_spot_details_title">Add Spot: Details</string>
+
     <string name="back_button_content_description">Back</string>
 </resources>

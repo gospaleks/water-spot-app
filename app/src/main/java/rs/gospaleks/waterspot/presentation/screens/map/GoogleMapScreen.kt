@@ -1,6 +1,7 @@
 package rs.gospaleks.waterspot.presentation.screens.map
 
 import android.Manifest
+import android.content.pm.PackageManager
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,10 +22,12 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.core.content.ContextCompat
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
@@ -37,17 +40,21 @@ import rs.gospaleks.waterspot.R
 @Composable
 fun GoogleMapScreen(
     innerPadding: PaddingValues,
-    viewModel: MapViewModel = viewModel()
+    viewModel: MapViewModel = hiltViewModel()
 ) {
     val uiState = viewModel.uiState
 
     val locationPermissionState = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
     val cameraPositionState = rememberCameraPositionState()
+    val context = LocalContext.current
 
     // Trazenje permisije i pokretanje lokacijskog servisa
     LaunchedEffect(locationPermissionState.status) {
         if (locationPermissionState.status.isGranted) {
-            viewModel.startLocationUpdates()
+            // Dodatna sigurnost da je permisija stvarno data
+            if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                viewModel.startLocationUpdates()
+            }
         } else {
             locationPermissionState.launchPermissionRequest()
         }

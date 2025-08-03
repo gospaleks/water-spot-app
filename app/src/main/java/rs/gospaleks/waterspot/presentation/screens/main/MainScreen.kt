@@ -18,6 +18,7 @@ import androidx.navigation.compose.rememberNavController
 import rs.gospaleks.waterspot.R
 import rs.gospaleks.waterspot.presentation.navigation.AddSpotRouteScreen
 import rs.gospaleks.waterspot.presentation.navigation.BottomNavigationBar
+import rs.gospaleks.waterspot.presentation.navigation.Graph
 import rs.gospaleks.waterspot.presentation.navigation.MainRouteScreen
 import rs.gospaleks.waterspot.presentation.navigation.graphs.MainNavGraph
 
@@ -40,7 +41,7 @@ fun MainScreen(
             if (showFab) {
                 FloatingActionButton(
                     onClick = {
-                        rootNavHostController.navigate(AddSpotRouteScreen.AddSpot.route)
+                        rootNavHostController.navigate(Graph.ADD_SPOT_GRAPH)
                     },
                 ) {
                     Icon(Icons.Default.Add, contentDescription = stringResource(R.string.add_spot_fab_content_description))
