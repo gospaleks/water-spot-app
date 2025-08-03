@@ -11,12 +11,21 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
+import rs.gospaleks.waterspot.domain.auth.model.getErrorMessageFromType
 import rs.gospaleks.waterspot.domain.auth.use_case.RegisterUseCase
+import rs.gospaleks.waterspot.domain.auth.use_case.ValidateEmailUseCase
+import rs.gospaleks.waterspot.domain.auth.use_case.ValidateFullNameUseCase
+import rs.gospaleks.waterspot.domain.auth.use_case.ValidatePhoneNumberUseCase
+import rs.gospaleks.waterspot.domain.auth.use_case.ValidateRegisterPasswordUseCase
 import rs.gospaleks.waterspot.presentation.screens.auth.UiEvent
 import javax.inject.Inject
 
 @HiltViewModel
 class RegisterViewModel @Inject constructor(
+    private val validateFullNameUseCase: ValidateFullNameUseCase,
+    private val validateEmailUseCase: ValidateEmailUseCase,
+    private val validateRegisterPasswordUseCase: ValidateRegisterPasswordUseCase,
+    private val validatePhoneNumberUseCase: ValidatePhoneNumberUseCase,
     private val registerUseCase: RegisterUseCase
 ) : ViewModel() {
     var uiState by mutableStateOf(RegisterUiState())
@@ -59,7 +68,28 @@ class RegisterViewModel @Inject constructor(
         val phoneNumber = uiState.phoneNumber
         val photoUri = uiState.photoUri
 
-        // TODO: Validacija unetih podataka
+        // Field validation
+        val fullNameValidationResult = validateFullNameUseCase(fullName)
+        val emailValidationResult = validateEmailUseCase(email)
+        val passwordValidationResult = validateRegisterPasswordUseCase(password)
+        val phoneNumberValidationResult = validatePhoneNumberUseCase(phoneNumber)
+
+        val hasFullNameError = !fullNameValidationResult.successful
+        val hasEmailError = !emailValidationResult.successful
+        val hasPasswordError = !passwordValidationResult.successful
+        val hasPhoneNumberError = !phoneNumberValidationResult.successful
+        val hasError = hasFullNameError || hasEmailError || hasPasswordError || hasPhoneNumberError
+
+        // If error exists, update UI state with error messages and stop execution
+        if (hasError) {
+            uiState = uiState.copy(
+                fullNameError = if (hasFullNameError) getErrorMessageFromType(fullNameValidationResult.errorType!!) else null,
+                emailError = if (hasEmailError) getErrorMessageFromType(emailValidationResult.errorType!!) else null,
+                passwordError = if (hasPasswordError) getErrorMessageFromType(passwordValidationResult.errorType!!) else null,
+                phoneNumberError = if (hasPhoneNumberError) getErrorMessageFromType(phoneNumberValidationResult.errorType!!) else null
+            )
+            return@launch
+        }
 
         uiState = uiState.copy(isLoading = true)
 

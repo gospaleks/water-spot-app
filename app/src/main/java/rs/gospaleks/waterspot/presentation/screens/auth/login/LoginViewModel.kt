@@ -9,11 +9,10 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
-import rs.gospaleks.waterspot.domain.auth.model.ValidationErrorType
 import rs.gospaleks.waterspot.domain.auth.use_case.ValidateEmailUseCase
 import rs.gospaleks.waterspot.domain.auth.use_case.ValidateLoginPasswordUseCase
 import javax.inject.Inject
-import rs.gospaleks.waterspot.R
+import rs.gospaleks.waterspot.domain.auth.model.getErrorMessageFromType
 import rs.gospaleks.waterspot.domain.auth.use_case.LoginUseCase
 import rs.gospaleks.waterspot.presentation.screens.auth.UiEvent
 
@@ -76,14 +75,5 @@ class LoginViewModel @Inject constructor(
             emailError = null,
             passwordError = null
         )
-    }
-
-    private fun getErrorMessageFromType(errorType: ValidationErrorType): Int {
-        return when (errorType) {
-            is ValidationErrorType.EmptyEmail -> R.string.error_empty_email
-            is ValidationErrorType.InvalidEmailFormat -> R.string.error_invalid_email
-            is ValidationErrorType.EmptyPassword -> R.string.error_empty_password
-            is ValidationErrorType.ShortPassword -> R.string.error_short_password
-        }
     }
 }

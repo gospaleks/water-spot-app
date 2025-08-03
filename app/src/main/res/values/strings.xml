@@ -43,6 +43,10 @@
     <string name="error_invalid_email">Invalid email address</string>
     <string name="error_empty_password">Password field can\'t be empty</string>
     <string name="error_short_password">Password must be at least 6 characters</string>
+    <string name="error_weak_password">Password must contain at least one uppercase letter, one lowercase letter and one digit</string>
+    <string name="error_empty_full_name">Full Name field can\'t be empty</string>
+    <string name="error_empty_phone_number">Phone Number field can\'t be empty</string>
+    <string name="error_invalid_phone_number">Invalid phone number format</string>
     <string name="error_login_failed">Login failed. Please check your credentials and try again.</string>
     <string name="error_register_failed">Registration failed. Please try again.</string>
 

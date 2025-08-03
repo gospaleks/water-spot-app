@@ -12,7 +12,10 @@ import rs.gospaleks.waterspot.domain.auth.use_case.LoginUseCase
 import rs.gospaleks.waterspot.domain.auth.use_case.LogoutUseCase
 import rs.gospaleks.waterspot.domain.auth.use_case.RegisterUseCase
 import rs.gospaleks.waterspot.domain.auth.use_case.ValidateEmailUseCase
+import rs.gospaleks.waterspot.domain.auth.use_case.ValidateFullNameUseCase
 import rs.gospaleks.waterspot.domain.auth.use_case.ValidateLoginPasswordUseCase
+import rs.gospaleks.waterspot.domain.auth.use_case.ValidatePhoneNumberUseCase
+import rs.gospaleks.waterspot.domain.auth.use_case.ValidateRegisterPasswordUseCase
 import javax.inject.Singleton
 
 @Module
@@ -56,5 +59,20 @@ object AppModule {
     @Provides
     fun provideValidateLoginPasswordUseCase(): ValidateLoginPasswordUseCase {
         return ValidateLoginPasswordUseCase()
+    }
+
+    @Provides
+    fun provideValidateFullNameUseCase(): ValidateFullNameUseCase {
+        return ValidateFullNameUseCase()
+    }
+
+    @Provides
+    fun provideValidateRegisterPasswordUseCase(): ValidateRegisterPasswordUseCase {
+        return ValidateRegisterPasswordUseCase()
+    }
+
+    @Provides
+    fun provideValidatePhoneNumberUseCase(): ValidatePhoneNumberUseCase {
+        return ValidatePhoneNumberUseCase()
     }
 }
