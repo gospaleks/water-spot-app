@@ -46,6 +46,12 @@ dependencies {
     // Firebase Auth
     implementation(libs.firebase.auth)
 
+    // Firebase Firestore
+    implementation(libs.firebase.firestore)
+
+    // Firebase Storage
+    implementation(libs.firebase.storage)
+
     // Hilt
     implementation(libs.hilt.android)
     implementation(libs.androidx.hilt.navigation.compose)

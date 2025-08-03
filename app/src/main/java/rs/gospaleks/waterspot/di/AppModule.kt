@@ -1,10 +1,13 @@
 package rs.gospaleks.waterspot.di
 
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import rs.gospaleks.waterspot.data.remote.firebase.FirebaseAuthDataSource
+import rs.gospaleks.waterspot.data.remote.firebase.FirestoreUserDataSource
 import rs.gospaleks.waterspot.data.repository.AuthRepositoryImpl
 import rs.gospaleks.waterspot.domain.auth.repository.AuthRepository
 import rs.gospaleks.waterspot.domain.auth.use_case.IsUserLoggedInUseCase
@@ -21,13 +24,32 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
+
+    // Firebase Instances
     @Provides
     fun provideFirebaseAuth(): FirebaseAuth = FirebaseAuth.getInstance()
 
     @Provides
+    fun provideFirebaseFirestore(): FirebaseFirestore = FirebaseFirestore.getInstance()
+
+    // Data Sources
+    @Provides
     @Singleton
-    fun provideAuthRepository(firebaseAuth: FirebaseAuth): AuthRepository {
-        return AuthRepositoryImpl(firebaseAuth)
+    fun provideFirebaseAuthDataSource(firebaseAuth: FirebaseAuth): FirebaseAuthDataSource {
+        return FirebaseAuthDataSource(firebaseAuth)
+    }
+
+    @Provides
+    @Singleton
+    fun provideFirestoreUserDataSource(firestore: FirebaseFirestore): FirestoreUserDataSource {
+        return FirestoreUserDataSource(firestore)
+    }
+
+    // Repositories
+    @Provides
+    @Singleton
+    fun provideAuthRepository(authDataSource: FirebaseAuthDataSource, firestoreUserDataSource: FirestoreUserDataSource): AuthRepository {
+        return AuthRepositoryImpl(authDataSource, firestoreUserDataSource)
     }
 
     // Auth Use Cases
