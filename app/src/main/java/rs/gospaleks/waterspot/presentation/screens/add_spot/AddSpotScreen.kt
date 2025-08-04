@@ -1,6 +1,7 @@
 package rs.gospaleks.waterspot.presentation.screens.add_spot
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -31,7 +32,9 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MapStyleOptions
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
@@ -52,6 +55,12 @@ fun AddSpotScreen(
     val locationPermissionState = rememberPermissionState(
         android.Manifest.permission.ACCESS_FINE_LOCATION
     )
+    val isDarkTheme = isSystemInDarkTheme()
+    val mapStyleJson = if (isDarkTheme) {
+        MapStyleOptions.loadRawResourceStyle(LocalContext.current, R.raw.map_dark)
+    } else {
+        MapStyleOptions.loadRawResourceStyle(LocalContext.current, R.raw.map_light)
+    }
 
     // Ako ima dozvola, fetch-uj trenutnu lokaciju korisnika oko koje se prikazuje krug
     LaunchedEffect(locationPermissionState.status) {
@@ -69,9 +78,9 @@ fun AddSpotScreen(
         }
     }
 
-    // Animiraj kameru kada se startLocation ucita
+    // Animiraj kameru kada se startLocation učita
     LaunchedEffect(startLocation) {
-        if (startLocation != null) {
+        if (startLocation != null && viewModel.shouldCenterCamera()) {
             val radiusInKm = uiState.allowedRadiusMeters / 1000.0
             val zoomLevel = when {
                 radiusInKm <= 0.1 -> 17f  // 100m ili manje
@@ -82,10 +91,10 @@ fun AddSpotScreen(
                 else -> 12f               // vise od 2km
             }
             val targetPosition = CameraPosition.fromLatLngZoom(startLocation, zoomLevel)
-            cameraPositionState.animate(
-                update = CameraUpdateFactory.newCameraPosition(targetPosition),
-                durationMs = 1000
+            cameraPositionState.move(
+                update = CameraUpdateFactory.newCameraPosition(targetPosition)
             )
+            viewModel.setCameraCentered()
         }
     }
 
@@ -131,13 +140,16 @@ fun AddSpotScreen(
                         GoogleMap(
                             modifier = Modifier.fillMaxSize(),
                             cameraPositionState = cameraPositionState,
-                            properties = MapProperties(isMyLocationEnabled = true),
-                            uiSettings = MapUiSettings(zoomControlsEnabled = false)
+                            properties = MapProperties(
+                                mapStyleOptions = mapStyleJson,
+                                isMyLocationEnabled = locationPermissionState.status.isGranted
+                            ),
+                            uiSettings = MapUiSettings(zoomControlsEnabled = false, myLocationButtonEnabled = false, compassEnabled = false)
                         ) {
                             Circle(
                                 center = startLocation,
-                                fillColor = Color(0xFF4CAF50).copy(alpha = 0.2f),
-                                strokeColor = Color(0xFF4CAF50),
+                                fillColor = Color(0xFF81C784).copy(alpha = 0.4f),
+                                strokeColor = Color(0xFF81C784),
                                 strokeWidth = 4f,
                                 radius = uiState.allowedRadiusMeters
                             )
@@ -147,9 +159,9 @@ fun AddSpotScreen(
                             contentDescription = "Location picker",
                             tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier
-                                .size(48.dp)
+                                .size(58.dp)
                                 .align(Alignment.Center)
-                                .offset(y = (-24).dp)
+                                .offset(y = (-29).dp)
                         )
                     }
                 } else {
@@ -176,7 +188,8 @@ fun AddSpotScreen(
                         stringResource(R.string.add_spot_confirmation)
                     } else {
                         stringResource(R.string.add_spot_location_error)
-                    }
+                    },
+                    style = MaterialTheme.typography.titleMedium,
                 )
             }
 

@@ -51,7 +51,6 @@ class MapViewModel @Inject constructor(
         )
 
         uiState = uiState.copy(
-            properties = uiState.properties.copy(isMyLocationEnabled = true),
             isLocationPermissionGranted = true
         )
     }

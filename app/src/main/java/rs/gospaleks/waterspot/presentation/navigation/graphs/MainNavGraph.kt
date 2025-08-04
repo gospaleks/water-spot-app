@@ -2,7 +2,6 @@ package rs.gospaleks.waterspot.presentation.navigation.graphs
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -11,7 +10,6 @@ import rs.gospaleks.waterspot.presentation.screens.profile.ProfileScreen
 import rs.gospaleks.waterspot.presentation.navigation.Graph
 import rs.gospaleks.waterspot.presentation.navigation.MainRouteScreen
 import rs.gospaleks.waterspot.presentation.navigation.ProfileRouteScreen
-import rs.gospaleks.waterspot.presentation.navigation.SettingsRouteScreen
 
 @Composable
 fun MainNavGraph(
@@ -26,7 +24,12 @@ fun MainNavGraph(
         startDestination = MainRouteScreen.Map.route
     ) {
         composable (route = MainRouteScreen.Map.route) {
-            GoogleMapScreen(innerPadding = innerPadding)
+            GoogleMapScreen(
+                navigateToAddSpotScreen = {
+                    rootNavHostController.navigate(Graph.ADD_SPOT_GRAPH)
+                },
+                outerPadding = innerPadding
+            )
         }
         composable (route = MainRouteScreen.AllSpots.route) {
             // AllSpotsScreen()

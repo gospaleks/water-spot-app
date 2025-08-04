@@ -20,10 +20,6 @@ class AddSpotViewModel @Inject constructor(
     var uiState by mutableStateOf(AddSpotUiState())
         private set
 
-    fun setSelectedLocation(location: LatLng) {
-        uiState = uiState.copy(selectedLocation = location)
-    }
-
     fun fetchInitialLocation() = viewModelScope.launch {
         try {
             val location = fusedLocationClient.lastLocation.await()
@@ -36,6 +32,18 @@ class AddSpotViewModel @Inject constructor(
         } catch (e: Exception) {
             e.printStackTrace()
         }
+    }
+
+    fun setSelectedLocation(location: LatLng) {
+        uiState = uiState.copy(selectedLocation = location)
+    }
+
+    fun shouldCenterCamera(): Boolean {
+        return !uiState.hasCenteredCamera
+    }
+
+    fun setCameraCentered() {
+        uiState = uiState.copy(hasCenteredCamera = true)
     }
 
     // Proverava da li je lokacija unutar kruga
