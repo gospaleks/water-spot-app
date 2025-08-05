@@ -1,6 +1,5 @@
 package rs.gospaleks.waterspot.presentation.screens.auth.register
 
-import android.content.Context
 import android.net.Uri
 import android.util.Log
 import androidx.compose.runtime.getValue

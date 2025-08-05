@@ -30,6 +30,7 @@ import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import java.io.File
 
+// FIXME: This component should get string url of the image to display or uri if it from camera
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun AvatarPicker(

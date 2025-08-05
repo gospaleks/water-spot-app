@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.util.Properties
 import java.io.FileInputStream
 
@@ -5,6 +6,8 @@ val localProps = Properties().apply {
     load(FileInputStream(rootProject.file("local.properties")))
 }
 val mapsApiKey: String = localProps.getProperty("MAPS_API_KEY") ?: ""
+
+android.buildFeatures.buildConfig = true
 
 plugins {
     alias(libs.plugins.android.application)
@@ -36,6 +39,10 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         manifestPlaceholders["MAPS_API_KEY"] = mapsApiKey
+
+        buildConfigField("String", "CLOUDINARY_CLOUD_NAME", "\"${localProps["CLOUDINARY_CLOUD_NAME"]}\"")
+        buildConfigField("String", "CLOUDINARY_API_KEY", "\"${localProps["CLOUDINARY_API_KEY"]}\"")
+        buildConfigField("String", "CLOUDINARY_API_SECRET", "\"${localProps["CLOUDINARY_API_SECRET"]}\"")
     }
 
     buildTypes {
@@ -51,8 +58,10 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-    kotlinOptions {
-        jvmTarget = "11"
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_11)
+        }
     }
     buildFeatures {
         compose = true
@@ -60,6 +69,10 @@ android {
 }
 
 dependencies {
+    implementation(libs.cloudinary.android) {
+        exclude(group = "com.facebook.fresco") // Exclude Fresco to avoid conflicts with Coil and 16KB paging issue
+    }
+
     // Google Maps
     implementation(libs.maps.compose)
     implementation (libs.play.services.maps)

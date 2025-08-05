@@ -8,7 +8,7 @@ import javax.inject.Inject
 class FirestoreUserDataSource @Inject constructor(
     private val firestore: FirebaseFirestore
 ) {
-    suspend fun saveUserData(uid: String, userData: Map<String, Any>) : Result<Unit> {
+    suspend fun saveUserData(uid: String, userData: Map<String, String?>) : Result<Unit> {
         try {
             firestore.collection("users").document(uid).set(userData).await()
             return Result.success(Unit)

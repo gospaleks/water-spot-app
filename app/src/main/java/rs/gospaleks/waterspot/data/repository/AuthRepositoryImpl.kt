@@ -1,19 +1,16 @@
 package rs.gospaleks.waterspot.data.repository
 
 import android.net.Uri
-import com.google.firebase.auth.FirebaseAuth
-import kotlinx.coroutines.Delay
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.tasks.await
+import rs.gospaleks.waterspot.data.remote.cloudinary.CloudinaryDataSource
 import rs.gospaleks.waterspot.data.remote.firebase.FirebaseAuthDataSource
 import rs.gospaleks.waterspot.data.remote.firebase.FirestoreUserDataSource
 import rs.gospaleks.waterspot.domain.auth.repository.AuthRepository
-import rs.gospaleks.waterspot.domain.model.User
 import javax.inject.Inject
 
 class AuthRepositoryImpl @Inject constructor(
     private val authDataSource: FirebaseAuthDataSource,
-    private val firestoreUserDataSource: FirestoreUserDataSource
+    private val firestoreUserDataSource: FirestoreUserDataSource,
+    private val cloudinaryDataSource: CloudinaryDataSource
 ) : AuthRepository {
     override suspend fun register(
         fullName: String,
@@ -30,15 +27,18 @@ class AuthRepositoryImpl @Inject constructor(
             return Result.failure(Exception("User creation failed"))
         }
 
-        // 2. Upload Profile Picture if provided
-        // TODO: Implement profile picture upload, firebase storage dependency is added but firebase storage requires billing to be enabled
+        // 2. Upload Profile Picture to Cloudinary
+        var photoUrl: String? = null;
+        if (photoUri != null) {
+            photoUrl = cloudinaryDataSource.uploadAvatar(photoUri, uid)
+        }
 
         // 3. Save User Data to Firestore
         val userData = mapOf(
             "fullName" to fullName,
             "email" to email,
             "phoneNumber" to phoneNumber,
-            "profilePictureUrl" to (photoUri?.toString() ?: "")
+            "profilePictureUrl" to photoUrl
         )
 
         val firestoreResult = firestoreUserDataSource.saveUserData(uid, userData)

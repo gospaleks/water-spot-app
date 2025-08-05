@@ -65,7 +65,7 @@ fun ProfileScreen(
                 ) {
                     AvatarPicker(
                         currentImageUri = userProfileImage.toUri(),
-                        onImagePicked = { /* TODO:  */ },
+                        onImagePicked = { /* TODO: implement avatar change  */ },
                         size = 96.dp
                     )
 

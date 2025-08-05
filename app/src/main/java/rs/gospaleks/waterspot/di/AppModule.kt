@@ -6,6 +6,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import rs.gospaleks.waterspot.data.remote.cloudinary.CloudinaryDataSource
 import rs.gospaleks.waterspot.data.remote.firebase.FirebaseAuthDataSource
 import rs.gospaleks.waterspot.data.remote.firebase.FirestoreUserDataSource
 import rs.gospaleks.waterspot.data.repository.AuthRepositoryImpl
@@ -52,8 +53,12 @@ object AppModule {
     // Repositories
     @Provides
     @Singleton
-    fun provideAuthRepository(authDataSource: FirebaseAuthDataSource, firestoreUserDataSource: FirestoreUserDataSource): AuthRepository {
-        return AuthRepositoryImpl(authDataSource, firestoreUserDataSource)
+    fun provideAuthRepository(
+        authDataSource: FirebaseAuthDataSource,
+        firestoreUserDataSource: FirestoreUserDataSource,
+        cloudinaryDataSource: CloudinaryDataSource
+    ): AuthRepository {
+        return AuthRepositoryImpl(authDataSource, firestoreUserDataSource, cloudinaryDataSource)
     }
 
     @Provides
