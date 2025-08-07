@@ -39,9 +39,9 @@ fun ProfileScreen(
     viewModel: ProfileViewModel = hiltViewModel()
 ) {
     // Basic user data
-    val fullName = viewModel.uiState.userFullName
-    val phoneNumber = viewModel.uiState.userPhoneNumber
-    val userProfileImage = viewModel.uiState.userProfileImage
+    val fullName = viewModel.uiState.user.fullName
+    val phoneNumber = viewModel.uiState.user.phoneNumber
+    val userProfileImage = viewModel.uiState.user.profilePictureUrl
 
     // Loading states
     val isLoading = viewModel.uiState.isLoading

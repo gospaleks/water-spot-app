@@ -9,6 +9,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import rs.gospaleks.waterspot.presentation.navigation.AddSpotRouteScreen
 import rs.gospaleks.waterspot.presentation.navigation.Graph
+import rs.gospaleks.waterspot.presentation.screens.add_spot.AddSpotDetailsScreen
 import rs.gospaleks.waterspot.presentation.screens.add_spot.AddSpotPhotoScreen
 import rs.gospaleks.waterspot.presentation.screens.add_spot.AddSpotScreen
 import rs.gospaleks.waterspot.presentation.screens.add_spot.AddSpotViewModel
@@ -53,8 +54,26 @@ fun NavGraphBuilder.addSpotNavGraph(
                 }
             )
         }
-        composable(AddSpotRouteScreen.AddSpotDetails.route) {
-            // TODO: will be implemented later
+        composable(AddSpotRouteScreen.AddSpotDetails.route) { backStackEntry ->
+            val parentEntry = remember(backStackEntry) {
+                rootNavHostController.getBackStackEntry(Graph.ADD_SPOT_GRAPH)
+            }
+            val viewModel = hiltViewModel<AddSpotViewModel>(parentEntry)
+
+            AddSpotDetailsScreen(
+                viewModel = viewModel,
+                onBackClick = {
+                    rootNavHostController.popBackStack()
+                },
+                onSubmitSuccess = {
+                    // Navigate back to the root graph after successful submission
+                    // This will pop all the back stack entries in the ADD_SPOT_GRAPH
+                    // and navigate to the root graph
+                    rootNavHostController.navigate(Graph.ROOT_GRAPH) {
+                        popUpTo(Graph.ADD_SPOT_GRAPH) { inclusive = true }
+                    }
+                }
+            )
         }
     }
 }

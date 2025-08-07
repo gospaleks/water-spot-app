@@ -13,6 +13,8 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import rs.gospaleks.waterspot.domain.model.CleanlinessLevelEnum
+import rs.gospaleks.waterspot.domain.model.SpotTypeEnum
 
 @HiltViewModel
 class AddSpotViewModel @Inject constructor(
@@ -35,6 +37,11 @@ class AddSpotViewModel @Inject constructor(
         }
     }
 
+    fun submit() {
+        // TODO: Implement the logic to submit the spot data to the database
+        // event should be triggered to handle navigation on successful submission
+    }
+
     fun setSelectedLocation(location: LatLng) {
         uiState = uiState.copy(selectedLocation = location)
     }
@@ -43,12 +50,34 @@ class AddSpotViewModel @Inject constructor(
         uiState = uiState.copy(photoUri = photoUri)
     }
 
+    fun setType(type: SpotTypeEnum) {
+        uiState = uiState.copy(type = type)
+    }
+
+    fun setCleanliness(cleanliness: CleanlinessLevelEnum) {
+        uiState = uiState.copy(cleanliness = cleanliness)
+    }
+
+    fun setDescription(description: String?) {
+        uiState = uiState.copy(description = description)
+    }
+
     fun shouldCenterCamera(): Boolean {
         return !uiState.hasCenteredCamera
     }
 
     fun setCameraCentered() {
         uiState = uiState.copy(hasCenteredCamera = true)
+    }
+
+    // Proverava da li moze submitovati spot
+    fun canSubmitSpot(): Boolean {
+        return uiState.selectedLocation != null &&
+               uiState.photoUri != null &&
+               uiState.type != null &&
+               uiState.cleanliness != null &&
+               isWithinRadius()
+//               && uiState.description != null
     }
 
     // Proverava da li je lokacija unutar kruga

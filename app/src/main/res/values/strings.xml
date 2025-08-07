@@ -82,6 +82,19 @@
 
     // Add Spot Details Screen (step 3)
     <string name="add_spot_details_title">Add Spot: Details</string>
+    <string name="add_spot_details_instructions">Provide details about\nthe water source.</string>
+    <string name="add_spot_details_confirmation">Submit</string>
+    <string name="add_spot_details_type_label">Location Type</string>
+    <string name="add_spot_details_cleanliness_label">Cleanliness</string>
+    <string name="add_spot_details_description_label">Description (optional)</string>
+    <string name="add_spot_details_description_placeholder">Describe water source…</string>
+    <string name="add_spot_details_type_public">Public Tap</string>
+    <string name="add_spot_details_type_fountain">Fountain</string>
+    <string name="add_spot_details_type_refill_station">Refill station</string>
+    <string name="add_spot_details_type_other">Other</string>
+    <string name="add_spot_details_cleanliness_clean">Clean</string>
+    <string name="add_spot_details_cleanliness_moderate">Moderate</string>
+    <string name="add_spot_details_cleanliness_dirty">Dirty</string>
 
     <string name="back_button_content_description">Back</string>
 </resources>

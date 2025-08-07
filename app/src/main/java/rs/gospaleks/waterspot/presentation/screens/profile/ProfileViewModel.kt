@@ -12,12 +12,11 @@ import javax.inject.Inject
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import rs.gospaleks.waterspot.domain.auth.use_case.GetCurrentUserUseCase
+import rs.gospaleks.waterspot.domain.model.User
 import rs.gospaleks.waterspot.domain.use_case.UploadAvatarUseCase
 
 data class ProfileUiState(
-    val userFullName: String = "",
-    val userPhoneNumber: String = "",
-    val userProfileImage: String = "",
+    val user: User = User(),
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
     val isAvatarUploading: Boolean = false
@@ -45,7 +44,7 @@ class ProfileViewModel @Inject constructor(
 
         uiState = if (uploadResult.isSuccess) {
             uiState.copy(
-                userProfileImage = uploadResult.getOrNull() ?: "",
+                user = uiState.user.copy(profilePictureUrl = uploadResult.getOrNull()),
                 isAvatarUploading = false,
                 errorMessage = null
             )
@@ -73,13 +72,13 @@ class ProfileViewModel @Inject constructor(
 
         val userDataResult = getUserDataUseCase(uid)
 
+        Log.d("ProfileViewModel", "User data result: $userDataResult")
+
         if (userDataResult.isSuccess) {
             val userData = userDataResult.getOrNull()
             uiState = if (userData != null) {
                 uiState.copy(
-                    userFullName = userData.fullName,
-                    userPhoneNumber = userData.phoneNumber,
-                    userProfileImage = userData.profilePictureUrl,
+                    user = userData,
                     isLoading = false
                 )
             } else {

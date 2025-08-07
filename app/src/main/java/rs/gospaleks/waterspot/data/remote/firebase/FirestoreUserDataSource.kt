@@ -2,6 +2,8 @@ package rs.gospaleks.waterspot.data.remote.firebase
 
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
+import rs.gospaleks.waterspot.data.mapper.toDomain
+import rs.gospaleks.waterspot.data.model.FirestoreUserDto
 import rs.gospaleks.waterspot.domain.model.User
 import javax.inject.Inject
 
@@ -19,23 +21,23 @@ class FirestoreUserDataSource @Inject constructor(
     }
 
     suspend fun getUserData(uid: String): Result<User> {
-        try {
+        return try {
             val userDocRef = firestore.collection("users").document(uid)
             val userSnapshot = userDocRef.get().await()
 
-            return if (userSnapshot.exists()) {
-                val user = userSnapshot.toObject(User::class.java)
-                if (user != null) {
-                    Result.success(user)
+            if (userSnapshot.exists()) {
+                val dto = userSnapshot.toObject(FirestoreUserDto::class.java)
+                if (dto != null) {
+                    Result.success(dto.toDomain())
                 } else {
-                    Result.failure(Exception("User does not exist"))
+                    Result.failure(Exception("User data is null"))
                 }
             } else {
-                Result.failure(Exception("User data does not exist"))
+                Result.failure(Exception("User document does not exist"))
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            return Result.failure(e)
+            Result.failure(e)
         }
     }
 

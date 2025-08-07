@@ -1,11 +1,9 @@
 package rs.gospaleks.waterspot.domain.model
 
-import com.google.firebase.firestore.DocumentId
-
-data class User (
-    @DocumentId var id: String = "",
+data class User(
+    val id: String = "",
+    val email: String = "",
     val fullName: String = "",
     val phoneNumber: String = "",
-    val profilePictureUrl: String = "",
-    // TODO: Add other fields as needed
+    val profilePictureUrl: String? = ""
 )
