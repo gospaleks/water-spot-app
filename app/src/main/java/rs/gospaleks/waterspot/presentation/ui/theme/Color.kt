@@ -20,6 +20,12 @@ val SecondaryContainerLight = Color(0xFF90CAF9)
 val OnSecondaryContainerLight = Color(0xFF003C5F)
 val SurfaceVariantLight = Color(0xFFCFD8DC)
 val OnSurfaceVariantLight = Color(0xFF455A64)
+val TertiaryContainerLight = Color(0xFFE0F7FA)
+val OnTertiaryContainerLight = Color(0xFF006064)
+val OutlineLight = Color(0xFFB0BEC5)
+val OutlineVariantLight = Color(0xFF78909C)
+val SurfaceContainerHighLight = Color(0xFFE3F2FD)
+val SurfaceContainerLowLight = Color(0xFFCFD8DC)
 
 // Dark theme colors
 val BackgroundDark = Color(0xFF102027)
@@ -39,6 +45,12 @@ val SecondaryContainerDark = Color(0xFF37474F)
 val OnSecondaryContainerDark = Color.White
 val SurfaceVariantDark = Color(0xFF37474F)
 val OnSurfaceVariantDark = Color(0xFFB0BEC5)
+val TertiaryContainerDark = Color(0xFF006064)
+val OnTertiaryContainerDark = Color(0xFFE0F7FA)
+val OutlineDark = Color(0xFFB0BEC5)
+val OutlineVariantDark = Color(0xFF455A64)
+val SurfaceContainerHighDark = Color(0xFF263238)
+val SurfaceContainerLowDark = Color(0xFF37474F)
 
 // Custom status colors
 val warning: Color get() = Color(0xFFFFB300)

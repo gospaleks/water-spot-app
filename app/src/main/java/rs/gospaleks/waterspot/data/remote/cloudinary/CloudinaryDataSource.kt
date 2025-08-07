@@ -33,7 +33,7 @@ class CloudinaryDataSource @Inject constructor(
             .option("folder", "avatars")
             .option("public_id", fileName)
             .option("timestamp", timestamp)
-            .option("api_key", "669639195878293")
+            .option("api_key", BuildConfig.CLOUDINARY_API_KEY)
             .option("signature", signature)
             .callback(object : UploadCallback {
                 override fun onSuccess(requestId: String?, resultData: MutableMap<Any?, Any?>?) {

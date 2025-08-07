@@ -1,5 +1,6 @@
 package rs.gospaleks.waterspot.presentation.screens.add_spot
 
+import android.net.Uri
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -36,6 +37,10 @@ class AddSpotViewModel @Inject constructor(
 
     fun setSelectedLocation(location: LatLng) {
         uiState = uiState.copy(selectedLocation = location)
+    }
+
+    fun setPhotoUri(photoUri: Uri?) {
+        uiState = uiState.copy(photoUri = photoUri)
     }
 
     fun shouldCenterCamera(): Boolean {
