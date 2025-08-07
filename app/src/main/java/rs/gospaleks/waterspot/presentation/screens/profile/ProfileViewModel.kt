@@ -1,5 +1,7 @@
 package rs.gospaleks.waterspot.presentation.screens.profile
 
+import android.net.Uri
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
@@ -10,25 +12,49 @@ import javax.inject.Inject
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import rs.gospaleks.waterspot.domain.auth.use_case.GetCurrentUserUseCase
+import rs.gospaleks.waterspot.domain.use_case.UploadAvatarUseCase
 
 data class ProfileUiState(
     val userFullName: String = "",
     val userPhoneNumber: String = "",
     val userProfileImage: String = "",
     val isLoading: Boolean = false,
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val isAvatarUploading: Boolean = false
 )
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     private val getUserDataUseCase: GetUserDataUseCase,
-    private val getCurrentUserUseCase: GetCurrentUserUseCase
+    private val getCurrentUserUseCase: GetCurrentUserUseCase,
+    private val uploadAvatarUseCase: UploadAvatarUseCase
 ) : ViewModel() {
     var uiState by mutableStateOf(ProfileUiState())
         private set
 
     init {
         loadUserData()
+    }
+
+    fun uploadAvatar(imageUri: Uri) = viewModelScope.launch {
+        uiState = uiState.copy(isAvatarUploading = true, errorMessage = null)
+
+        val uploadResult = uploadAvatarUseCase(imageUri)
+
+        Log.d("ProfileViewModel", "Upload result: $uploadResult")
+
+        uiState = if (uploadResult.isSuccess) {
+            uiState.copy(
+                userProfileImage = uploadResult.getOrNull() ?: "",
+                isAvatarUploading = false,
+                errorMessage = null
+            )
+        } else {
+            uiState.copy(
+                isAvatarUploading = false,
+                errorMessage = "Failed to upload avatar: ${uploadResult.exceptionOrNull()?.message}"
+            )
+        }
     }
 
     private fun loadUserData() = viewModelScope.launch {
@@ -53,7 +79,7 @@ class ProfileViewModel @Inject constructor(
                 uiState.copy(
                     userFullName = userData.fullName,
                     userPhoneNumber = userData.phoneNumber,
-                    userProfileImage = userData.profileImage,
+                    userProfileImage = userData.profilePictureUrl,
                     isLoading = false
                 )
             } else {

@@ -13,6 +13,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
@@ -30,18 +31,19 @@ import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import java.io.File
 
-// FIXME: This component should get string url of the image to display or uri if it from camera
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun AvatarPicker(
-    currentImageUri: Uri?,
-    onImagePicked: (Uri) -> Unit,
+    imageUrl: String?, // URL string za postojeću sliku (može biti null)
+    currentImageUri: Uri?, // Uri iz kamere (može biti null)
+    onImagePicked: (Uri) -> Unit, // callback za novu sliku
     size: Dp = 96.dp,
-    showEditIcon: Boolean = true
+    showEditIcon: Boolean = true,
+    isLoading: Boolean = false // indikator učitavanja
 ) {
     val context = LocalContext.current
 
-    // URI za privremenu sliku
+    // Privremeni URI za kameru
     val imageUri = remember {
         val imageFile = File.createTempFile(
             "avatar_", ".jpg",
@@ -55,10 +57,8 @@ fun AvatarPicker(
         )
     }
 
-    // Accompanist permission state
     val cameraPermissionState = rememberPermissionState(Manifest.permission.CAMERA)
 
-    // Launcher za kameru
     val takePictureLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture()
     ) { success ->
@@ -79,33 +79,60 @@ fun AvatarPicker(
         modifier = Modifier.size(size),
         contentAlignment = Alignment.BottomEnd
     ) {
-        // Avatar
+        // Avatar ili skeleton
         Box(
             modifier = Modifier
                 .size(size)
                 .clip(CircleShape)
                 .background(MaterialTheme.colorScheme.surfaceVariant)
-                .clickable { requestCameraAndLaunch() },
+                .clickable(enabled = !isLoading) { requestCameraAndLaunch() },
             contentAlignment = Alignment.Center
         ) {
-            if (currentImageUri != null) {
-                Image(
-                    painter = rememberAsyncImagePainter(currentImageUri),
-                    contentDescription = "Avatar",
-                    modifier = Modifier.matchParentSize(),
-                    contentScale = ContentScale.Crop
-                )
+            if (isLoading) {
+                // Skeleton loader — ista veličina, bez flickeringa
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .background(MaterialTheme.colorScheme.surfaceVariant),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        strokeWidth = 2.dp
+                    )
+                }
             } else {
-                Icon(
-                    imageVector = Icons.Default.CameraAlt,
-                    contentDescription = "Add photo",
-                    tint = MaterialTheme.colorScheme.onPrimary
-                )
+                when {
+                    currentImageUri != null -> {
+                        Image(
+                            painter = rememberAsyncImagePainter(currentImageUri),
+                            contentDescription = "Avatar",
+                            modifier = Modifier.matchParentSize(),
+                            contentScale = ContentScale.Crop
+                        )
+                    }
+                    !imageUrl.isNullOrBlank() -> {
+                        Image(
+                            painter = rememberAsyncImagePainter(imageUrl),
+                            contentDescription = "Avatar",
+                            modifier = Modifier.matchParentSize(),
+                            contentScale = ContentScale.Crop
+                        )
+                    }
+                    else -> {
+                        Icon(
+                            imageVector = Icons.Default.CameraAlt,
+                            contentDescription = "Add photo",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
             }
         }
 
-        // Edit dugme
-        if (showEditIcon) {
+        // Edit ikonica
+        if (showEditIcon && !isLoading) {
             Box(
                 modifier = Modifier
                     .size(28.dp)

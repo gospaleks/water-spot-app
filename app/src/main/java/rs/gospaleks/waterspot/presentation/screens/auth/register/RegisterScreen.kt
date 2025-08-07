@@ -108,6 +108,7 @@ fun RegisterScreen(
             ) {
                 AvatarPicker(
                     currentImageUri = state.photoUri,
+                    imageUrl = null,
                     onImagePicked = { uri -> viewModel.onPhotoCaptured(uri) },
                     size = 120.dp,
                 )

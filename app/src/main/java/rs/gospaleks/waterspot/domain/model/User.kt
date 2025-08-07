@@ -6,6 +6,6 @@ data class User (
     @DocumentId var id: String = "",
     val fullName: String = "",
     val phoneNumber: String = "",
-    val profileImage: String = "",
+    val profilePictureUrl: String = "",
     // TODO: Add other fields as needed
 )

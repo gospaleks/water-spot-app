@@ -38,4 +38,15 @@ class FirestoreUserDataSource @Inject constructor(
             return Result.failure(e)
         }
     }
+
+    suspend fun updateUserProfilePicture(uid: String, profilePicture: String) : Result<Unit> {
+        return try {
+            val userDocRef = firestore.collection("users").document(uid)
+            userDocRef.update("profilePictureUrl", profilePicture).await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Result.failure(e)
+        }
+    }
 }

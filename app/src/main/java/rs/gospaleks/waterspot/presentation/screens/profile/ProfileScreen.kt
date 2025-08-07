@@ -1,5 +1,6 @@
 package rs.gospaleks.waterspot.presentation.screens.profile
 
+import android.util.Log
 import rs.gospaleks.waterspot.R
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -37,10 +38,14 @@ fun ProfileScreen(
     onChangePasswordClick: () -> Unit,
     viewModel: ProfileViewModel = hiltViewModel()
 ) {
+    // Basic user data
     val fullName = viewModel.uiState.userFullName
     val phoneNumber = viewModel.uiState.userPhoneNumber
     val userProfileImage = viewModel.uiState.userProfileImage
+
+    // Loading states
     val isLoading = viewModel.uiState.isLoading
+    val isAvatarUploading = viewModel.uiState.isAvatarUploading
 
     Column(
         modifier = Modifier
@@ -64,9 +69,13 @@ fun ProfileScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     AvatarPicker(
-                        currentImageUri = userProfileImage.toUri(),
-                        onImagePicked = { /* TODO: implement avatar change  */ },
-                        size = 96.dp
+                        currentImageUri = null,
+                        imageUrl = userProfileImage,
+                        onImagePicked = { uri ->
+                            viewModel.uploadAvatar(uri)
+                        },
+                        size = 96.dp,
+                        isLoading = isAvatarUploading,
                     )
 
                     Spacer(modifier = Modifier.height(12.dp))

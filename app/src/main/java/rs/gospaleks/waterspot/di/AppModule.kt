@@ -24,6 +24,7 @@ import rs.gospaleks.waterspot.domain.auth.use_case.ValidatePhoneNumberUseCase
 import rs.gospaleks.waterspot.domain.auth.use_case.ValidateRegisterPasswordUseCase
 import rs.gospaleks.waterspot.domain.repository.UserRepository
 import rs.gospaleks.waterspot.domain.use_case.GetUserDataUseCase
+import rs.gospaleks.waterspot.domain.use_case.UploadAvatarUseCase
 import javax.inject.Singleton
 
 @Module
@@ -63,11 +64,20 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideUserRepository(firestoreUserDataSource: FirestoreUserDataSource): UserRepository {
-        return UserRepositoryImpl(firestoreUserDataSource)
+    fun provideUserRepository(
+        firebaseAuthDataSource: FirebaseAuthDataSource,
+        firestoreUserDataSource: FirestoreUserDataSource,
+        cloudinaryDataSource: CloudinaryDataSource,
+    ): UserRepository {
+        return UserRepositoryImpl(firebaseAuthDataSource, firestoreUserDataSource, cloudinaryDataSource)
     }
 
     // Use Cases
+    @Provides
+    fun provideUploadAvatarUseCase(userRepository: UserRepository): UploadAvatarUseCase {
+        return UploadAvatarUseCase(userRepository)
+    }
+
     @Provides
     fun provideGetUserDataUseCase(userRepository: UserRepository): GetUserDataUseCase {
         return GetUserDataUseCase(userRepository)
