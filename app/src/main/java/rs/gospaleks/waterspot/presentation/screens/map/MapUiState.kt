@@ -17,6 +17,7 @@ data class MapUiState(
     val isModalOpen: Boolean = false,
     val isSpotDetailsLoading: Boolean = false,
     val selectedSpotDetails: SpotDetails? = null,
+    val selectedSpotId: String? = null,
 
     // Error handling
     val error: String? = null,

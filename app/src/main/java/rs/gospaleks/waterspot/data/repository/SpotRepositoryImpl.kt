@@ -6,6 +6,7 @@ import rs.gospaleks.waterspot.data.mapper.toFirestoreMap
 import rs.gospaleks.waterspot.data.remote.cloudinary.CloudinaryDataSource
 import rs.gospaleks.waterspot.data.remote.firebase.FirestoreSpotDataSource
 import rs.gospaleks.waterspot.domain.model.Spot
+import rs.gospaleks.waterspot.domain.model.SpotWithUser
 import rs.gospaleks.waterspot.domain.repository.SpotRepository
 import javax.inject.Inject
 
@@ -28,6 +29,10 @@ class SpotRepositoryImpl @Inject constructor(
 
     override fun getAllSpots(): Flow<Result<List<Spot>>> {
         return firestoreSpotDataSource.getAllSpots()
+    }
+
+    override fun getAllSpotsWithUsers(): Flow<Result<List<SpotWithUser>>> {
+        return firestoreSpotDataSource.getAllSpotsWithUsers()
     }
 
     override suspend fun getSpotById(id: String): Result<Spot?> {

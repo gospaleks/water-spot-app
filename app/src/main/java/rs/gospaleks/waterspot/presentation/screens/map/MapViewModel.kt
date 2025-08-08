@@ -2,7 +2,6 @@ package rs.gospaleks.waterspot.presentation.screens.map
 
 import android.Manifest
 import android.os.Looper
-import android.util.Log
 import androidx.annotation.RequiresPermission
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
@@ -78,27 +77,28 @@ class MapViewModel @Inject constructor(
     fun onMarkerClick(spotId: String) {
         uiState = uiState.copy(
             isModalOpen = true,
-            isSpotDetailsLoading = true,
+            selectedSpotId = spotId,
             selectedSpotDetails = null,
+            isSpotDetailsLoading = true,
             error = null,
         )
+    }
 
-        viewModelScope.launch {
-            getSpotDetailsUseCase(spotId).onSuccess { spotDetails ->
-                uiState = uiState.copy(
-                    isSpotDetailsLoading = false,
-                    isModalOpen = true,
-                    selectedSpotDetails = spotDetails,
-                    error = null,
-                )
-            }.onFailure { error ->
-                uiState = uiState.copy(
-                    isSpotDetailsLoading = false,
-                    isModalOpen = false,
-                    selectedSpotDetails = null,
-                    error = error.message ?: "Unknown error"
-                )
-            }
+    fun loadSpotDetails(spotId: String) = viewModelScope.launch {
+        getSpotDetailsUseCase(spotId).onSuccess { spotDetails ->
+            uiState = uiState.copy(
+                isSpotDetailsLoading = false,
+                isModalOpen = true,
+                selectedSpotDetails = spotDetails,
+                error = null,
+            )
+        }.onFailure { error ->
+            uiState = uiState.copy(
+                isSpotDetailsLoading = false,
+                isModalOpen = false,
+                selectedSpotDetails = null,
+                error = error.message ?: "Unknown error"
+            )
         }
     }
 

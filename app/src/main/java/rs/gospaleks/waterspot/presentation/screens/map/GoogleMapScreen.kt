@@ -172,9 +172,11 @@ fun GoogleMapScreen(
                     SpotDetailsBottomSheet (
                         spotDetails = uiState.selectedSpotDetails,
                         isLoading = uiState.isSpotDetailsLoading,
+                        selectedSpotId = uiState.selectedSpotId,
                         onDismiss = { viewModel.dismissBottomSheet() },
                         onReportClick = { /* ... */ },
-                        onNavigateClick = { /* ... */ }
+                        onNavigateClick = { /* ... */ },
+                        onLoadSpotDetails = { spotId -> viewModel.loadSpotDetails(spotId) }
                     )
                 }
 

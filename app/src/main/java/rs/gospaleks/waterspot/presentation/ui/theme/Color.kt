@@ -26,6 +26,7 @@ val OutlineLight = Color(0xFFB0BEC5)
 val OutlineVariantLight = Color(0xFF78909C)
 val SurfaceContainerHighLight = Color(0xFFE3F2FD)
 val SurfaceContainerLowLight = Color(0xFFCFD8DC)
+val SurfaceContainerHighestLight = Color(0xFFB3E5FC)
 
 // Dark theme colors
 val BackgroundDark = Color(0xFF102027)
@@ -51,6 +52,7 @@ val OutlineDark = Color(0xFFB0BEC5)
 val OutlineVariantDark = Color(0xFF455A64)
 val SurfaceContainerHighDark = Color(0xFF263238)
 val SurfaceContainerLowDark = Color(0xFF37474F)
+val SurfaceContainerHighestDark = Color(0xFF1A2A33)
 
 // Custom status colors
 val warning: Color get() = Color(0xFFFFB300)

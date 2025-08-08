@@ -10,6 +10,7 @@ import rs.gospaleks.waterspot.presentation.screens.profile.ProfileScreen
 import rs.gospaleks.waterspot.presentation.navigation.Graph
 import rs.gospaleks.waterspot.presentation.navigation.MainRouteScreen
 import rs.gospaleks.waterspot.presentation.navigation.ProfileRouteScreen
+import rs.gospaleks.waterspot.presentation.screens.all_spots.AllSpotsScreen
 
 @Composable
 fun MainNavGraph(
@@ -32,7 +33,7 @@ fun MainNavGraph(
             )
         }
         composable (route = MainRouteScreen.AllSpots.route) {
-            // AllSpotsScreen()
+            AllSpotsScreen(outerPadding = innerPadding)
         }
         composable (route = MainRouteScreen.Scoreboard.route) {
             // ScoreboardScreen()

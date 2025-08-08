@@ -49,3 +49,9 @@ data class SpotDetails(
     val user: User? = null,
     // Additional details like user reviews, ratings, comments etc. can be added here
 )
+
+// Used for displaying card list of spots
+data class SpotWithUser (
+    val spot: Spot,
+    val user: User? = null // User who created the spot
+)

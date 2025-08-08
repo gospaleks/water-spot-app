@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import rs.gospaleks.waterspot.R
 import rs.gospaleks.waterspot.domain.model.SpotTypeEnum
@@ -29,22 +30,22 @@ fun SpotTypeSelector(
     onTypeSelected: (SpotTypeEnum) -> Unit // ✅ promenjeno
 ) {
     val types = listOf(
-        SpotType( // Fountain
+        SpotType(
             label = stringResource(R.string.add_spot_details_type_fountain),
-            icon = Icons.Default.WaterDrop
+            icon = ImageVector.vectorResource(id = R.drawable.ic_fountain_type)
         ) to SpotTypeEnum.FOUNTAIN,
 
-        SpotType( // Public
+        SpotType(
             label = stringResource(R.string.add_spot_details_type_public),
-            icon = Icons.Default.Water
+            icon = ImageVector.vectorResource(id = R.drawable.ic_public_type)
         ) to SpotTypeEnum.PUBLIC,
 
-        SpotType( // Refill
+        SpotType(
             label = stringResource(R.string.add_spot_details_type_refill_station),
             icon = Icons.Default.LocalDrink
         ) to SpotTypeEnum.REFILL_STATION,
 
-        SpotType( // Other
+        SpotType(
             label = stringResource(R.string.add_spot_details_type_other),
             icon = Icons.AutoMirrored.Filled.HelpOutline
         ) to SpotTypeEnum.OTHER
