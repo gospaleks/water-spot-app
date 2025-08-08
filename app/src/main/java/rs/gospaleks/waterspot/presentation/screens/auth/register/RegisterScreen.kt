@@ -25,7 +25,7 @@ import rs.gospaleks.waterspot.R
 import rs.gospaleks.waterspot.presentation.components.AlertCard
 import rs.gospaleks.waterspot.presentation.components.AlertType
 import rs.gospaleks.waterspot.presentation.components.BasicTopAppBar
-import rs.gospaleks.waterspot.presentation.screens.auth.UiEvent
+import rs.gospaleks.waterspot.presentation.components.UiEvent
 import rs.gospaleks.waterspot.presentation.components.AvatarPicker
 
 @Composable

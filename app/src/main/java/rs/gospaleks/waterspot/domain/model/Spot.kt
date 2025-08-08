@@ -11,14 +11,15 @@ enum class CleanlinessLevelEnum {
     CLEAN, MODERATE, DIRTY
 }
 
-data class Spot (
-    val id: String = "",
-    val latitude: Double = 0.0,
-    val longitude: Double = 0.0,
-    val photoUrl: String = "",
-    val type: SpotTypeEnum = SpotTypeEnum.OTHER,
-    val cleanliness: CleanlinessLevelEnum = CleanlinessLevelEnum.CLEAN,
-    val description: String = "",
-    // userid
-    // createdAt
+data class Spot(
+    val id: String,
+    val latitude: Double,
+    val longitude: Double,
+    val photoUrl: String? = null,
+    val type: SpotTypeEnum,
+    val cleanliness: CleanlinessLevelEnum,
+    val description: String?,
+    val userId: String,
+    val createdAt: Long?, // UNIX timestamp (millis)
+    val updatedAt: Long?
 )

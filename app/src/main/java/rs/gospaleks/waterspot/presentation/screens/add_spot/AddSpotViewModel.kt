@@ -1,6 +1,7 @@
 package rs.gospaleks.waterspot.presentation.screens.add_spot
 
 import android.net.Uri
+import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -11,16 +12,26 @@ import kotlin.math.*
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import rs.gospaleks.waterspot.domain.auth.use_case.GetCurrentUserUseCase
 import rs.gospaleks.waterspot.domain.model.CleanlinessLevelEnum
+import rs.gospaleks.waterspot.domain.model.Spot
 import rs.gospaleks.waterspot.domain.model.SpotTypeEnum
+import rs.gospaleks.waterspot.domain.use_case.AddSpotUseCase
+import rs.gospaleks.waterspot.presentation.components.UiEvent
 
 @HiltViewModel
 class AddSpotViewModel @Inject constructor(
-    private val fusedLocationClient: FusedLocationProviderClient
+    private val fusedLocationClient: FusedLocationProviderClient,
+    private val getCurrentUserUseCase: GetCurrentUserUseCase,
+    private val addSpotUseCase: AddSpotUseCase
 ) : ViewModel() {
     var uiState by mutableStateOf(AddSpotUiState())
+        private set
+
+    var eventFlow = MutableSharedFlow<UiEvent>()
         private set
 
     fun fetchInitialLocation() = viewModelScope.launch {
@@ -38,8 +49,47 @@ class AddSpotViewModel @Inject constructor(
     }
 
     fun submit() {
-        // TODO: Implement the logic to submit the spot data to the database
-        // event should be triggered to handle navigation on successful submission
+        if (!canSubmitSpot()) {
+            return
+        }
+
+        val currentUserIdResult = getCurrentUserUseCase()
+        val uid = currentUserIdResult.getOrNull()
+
+        if (uid == null) {
+            uiState = uiState.copy(errorMessage = "User not authenticated")
+            return
+        }
+
+        val spot = Spot(
+            id = "",
+            latitude = uiState.selectedLocation?.latitude ?: 0.0,
+            longitude = uiState.selectedLocation?.longitude ?: 0.0,
+            type = uiState.type ?: SpotTypeEnum.OTHER,
+            cleanliness = uiState.cleanliness ?: CleanlinessLevelEnum.CLEAN,
+            description = uiState.description,
+            userId = uid,
+            createdAt = System.currentTimeMillis(),
+            updatedAt = System.currentTimeMillis()
+        )
+
+        uiState = uiState.copy(isSubmitting = true, errorMessage = null)
+
+        viewModelScope.launch {
+           val result = addSpotUseCase(spot, uiState.photoUri!!)
+
+            uiState = if (result.isSuccess) {
+                eventFlow.emit(UiEvent.NavigateToHome)
+                uiState.copy(isSubmitting = false, errorMessage = null)
+            } else {
+                eventFlow.emit(UiEvent.Error)
+                Log.d("AddSpotViewModel", "Failed to add spot: ${result.exceptionOrNull()?.message}")
+                uiState.copy(
+                    isSubmitting = false,
+                    errorMessage = "Failed to add spot: ${result.exceptionOrNull()?.message}"
+                )
+            }
+        }
     }
 
     fun setSelectedLocation(location: LatLng) {

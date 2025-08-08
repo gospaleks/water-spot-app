@@ -1,13 +1,43 @@
 package rs.gospaleks.waterspot.data.mapper
 
+import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.GeoPoint
 import rs.gospaleks.waterspot.data.model.FirestoreSpotDto
 import rs.gospaleks.waterspot.domain.model.CleanlinessLevelEnum
 import rs.gospaleks.waterspot.domain.model.Spot
 import rs.gospaleks.waterspot.domain.model.SpotTypeEnum
 
+fun FirestoreSpotDto.toDomain(): Spot {
+    return Spot(
+        id = id,
+        latitude = location?.latitude ?: 0.0,
+        longitude = location?.longitude ?: 0.0,
+        photoUrl = photoUrl,
+        type = type.toSpotTypeEnum(),
+        cleanliness = cleanliness.toCleanlinessLevelEnum(),
+        description = description,
+        userId = userId,
+        createdAt = createdAt?.toDate()?.time,
+        updatedAt = updatedAt?.toDate()?.time
+    )
+}
+
+fun Spot.toFirestoreMap(): Map<String, Any?> {
+    return mapOf(
+        "location" to GeoPoint(latitude, longitude),
+        "photoUrl" to photoUrl,
+        "type" to type.toFirestoreString(),
+        "cleanliness" to cleanliness.toFirestoreString(),
+        "description" to description,
+        "userId" to userId,
+        "createdAt" to FieldValue.serverTimestamp(),
+        "updatedAt" to FieldValue.serverTimestamp()
+    )
+}
+
 fun String.toSpotTypeEnum(): SpotTypeEnum = when (this.uppercase()) {
     "FOUNTAIN" -> SpotTypeEnum.FOUNTAIN
-    "PUBLIC" -> SpotTypeEnum.PUBLIC
+    "PUBLIC_TAP" -> SpotTypeEnum.PUBLIC
     "REFILL_STATION" -> SpotTypeEnum.REFILL_STATION
     else -> SpotTypeEnum.OTHER
 }
@@ -21,16 +51,4 @@ fun String.toCleanlinessLevelEnum(): CleanlinessLevelEnum = when (this.uppercase
     else -> CleanlinessLevelEnum.CLEAN
 }
 
-fun CleanlinessLevelEnum.to(): String = this.name
-
-fun FirestoreSpotDto.toDomain(id: String): Spot {
-    return Spot(
-        id = id,
-        latitude = latitude,
-        longitude = longitude,
-        photoUrl = photoUrl,
-        type = type.toSpotTypeEnum(),
-        cleanliness = cleanliness.toCleanlinessLevelEnum(),
-        description = description
-    )
-}
+fun CleanlinessLevelEnum.toFirestoreString(): String = this.name

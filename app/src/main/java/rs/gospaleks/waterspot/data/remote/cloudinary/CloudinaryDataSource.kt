@@ -13,6 +13,38 @@ import kotlin.coroutines.suspendCoroutine
 class CloudinaryDataSource @Inject constructor(
     private val mediaManager: MediaManager
 ) {
+    suspend fun uploadSpotImage(uri: Uri): String? = suspendCoroutine { cont ->
+        val timestamp = System.currentTimeMillis() / 1000
+
+        val paramsTosign = mapOf(
+            "upload_preset" to "android_preset",
+            "folder" to "spots",
+            "timestamp" to timestamp.toString() // Convert to string for signature
+        )
+        val signature = generateSignature(paramsTosign)
+
+        mediaManager.upload(uri)
+            .option("upload_preset", "android_preset")
+            .option("resource_type", "image")
+            .option("folder", "spots")
+            .option("timestamp", timestamp)
+            .option("api_key", BuildConfig.CLOUDINARY_API_KEY)
+            .option("signature", signature)
+            .callback(object : UploadCallback {
+                override fun onSuccess(requestId: String?, resultData: MutableMap<Any?, Any?>?) {
+                    val url = resultData?.get("secure_url") as? String
+                    cont.resume(url)
+                }
+                override fun onError(requestId: String?, error: ErrorInfo?) {
+                    cont.resume(null)
+                }
+                override fun onReschedule(requestId: String?, error: ErrorInfo?) {}
+                override fun onStart(requestId: String?) {}
+                override fun onProgress(requestId: String?, bytes: Long, totalBytes: Long) {}
+            })
+            .dispatch()
+    }
+
     suspend fun uploadAvatar(uri: Uri, fileName: String): String? = suspendCoroutine { cont ->
 
         val timestamp = System.currentTimeMillis() / 1000 // Keep as Long for consistency

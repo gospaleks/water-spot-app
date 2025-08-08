@@ -7,19 +7,29 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 import rs.gospaleks.waterspot.R
 import rs.gospaleks.waterspot.presentation.components.BasicTopAppBar
+import rs.gospaleks.waterspot.presentation.components.UiEvent
 import rs.gospaleks.waterspot.presentation.screens.add_spot.components.CleanlinessSelector
 import rs.gospaleks.waterspot.presentation.screens.add_spot.components.SpotTypeSelector
 
@@ -31,12 +41,43 @@ fun AddSpotDetailsScreen(
 ) {
     val uiState = viewModel.uiState
 
+    // Snackbar state and scope for showing error messages
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope ()
+    val errorMessage = stringResource(R.string.add_spot_failed)
+
+    LaunchedEffect(viewModel) {
+        viewModel.eventFlow.collect { event ->
+            when (event) {
+                is UiEvent.NavigateToHome -> {
+                    onSubmitSuccess()
+                }
+                is UiEvent.Error -> {
+                    scope.launch {
+                        snackbarHostState.showSnackbar(message = errorMessage, withDismissAction = true)
+                    }
+                }
+            }
+        }
+    }
+
     Scaffold (
         topBar = {
             BasicTopAppBar(
                 title = stringResource(id = R.string.add_spot_details_title),
                 onBackClick = onBackClick
             )
+        },
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState) { data ->
+                Snackbar(
+                    snackbarData = data,
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    actionColor = MaterialTheme.colorScheme.secondary,
+                    dismissActionContentColor = MaterialTheme.colorScheme.secondary
+                )
+            }
         },
     ) { innerPadding ->
         Column(
@@ -104,15 +145,24 @@ fun AddSpotDetailsScreen(
 
             Button(
                 onClick = viewModel::submit,
-                enabled = viewModel.canSubmitSpot(),
+                enabled = viewModel.canSubmitSpot() && !uiState.isSubmitting,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp)
             ) {
-                Text(
-                    text = stringResource(R.string.add_spot_details_confirmation),
-                    style = MaterialTheme.typography.titleMedium,
-                )
+                if (uiState.isSubmitting) {
+                    CircularProgressIndicator(
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        strokeWidth = 2.dp,
+                        modifier = Modifier.size(24.dp)
+                    )
+                } else {
+                    Text(
+                        text = stringResource(R.string.add_spot_details_confirmation),
+                        style = MaterialTheme.typography.titleMedium,
+                    )
+                }
+
             }
 
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_extra_large)))

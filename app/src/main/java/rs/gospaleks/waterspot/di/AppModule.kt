@@ -8,8 +8,10 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import rs.gospaleks.waterspot.data.remote.cloudinary.CloudinaryDataSource
 import rs.gospaleks.waterspot.data.remote.firebase.FirebaseAuthDataSource
+import rs.gospaleks.waterspot.data.remote.firebase.FirestoreSpotDataSource
 import rs.gospaleks.waterspot.data.remote.firebase.FirestoreUserDataSource
 import rs.gospaleks.waterspot.data.repository.AuthRepositoryImpl
+import rs.gospaleks.waterspot.data.repository.SpotRepositoryImpl
 import rs.gospaleks.waterspot.data.repository.UserRepositoryImpl
 import rs.gospaleks.waterspot.domain.auth.repository.AuthRepository
 import rs.gospaleks.waterspot.domain.auth.use_case.GetCurrentUserUseCase
@@ -22,7 +24,9 @@ import rs.gospaleks.waterspot.domain.auth.use_case.ValidateFullNameUseCase
 import rs.gospaleks.waterspot.domain.auth.use_case.ValidateLoginPasswordUseCase
 import rs.gospaleks.waterspot.domain.auth.use_case.ValidatePhoneNumberUseCase
 import rs.gospaleks.waterspot.domain.auth.use_case.ValidateRegisterPasswordUseCase
+import rs.gospaleks.waterspot.domain.repository.SpotRepository
 import rs.gospaleks.waterspot.domain.repository.UserRepository
+import rs.gospaleks.waterspot.domain.use_case.AddSpotUseCase
 import rs.gospaleks.waterspot.domain.use_case.GetUserDataUseCase
 import rs.gospaleks.waterspot.domain.use_case.UploadAvatarUseCase
 import javax.inject.Singleton
@@ -51,6 +55,12 @@ object AppModule {
         return FirestoreUserDataSource(firestore)
     }
 
+    @Provides
+    @Singleton
+    fun provideFirestoreSpotDataSource(firestore: FirebaseFirestore): FirestoreSpotDataSource {
+        return FirestoreSpotDataSource(firestore)
+    }
+
     // Repositories
     @Provides
     @Singleton
@@ -72,6 +82,12 @@ object AppModule {
         return UserRepositoryImpl(firebaseAuthDataSource, firestoreUserDataSource, cloudinaryDataSource)
     }
 
+    @Provides
+    @Singleton
+    fun provideSpotRepository(cloudinaryDataSource: CloudinaryDataSource, firestoreSpotDataSource: FirestoreSpotDataSource): SpotRepository {
+        return SpotRepositoryImpl(cloudinaryDataSource, firestoreSpotDataSource)
+    }
+
     // Use Cases
     @Provides
     fun provideUploadAvatarUseCase(userRepository: UserRepository): UploadAvatarUseCase {
@@ -81,6 +97,11 @@ object AppModule {
     @Provides
     fun provideGetUserDataUseCase(userRepository: UserRepository): GetUserDataUseCase {
         return GetUserDataUseCase(userRepository)
+    }
+
+    @Provides
+    fun provideAddSpotUseCase(spotRepository: SpotRepository) : AddSpotUseCase {
+        return AddSpotUseCase(spotRepository)
     }
 
     // Auth Use Cases

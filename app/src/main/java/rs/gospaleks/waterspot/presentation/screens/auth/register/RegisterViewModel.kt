@@ -16,7 +16,7 @@ import rs.gospaleks.waterspot.domain.auth.use_case.ValidateEmailUseCase
 import rs.gospaleks.waterspot.domain.auth.use_case.ValidateFullNameUseCase
 import rs.gospaleks.waterspot.domain.auth.use_case.ValidatePhoneNumberUseCase
 import rs.gospaleks.waterspot.domain.auth.use_case.ValidateRegisterPasswordUseCase
-import rs.gospaleks.waterspot.presentation.screens.auth.UiEvent
+import rs.gospaleks.waterspot.presentation.components.UiEvent
 import javax.inject.Inject
 
 @HiltViewModel
