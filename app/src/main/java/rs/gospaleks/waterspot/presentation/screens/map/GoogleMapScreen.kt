@@ -3,38 +3,20 @@ package rs.gospaleks.waterspot.presentation.screens.map
 import android.Manifest
 import android.content.pm.PackageManager
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.MyLocation
-import androidx.compose.material.icons.filled.Place
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExtendedFloatingActionButton
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
-import androidx.core.util.Pair
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
@@ -50,16 +32,12 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import kotlinx.coroutines.launch
-import kotlinx.serialization.builtins.PairSerializer
 import rs.gospaleks.waterspot.R
-import rs.gospaleks.waterspot.domain.model.CleanlinessLevelEnum
-import rs.gospaleks.waterspot.domain.model.SpotTypeEnum
-import rs.gospaleks.waterspot.presentation.components.BasicTopAppBar
 import rs.gospaleks.waterspot.presentation.components.toDisplayName
 import rs.gospaleks.waterspot.presentation.screens.map.components.CustomFABs
 import rs.gospaleks.waterspot.presentation.screens.map.components.MapTopAppBar
 import rs.gospaleks.waterspot.presentation.screens.map.components.PermissionDeniedPlaceholder
-import rs.gospaleks.waterspot.presentation.screens.map.components.SpotDetailsBottomSheet
+import rs.gospaleks.waterspot.presentation.screens.map.components.bottom_sheet.SpotDetailsBottomSheet
 
 @OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -170,16 +148,19 @@ fun GoogleMapScreen(
 
                 if (uiState.isModalOpen) {
                     SpotDetailsBottomSheet (
+                        sheetMode = uiState.sheetMode,
+                        userLocation = uiState.location,
                         spotDetails = uiState.selectedSpotDetails,
+                        mapStyleJson = mapStyleJson,
                         isLoading = uiState.isSpotDetailsLoading,
                         selectedSpotId = uiState.selectedSpotId,
                         onDismiss = { viewModel.dismissBottomSheet() },
-                        onReportClick = { /* ... */ },
-                        onNavigateClick = { /* ... */ },
+                        onReviewClick = { viewModel.openReview() },
+                        onCloseReview = { viewModel.openDetails() },
+                        onNavigateClick = { /* Open Google Maps with direction to LatLng */ },
                         onLoadSpotDetails = { spotId -> viewModel.loadSpotDetails(spotId) }
                     )
                 }
-
             } else {
                 PermissionDeniedPlaceholder()
             }

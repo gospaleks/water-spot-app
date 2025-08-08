@@ -100,6 +100,8 @@
     // Spot Details Bottom Sheet Modal
     <string name="spot_details_description_label">Description</string>
     <string name="spot_details_posted_by">Posted by</string>
+    <string name="spot_details_review_button">Review</string>
+    <string name="spot_details_navigate_button">Navigate</string>
 
     <string name="back_button_content_description">Back</string>
 </resources>

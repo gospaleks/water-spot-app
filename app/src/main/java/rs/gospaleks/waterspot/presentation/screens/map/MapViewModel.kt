@@ -74,16 +74,6 @@ class MapViewModel @Inject constructor(
         }
     }
 
-    fun onMarkerClick(spotId: String) {
-        uiState = uiState.copy(
-            isModalOpen = true,
-            selectedSpotId = spotId,
-            selectedSpotDetails = null,
-            isSpotDetailsLoading = true,
-            error = null,
-        )
-    }
-
     fun loadSpotDetails(spotId: String) = viewModelScope.launch {
         getSpotDetailsUseCase(spotId).onSuccess { spotDetails ->
             uiState = uiState.copy(
@@ -104,13 +94,34 @@ class MapViewModel @Inject constructor(
 
     fun dismissBottomSheet() {
         uiState = uiState.copy(
+            sheetMode = BottomSheetMode.DETAILS,
             isModalOpen = false,
-            isSpotDetailsLoading = false,
+            selectedSpotId = null,
             selectedSpotDetails = null,
-            error = null
+            isSpotDetailsLoading = false,
+            error = null,
         )
     }
 
+    fun onMarkerClick(spotId: String) {
+        uiState = uiState.copy(
+            isModalOpen = true,
+            selectedSpotId = spotId,
+            selectedSpotDetails = null,
+            isSpotDetailsLoading = true,
+            error = null,
+        )
+    }
+
+    fun openReview() {
+        uiState = uiState.copy(sheetMode = BottomSheetMode.REVIEW)
+    }
+
+    fun openDetails() {
+        uiState = uiState.copy(sheetMode = BottomSheetMode.DETAILS)
+    }
+
+    // Location
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     fun startLocationUpdates() {
         fusedLocationClient.requestLocationUpdates(
