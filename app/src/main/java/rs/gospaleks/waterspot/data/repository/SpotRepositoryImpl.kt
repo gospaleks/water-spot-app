@@ -1,6 +1,7 @@
 package rs.gospaleks.waterspot.data.repository
 
 import android.net.Uri
+import kotlinx.coroutines.flow.Flow
 import rs.gospaleks.waterspot.data.mapper.toFirestoreMap
 import rs.gospaleks.waterspot.data.remote.cloudinary.CloudinaryDataSource
 import rs.gospaleks.waterspot.data.remote.firebase.FirestoreSpotDataSource
@@ -23,5 +24,13 @@ class SpotRepositoryImpl @Inject constructor(
 
         // 3. Save spot to Firestore
         return firestoreSpotDataSource.saveSpot(spotDataMap)
+    }
+
+    override fun getAllSpots(): Flow<Result<List<Spot>>> {
+        return firestoreSpotDataSource.getAllSpots()
+    }
+
+    override suspend fun getSpotById(id: String): Result<Spot?> {
+        return firestoreSpotDataSource.getSpotById(id)
     }
 }

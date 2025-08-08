@@ -27,6 +27,8 @@ import rs.gospaleks.waterspot.domain.auth.use_case.ValidateRegisterPasswordUseCa
 import rs.gospaleks.waterspot.domain.repository.SpotRepository
 import rs.gospaleks.waterspot.domain.repository.UserRepository
 import rs.gospaleks.waterspot.domain.use_case.AddSpotUseCase
+import rs.gospaleks.waterspot.domain.use_case.GetAllSpotsUseCase
+import rs.gospaleks.waterspot.domain.use_case.GetSpotDetailsUseCase
 import rs.gospaleks.waterspot.domain.use_case.GetUserDataUseCase
 import rs.gospaleks.waterspot.domain.use_case.UploadAvatarUseCase
 import javax.inject.Singleton
@@ -89,6 +91,16 @@ object AppModule {
     }
 
     // Use Cases
+    @Provides
+    fun provideGetSpotDetailsUseCase(spotRepository: SpotRepository, userRepository: UserRepository): GetSpotDetailsUseCase {
+        return GetSpotDetailsUseCase(spotRepository, userRepository)
+    }
+
+    @Provides
+    fun provideGetAllSpotsUseCase(spotRepository: SpotRepository) : GetAllSpotsUseCase {
+        return GetAllSpotsUseCase(spotRepository)
+    }
+
     @Provides
     fun provideUploadAvatarUseCase(userRepository: UserRepository): UploadAvatarUseCase {
         return UploadAvatarUseCase(userRepository)
