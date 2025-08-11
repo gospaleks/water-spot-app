@@ -1,5 +1,7 @@
 package rs.gospaleks.waterspot.presentation.screens.add_spot
 
+import android.Manifest
+import android.content.pm.PackageManager
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
@@ -30,9 +32,11 @@ import com.google.maps.android.compose.Circle
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.CameraUpdateFactory
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
 
@@ -45,7 +49,7 @@ fun AddSpotScreen(
 ) {
     val uiState = viewModel.uiState
 
-    val startLocation = uiState.startLocation
+    val context = LocalContext.current
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(
             LatLng(44.0, 21.0), // default lokacija
@@ -62,15 +66,17 @@ fun AddSpotScreen(
         MapStyleOptions.loadRawResourceStyle(LocalContext.current, R.raw.map_light)
     }
 
-    // Ako ima dozvola, fetch-uj trenutnu lokaciju korisnika oko koje se prikazuje krug
+    // Trazenje permisije i pokretanje lokacijskog servisa
     LaunchedEffect(locationPermissionState.status) {
         if (locationPermissionState.status.isGranted) {
-            viewModel.fetchInitialLocation()
+            // Dodatna sigurnost da je permisija stvarno data
+            if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                viewModel.startLocationUpdates()
+            }
         } else {
             locationPermissionState.launchPermissionRequest()
         }
     }
-
     // Update selectedLocation kad korisnik pomera mapu
     LaunchedEffect(cameraPositionState.isMoving) {
         if (!cameraPositionState.isMoving) {
@@ -79,8 +85,8 @@ fun AddSpotScreen(
     }
 
     // Animiraj kameru kada se startLocation učita
-    LaunchedEffect(startLocation) {
-        if (startLocation != null && viewModel.shouldCenterCamera()) {
+    LaunchedEffect(uiState.startLocation) {
+        if (uiState.startLocation != null && viewModel.shouldCenterCamera()) {
             val radiusInKm = uiState.allowedRadiusMeters / 1000.0
             val zoomLevel = when {
                 radiusInKm <= 0.1 -> 17f  // 100m ili manje
@@ -90,11 +96,18 @@ fun AddSpotScreen(
                 radiusInKm <= 2.0 -> 13f  // 2km ili manje
                 else -> 12f               // vise od 2km
             }
-            val targetPosition = CameraPosition.fromLatLngZoom(startLocation, zoomLevel)
+            val targetPosition = CameraPosition.fromLatLngZoom(uiState.startLocation, zoomLevel)
             cameraPositionState.move(
                 update = CameraUpdateFactory.newCameraPosition(targetPosition)
             )
             viewModel.setCameraCentered()
+        }
+    }
+
+    // Zaustavljanje azuriranja lokacije kada se ekran zatvori
+    DisposableEffect(Unit) {
+        onDispose {
+            viewModel.stopLocationUpdates()
         }
     }
 
@@ -112,6 +125,9 @@ fun AddSpotScreen(
                 .padding(innerPadding)
                 .padding(horizontal = dimensionResource(R.dimen.padding_large))
         ) {
+            Text(
+                text = uiState.startLocation?.latitude.toString()
+            )
             // Title at the top with vertical padding
             Text(
                 text = stringResource(R.string.add_spot_instructions),
@@ -130,7 +146,7 @@ fun AddSpotScreen(
                     .fillMaxWidth(),
                 contentAlignment = Alignment.Center
             ) {
-                if (startLocation != null) {
+                if (locationPermissionState.status.isGranted) {
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
@@ -146,13 +162,15 @@ fun AddSpotScreen(
                             ),
                             uiSettings = MapUiSettings(zoomControlsEnabled = false, myLocationButtonEnabled = false, compassEnabled = false)
                         ) {
-                            Circle(
-                                center = startLocation,
-                                fillColor = Color(0xFF81C784).copy(alpha = 0.4f),
-                                strokeColor = Color(0xFF81C784),
-                                strokeWidth = 4f,
-                                radius = uiState.allowedRadiusMeters
-                            )
+                            if (uiState.startLocation != null) {
+                                Circle(
+                                    center = uiState.startLocation,
+                                    fillColor = Color(0xFF81C784).copy(alpha = 0.4f),
+                                    strokeColor = Color(0xFF81C784),
+                                    strokeWidth = 4f,
+                                    radius = uiState.allowedRadiusMeters
+                                )
+                            }
                         }
                         Icon(
                             imageVector = Icons.Default.Place,

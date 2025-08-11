@@ -18,11 +18,12 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import rs.gospaleks.waterspot.domain.use_case.GetAllSpotsUseCase
 import rs.gospaleks.waterspot.domain.use_case.GetSpotDetailsUseCase
+import rs.gospaleks.waterspot.domain.use_case.LocationTrackingUseCase
 import javax.inject.Inject
 
 @HiltViewModel
 class MapViewModel @Inject constructor(
-    private val fusedLocationClient: FusedLocationProviderClient,
+    private val locationTrackingUseCase: LocationTrackingUseCase,
     private val getAllSpotsUseCase: GetAllSpotsUseCase,
     private val getSpotDetailsUseCase: GetSpotDetailsUseCase,
 ) : ViewModel() {
@@ -32,25 +33,14 @@ class MapViewModel @Inject constructor(
 
     private var hasCenteredMap = false
 
-    private val locationRequest = LocationRequest.Builder(3000L)
-        .setMinUpdateIntervalMillis(2000L)
-        .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
-        .build()
-
-    private val locationCallback = object : LocationCallback() {
-        override fun onLocationResult(result: LocationResult) {
-            result.lastLocation?.let {
-                val newLocation = LatLng(it.latitude, it.longitude)
-                uiState = uiState.copy(
-                    location = newLocation,
-                )
-            }
-        }
-    }
-
-
     init {
         observeSpots()
+    }
+
+    private fun observeLocation() = viewModelScope.launch {
+        locationTrackingUseCase.currentLocation.collect { location ->
+            uiState = uiState.copy(location = location)
+        }
     }
 
     private fun observeSpots() = viewModelScope.launch {
@@ -124,11 +114,8 @@ class MapViewModel @Inject constructor(
     // Location
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     fun startLocationUpdates() {
-        fusedLocationClient.requestLocationUpdates(
-            locationRequest,
-            locationCallback,
-            Looper.getMainLooper()
-        )
+        locationTrackingUseCase.startTracking()
+        observeLocation()
 
         uiState = uiState.copy(
             isLocationPermissionGranted = true
@@ -136,7 +123,7 @@ class MapViewModel @Inject constructor(
     }
 
     fun stopLocationUpdates() {
-        fusedLocationClient.removeLocationUpdates(locationCallback)
+        locationTrackingUseCase.stopTracking()
     }
 
     fun shouldCenterMap(): Boolean {

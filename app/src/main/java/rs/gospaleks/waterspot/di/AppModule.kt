@@ -1,5 +1,6 @@
 package rs.gospaleks.waterspot.di
 
+import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.Module
@@ -31,6 +32,7 @@ import rs.gospaleks.waterspot.domain.use_case.GetAllSpotsUseCase
 import rs.gospaleks.waterspot.domain.use_case.GetAllSpotsWithUserUseCase
 import rs.gospaleks.waterspot.domain.use_case.GetSpotDetailsUseCase
 import rs.gospaleks.waterspot.domain.use_case.GetUserDataUseCase
+import rs.gospaleks.waterspot.domain.use_case.LocationTrackingUseCase
 import rs.gospaleks.waterspot.domain.use_case.UploadAvatarUseCase
 import javax.inject.Singleton
 
@@ -92,6 +94,12 @@ object AppModule {
     }
 
     // Use Cases
+    @Provides
+    @Singleton
+    fun provideLocationTrackingUseCase(fusedLocationClient: FusedLocationProviderClient) : LocationTrackingUseCase {
+        return LocationTrackingUseCase(fusedLocationClient)
+    }
+
     @Provides
     fun provideGetAllSpotsWithUserUseCase(spotRepository: SpotRepository) : GetAllSpotsWithUserUseCase {
         return GetAllSpotsWithUserUseCase(spotRepository)

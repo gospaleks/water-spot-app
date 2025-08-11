@@ -75,7 +75,7 @@ fun GoogleMapScreen(
     LaunchedEffect(uiState.location) {
         if (uiState.location != null && viewModel.shouldCenterMap()) {
             cameraPositionState.move(
-                CameraUpdateFactory.newLatLngZoom(uiState.location!!, 16f)
+                CameraUpdateFactory.newLatLngZoom(uiState.location!!, 18f)
             )
             viewModel.setCentered()
         }

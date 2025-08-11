@@ -1,7 +1,9 @@
 package rs.gospaleks.waterspot.presentation.screens.add_spot
 
+import android.Manifest
 import android.net.Uri
 import android.util.Log
+import androidx.annotation.RequiresPermission
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -20,11 +22,12 @@ import rs.gospaleks.waterspot.domain.model.CleanlinessLevelEnum
 import rs.gospaleks.waterspot.domain.model.Spot
 import rs.gospaleks.waterspot.domain.model.SpotTypeEnum
 import rs.gospaleks.waterspot.domain.use_case.AddSpotUseCase
+import rs.gospaleks.waterspot.domain.use_case.LocationTrackingUseCase
 import rs.gospaleks.waterspot.presentation.components.UiEvent
 
 @HiltViewModel
 class AddSpotViewModel @Inject constructor(
-    private val fusedLocationClient: FusedLocationProviderClient,
+    private val locationTrackingUseCase: LocationTrackingUseCase,
     private val getCurrentUserUseCase: GetCurrentUserUseCase,
     private val addSpotUseCase: AddSpotUseCase
 ) : ViewModel() {
@@ -34,18 +37,14 @@ class AddSpotViewModel @Inject constructor(
     var eventFlow = MutableSharedFlow<UiEvent>()
         private set
 
-    fun fetchInitialLocation() = viewModelScope.launch {
-        try {
-            val location = fusedLocationClient.lastLocation.await()
-            location?.let {
-                uiState = uiState.copy(startLocation = LatLng(it.latitude, it.longitude))
-            }
-        } catch (e: SecurityException) {
-            // Handle missing permission
-            e.printStackTrace()
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+    @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
+    fun startLocationUpdates() {
+        locationTrackingUseCase.startTracking()
+        observeLocation()
+    }
+
+    fun stopLocationUpdates() {
+        locationTrackingUseCase.stopTracking()
     }
 
     fun submit() {
@@ -148,5 +147,11 @@ class AddSpotViewModel @Inject constructor(
         val a = sin(dLat / 2).pow(2) + sin(dLon / 2).pow(2) * cos(lat1) * cos(lat2)
         val c = 2 * atan2(sqrt(a), sqrt(1 - a))
         return earthRadius * c
+    }
+
+    private fun observeLocation() = viewModelScope.launch {
+        locationTrackingUseCase.currentLocation.collect { location ->
+            uiState = uiState.copy(startLocation = location)
+        }
     }
 }
