@@ -1,4 +1,4 @@
-package rs.gospaleks.waterspot.presentation.screens.all_spots.components
+package rs.gospaleks.waterspot.presentation.components.card
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -28,11 +28,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import rs.gospaleks.waterspot.domain.model.CleanlinessLevelEnum
 import rs.gospaleks.waterspot.domain.model.SpotWithUser
+import rs.gospaleks.waterspot.domain.model.User
 import rs.gospaleks.waterspot.presentation.components.CleanlinessChip
 import rs.gospaleks.waterspot.presentation.components.icon
 import rs.gospaleks.waterspot.presentation.components.toDisplayName
@@ -40,6 +43,7 @@ import rs.gospaleks.waterspot.presentation.components.toDisplayName
 @Composable
 fun SpotCard(
     spotWithUser: SpotWithUser,
+    onCardClick: () -> Unit,
     onUserClick: (userId: String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -47,10 +51,14 @@ fun SpotCard(
     val user = spotWithUser.user
 
     Card(
+        onClick = onCardClick,
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 4.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+            .padding(horizontal = 16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainer
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
         shape = RoundedCornerShape(16.dp)
     ) {
         Row(
@@ -58,84 +66,99 @@ fun SpotCard(
                 .fillMaxWidth()
                 .height(IntrinsicSize.Min)
         ) {
-            // 📷 Slika zalepljena uz levu ivicu
             SpotImage(
                 photoUrl = spot.photoUrl,
                 modifier = Modifier
+                    .width(110.dp)
                     .fillMaxHeight()
-                    .width(100.dp)
                     .clip(RoundedCornerShape(topStart = 16.dp, bottomStart = 16.dp))
             )
 
-            // Content sa desne strane
             Column(
                 modifier = Modifier
                     .weight(1f)
                     .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                // Prvi red: Tip i datum
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    // Tip sa ikonicom
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Icon(
-                            imageVector = spot.type.icon(),
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(20.dp)
-                        )
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(
-                            text = spot.type.toDisplayName(),
-                            style = MaterialTheme.typography.titleMedium,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
+                SpotHeader(
+                    typeIcon = spot.type.icon(),
+                    typeName = spot.type.toDisplayName(),
+                    cleanliness = spot.cleanliness
+                )
 
-                    // Čistoća sa bojom (chip style)
-                    CleanlinessChip(spot.cleanliness)
-                }
-
-                // Korisnik (klikabilan sa indikatorom)
-                if (user != null) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(8.dp))
-                            .clickable { onUserClick(user.id) }
-                            .padding(horizontal = 8.dp, vertical = 6.dp)
-                    ) {
-                        if (!user.profilePictureUrl.isNullOrBlank()) {
-                            AsyncImage(
-                                model = user.profilePictureUrl,
-                                contentDescription = "User Avatar",
-                                modifier = Modifier
-                                    .size(20.dp)
-                                    .clip(CircleShape),
-                                contentScale = ContentScale.Crop
-                            )
-                            Spacer(modifier = Modifier.width(6.dp))
-                        }
-                        Text(
-                            text = user.fullName,
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.primary,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
+                user?.let {
+                    SpotUserInfo(
+                        user = it,
+                        onClick = { onUserClick(it.id) }
+                    )
                 }
             }
         }
+    }
+}
+
+@Composable
+fun SpotHeader(
+    typeIcon: ImageVector,
+    typeName: String,
+    cleanliness: CleanlinessLevelEnum
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = typeIcon,
+                contentDescription = null,
+                modifier = Modifier.size(20.dp),
+                tint = MaterialTheme.colorScheme.onSurface
+            )
+            Spacer(modifier = Modifier.width(6.dp))
+            Text(
+                text = typeName,
+                style = MaterialTheme.typography.titleMedium,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+
+        CleanlinessChip(cleanliness)
+    }
+}
+
+@Composable
+fun SpotUserInfo(
+    user: User,
+    onClick: () -> Unit
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .clip(RoundedCornerShape(8.dp))
+            .clickable { onClick() }
+            .padding(horizontal = 8.dp, vertical = 6.dp)
+    ) {
+        if (!user.profilePictureUrl.isNullOrBlank()) {
+            AsyncImage(
+                model = user.profilePictureUrl,
+                contentDescription = "User Avatar",
+                modifier = Modifier
+                    .size(20.dp)
+                    .clip(CircleShape),
+                contentScale = ContentScale.Crop
+            )
+            Spacer(modifier = Modifier.width(6.dp))
+        }
+        Text(
+            text = user.fullName,
+            style = MaterialTheme.typography.labelMedium,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
     }
 }
 

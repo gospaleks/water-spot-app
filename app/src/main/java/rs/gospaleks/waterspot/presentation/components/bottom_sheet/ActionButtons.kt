@@ -1,4 +1,4 @@
-package rs.gospaleks.waterspot.presentation.screens.map.components.bottom_sheet
+package rs.gospaleks.waterspot.presentation.components.bottom_sheet
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues

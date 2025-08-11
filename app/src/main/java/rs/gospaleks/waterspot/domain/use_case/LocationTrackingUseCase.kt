@@ -18,9 +18,10 @@ class LocationTrackingUseCase @Inject constructor(
     private val fusedLocationClient: FusedLocationProviderClient
 ) {
     private val _currentLocation = MutableStateFlow<LatLng?>(null)
+
     val currentLocation: StateFlow<LatLng?> = _currentLocation.asStateFlow()
 
-    private var isTracking = false
+    private var activeTrackers = 0
 
     private val locationRequest = LocationRequest.Builder(3000L)
         .setMinUpdateIntervalMillis(2000L)
@@ -35,22 +36,35 @@ class LocationTrackingUseCase @Inject constructor(
         }
     }
 
+    @Synchronized
     @RequiresPermission(allOf = [android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION])
     fun startTracking() {
-        if (!isTracking) {
+        if (activeTrackers == 0) {
+            fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+                location?.let {
+                    _currentLocation.value = LatLng(it.latitude, it.longitude)
+                }
+            }
+
             fusedLocationClient.requestLocationUpdates(
                 locationRequest,
                 locationCallback,
                 Looper.getMainLooper()
             )
-            isTracking = true
+            Log.d("LocationTrackingUseCase", "START tracking")
         }
+        activeTrackers++
+        Log.d("LocationTrackingUseCase", "Active trackers: $activeTrackers")
     }
 
     fun stopTracking() {
-        if (isTracking) {
+        activeTrackers--
+        Log.d("LocationTrackingUseCase", "Active trackers: $activeTrackers")
+
+        if (activeTrackers <= 0) {
             fusedLocationClient.removeLocationUpdates(locationCallback)
-            isTracking = false
+            activeTrackers = 0
+            Log.d("LocationTrackingUseCase", "STOP tracking")
         }
     }
 }

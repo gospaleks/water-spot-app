@@ -66,17 +66,22 @@ fun AddSpotScreen(
         MapStyleOptions.loadRawResourceStyle(LocalContext.current, R.raw.map_light)
     }
 
-    // Trazenje permisije i pokretanje lokacijskog servisa
+    // Kada permission postane granted, startuj tracking JEDNOM
     LaunchedEffect(locationPermissionState.status) {
         if (locationPermissionState.status.isGranted) {
-            // Dodatna sigurnost da je permisija stvarno data
-            if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                viewModel.startLocationUpdates()
-            }
+            viewModel.startLocationUpdates()
         } else {
             locationPermissionState.launchPermissionRequest()
         }
     }
+
+    // Cleanup kada Composable izađe iz kompozicije
+    DisposableEffect(Unit) {
+        onDispose {
+            viewModel.stopLocationUpdates()
+        }
+    }
+
     // Update selectedLocation kad korisnik pomera mapu
     LaunchedEffect(cameraPositionState.isMoving) {
         if (!cameraPositionState.isMoving) {
@@ -104,13 +109,6 @@ fun AddSpotScreen(
         }
     }
 
-    // Zaustavljanje azuriranja lokacije kada se ekran zatvori
-    DisposableEffect(Unit) {
-        onDispose {
-            viewModel.stopLocationUpdates()
-        }
-    }
-
     Scaffold (
         topBar = {
             BasicTopAppBar(
@@ -125,9 +123,6 @@ fun AddSpotScreen(
                 .padding(innerPadding)
                 .padding(horizontal = dimensionResource(R.dimen.padding_large))
         ) {
-            Text(
-                text = uiState.startLocation?.latitude.toString()
-            )
             // Title at the top with vertical padding
             Text(
                 text = stringResource(R.string.add_spot_instructions),

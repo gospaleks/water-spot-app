@@ -37,7 +37,8 @@ import rs.gospaleks.waterspot.presentation.components.toDisplayName
 import rs.gospaleks.waterspot.presentation.screens.map.components.CustomFABs
 import rs.gospaleks.waterspot.presentation.screens.map.components.MapTopAppBar
 import rs.gospaleks.waterspot.presentation.screens.map.components.PermissionDeniedPlaceholder
-import rs.gospaleks.waterspot.presentation.screens.map.components.bottom_sheet.SpotDetailsBottomSheet
+import rs.gospaleks.waterspot.presentation.components.bottom_sheet.SpotDetailsBottomSheet
+import rs.gospaleks.waterspot.presentation.components.bottom_sheet.SpotDetailsBottomSheetViewModel
 
 @OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -46,6 +47,8 @@ fun GoogleMapScreen(
     outerPadding: PaddingValues,
     viewModel: MapViewModel = hiltViewModel()
 ) {
+    val bottomSheetViewModel: SpotDetailsBottomSheetViewModel = hiltViewModel()
+
     val uiState = viewModel.uiState
 
     val locationPermissionState = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
@@ -139,28 +142,15 @@ fun GoogleMapScreen(
                             snippet = spot.description ?: "",
                             icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE),
                             onClick = {
-                                viewModel.onMarkerClick(spot.id)
+                                bottomSheetViewModel.onSpotClick(spot.id)
                                 true
                             }
                         )
                     }
                 }
 
-                if (uiState.isModalOpen) {
-                    SpotDetailsBottomSheet (
-                        sheetMode = uiState.sheetMode,
-                        userLocation = uiState.location,
-                        spotDetails = uiState.selectedSpotDetails,
-                        mapStyleJson = mapStyleJson,
-                        isLoading = uiState.isSpotDetailsLoading,
-                        selectedSpotId = uiState.selectedSpotId,
-                        onDismiss = { viewModel.dismissBottomSheet() },
-                        onReviewClick = { viewModel.openReview() },
-                        onCloseReview = { viewModel.openDetails() },
-                        onNavigateClick = { /* Open Google Maps with direction to LatLng */ },
-                        onLoadSpotDetails = { spotId -> viewModel.loadSpotDetails(spotId) }
-                    )
-                }
+                SpotDetailsBottomSheet(viewModel = bottomSheetViewModel)
+
             } else {
                 PermissionDeniedPlaceholder()
             }

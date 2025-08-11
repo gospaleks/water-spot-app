@@ -25,7 +25,6 @@ import javax.inject.Inject
 class MapViewModel @Inject constructor(
     private val locationTrackingUseCase: LocationTrackingUseCase,
     private val getAllSpotsUseCase: GetAllSpotsUseCase,
-    private val getSpotDetailsUseCase: GetSpotDetailsUseCase,
 ) : ViewModel() {
 
     var uiState by mutableStateOf(MapUiState())
@@ -62,53 +61,6 @@ class MapViewModel @Inject constructor(
                     )
                 }
         }
-    }
-
-    fun loadSpotDetails(spotId: String) = viewModelScope.launch {
-        getSpotDetailsUseCase(spotId).onSuccess { spotDetails ->
-            uiState = uiState.copy(
-                isSpotDetailsLoading = false,
-                isModalOpen = true,
-                selectedSpotDetails = spotDetails,
-                error = null,
-            )
-        }.onFailure { error ->
-            uiState = uiState.copy(
-                isSpotDetailsLoading = false,
-                isModalOpen = false,
-                selectedSpotDetails = null,
-                error = error.message ?: "Unknown error"
-            )
-        }
-    }
-
-    fun dismissBottomSheet() {
-        uiState = uiState.copy(
-            sheetMode = BottomSheetMode.DETAILS,
-            isModalOpen = false,
-            selectedSpotId = null,
-            selectedSpotDetails = null,
-            isSpotDetailsLoading = false,
-            error = null,
-        )
-    }
-
-    fun onMarkerClick(spotId: String) {
-        uiState = uiState.copy(
-            isModalOpen = true,
-            selectedSpotId = spotId,
-            selectedSpotDetails = null,
-            isSpotDetailsLoading = true,
-            error = null,
-        )
-    }
-
-    fun openReview() {
-        uiState = uiState.copy(sheetMode = BottomSheetMode.REVIEW)
-    }
-
-    fun openDetails() {
-        uiState = uiState.copy(sheetMode = BottomSheetMode.DETAILS)
     }
 
     // Location
