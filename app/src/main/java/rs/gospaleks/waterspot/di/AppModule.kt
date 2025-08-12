@@ -28,9 +28,7 @@ import rs.gospaleks.waterspot.domain.auth.use_case.ValidateRegisterPasswordUseCa
 import rs.gospaleks.waterspot.domain.repository.SpotRepository
 import rs.gospaleks.waterspot.domain.repository.UserRepository
 import rs.gospaleks.waterspot.domain.use_case.AddSpotUseCase
-import rs.gospaleks.waterspot.domain.use_case.GetAllSpotsUseCase
 import rs.gospaleks.waterspot.domain.use_case.GetAllSpotsWithUserUseCase
-import rs.gospaleks.waterspot.domain.use_case.GetSpotDetailsUseCase
 import rs.gospaleks.waterspot.domain.use_case.GetUserDataUseCase
 import rs.gospaleks.waterspot.domain.use_case.LocationTrackingUseCase
 import rs.gospaleks.waterspot.domain.use_case.UploadAvatarUseCase
@@ -103,16 +101,6 @@ object AppModule {
     @Provides
     fun provideGetAllSpotsWithUserUseCase(spotRepository: SpotRepository) : GetAllSpotsWithUserUseCase {
         return GetAllSpotsWithUserUseCase(spotRepository)
-    }
-
-    @Provides
-    fun provideGetSpotDetailsUseCase(spotRepository: SpotRepository, userRepository: UserRepository): GetSpotDetailsUseCase {
-        return GetSpotDetailsUseCase(spotRepository, userRepository)
-    }
-
-    @Provides
-    fun provideGetAllSpotsUseCase(spotRepository: SpotRepository) : GetAllSpotsUseCase {
-        return GetAllSpotsUseCase(spotRepository)
     }
 
     @Provides

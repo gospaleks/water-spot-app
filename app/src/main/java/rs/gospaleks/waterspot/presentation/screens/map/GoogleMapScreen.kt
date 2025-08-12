@@ -133,16 +133,16 @@ fun GoogleMapScreen(
                         compassEnabled = false,
                     )
                 ) {
-                    uiState.spots.forEach { spot ->
+                    uiState.spots.forEach { item ->
                         Marker(
                             state = MarkerState(
-                                position = LatLng(spot.latitude, spot.longitude),
+                                position = LatLng(item.spot.latitude, item.spot.longitude),
                             ),
-                            title = spot.type.toDisplayName(),
-                            snippet = spot.description ?: "",
+                            title = item.spot.type.toDisplayName(),
+                            snippet = item.spot.description ?: "",
                             icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE),
                             onClick = {
-                                bottomSheetViewModel.onSpotClick(spot.id)
+                                bottomSheetViewModel.onSpotClick(item)
                                 true
                             }
                         )

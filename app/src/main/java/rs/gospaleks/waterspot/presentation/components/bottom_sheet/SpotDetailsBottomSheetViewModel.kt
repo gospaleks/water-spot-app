@@ -7,28 +7,25 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import rs.gospaleks.waterspot.domain.model.SpotDetails
-import rs.gospaleks.waterspot.domain.use_case.GetSpotDetailsUseCase
 import javax.inject.Inject
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import com.google.android.gms.maps.model.LatLng
+import rs.gospaleks.waterspot.domain.model.Spot
+import rs.gospaleks.waterspot.domain.model.SpotWithUser
 import rs.gospaleks.waterspot.domain.use_case.LocationTrackingUseCase
 
 data class SpotDetailsBottomSheetUiState(
-    val userLocation: LatLng? = null,
-    val sheetMode: BottomSheetMode = BottomSheetMode.DETAILS,
     val isModalOpen: Boolean = false,
-    val isSpotDetailsLoading: Boolean = false,
-    val selectedSpotDetails: SpotDetails? = null,
-    val selectedSpotId: String? = null,
+    val sheetMode: BottomSheetMode = BottomSheetMode.DETAILS,
+    val userLocation: LatLng? = null,
+    val selectedSpot: SpotWithUser? = null,
 )
 
 enum class BottomSheetMode { DETAILS, REVIEW }
 
 @HiltViewModel
 class SpotDetailsBottomSheetViewModel @Inject constructor(
-    private val getSpotDetailsUseCase: GetSpotDetailsUseCase,
     private val locationTrackingUseCase: LocationTrackingUseCase,
 ) : ViewModel() {
 
@@ -45,39 +42,18 @@ class SpotDetailsBottomSheetViewModel @Inject constructor(
         locationTrackingUseCase.stopTracking()
     }
 
-    fun onSpotClick(spotId: String) {
+    fun onSpotClick(spot: SpotWithUser) {
         uiState = uiState.copy(
             isModalOpen = true,
-            selectedSpotId = spotId,
-            selectedSpotDetails = null,
-            isSpotDetailsLoading = true,
+            selectedSpot = spot,
+            sheetMode = BottomSheetMode.DETAILS,
         )
-    }
-
-    fun loadSpotDetails(spotId: String) = viewModelScope.launch {
-        getSpotDetailsUseCase(spotId).onSuccess { spotDetails ->
-            uiState = uiState.copy(
-                isSpotDetailsLoading = false,
-                isModalOpen = true,
-                selectedSpotDetails = spotDetails,
-                selectedSpotId = spotId,
-            )
-        }.onFailure { error ->
-            uiState = uiState.copy(
-                isSpotDetailsLoading = false,
-                isModalOpen = false,
-                selectedSpotDetails = null,
-            )
-        }
     }
 
     fun dismissBottomSheet() {
         uiState = uiState.copy(
             sheetMode = BottomSheetMode.DETAILS,
             isModalOpen = false,
-            selectedSpotId = null,
-            selectedSpotDetails = null,
-            isSpotDetailsLoading = false,
         )
     }
 

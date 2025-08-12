@@ -45,7 +45,7 @@ fun AllSpotsScreen(
                 SpotCard(
                     spotWithUser = spotWithUser,
                     onCardClick = {
-                        bottomSheetViewModel.onSpotClick(spotWithUser.spot.id)
+                        bottomSheetViewModel.onSpotClick(spotWithUser)
                     },
                     onUserClick = { userId ->
                         // TODO: Navigiraj do profila korisnika

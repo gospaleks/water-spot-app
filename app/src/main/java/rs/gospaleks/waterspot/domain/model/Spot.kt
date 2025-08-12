@@ -43,15 +43,9 @@ data class Spot(
     val updatedAt: Long?
 )
 
-// Spot details sluzi za prikazivanje bottom sheet modal-a sa detaljima
-data class SpotDetails(
-    val spot: Spot,
-    val user: User? = null,
-    // Additional details like user reviews, ratings, comments etc. can be added here
-)
-
-// Used for displaying card list of spots
 data class SpotWithUser (
     val spot: Spot,
     val user: User? = null // User who created the spot
 )
+
+// TODO: Implement data class for Review because reviews is being fetched when modal is opened

@@ -103,5 +103,12 @@
     <string name="spot_details_review_button">Review</string>
     <string name="spot_details_navigate_button">Navigate</string>
 
+    // Spot Details Bottom Sheet Modal - Review Dialog
+    <string name="review_dialog_title">Review Spot</string>
+    <string name="review_dialog_move_closer">Move closer to review (distance:</string>
+    <string name="review_dialog_comment_label">Your review</string>
+    <string name="review_dialog_comment_placeholder">Share your thoughts about this spot…</string>
+    <string name="review_dialog_submit_button">Submit Review</string>
+
     <string name="back_button_content_description">Back</string>
 </resources>

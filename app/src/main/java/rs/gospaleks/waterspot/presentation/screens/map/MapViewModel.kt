@@ -16,15 +16,14 @@ import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import rs.gospaleks.waterspot.domain.use_case.GetAllSpotsUseCase
-import rs.gospaleks.waterspot.domain.use_case.GetSpotDetailsUseCase
+import rs.gospaleks.waterspot.domain.use_case.GetAllSpotsWithUserUseCase
 import rs.gospaleks.waterspot.domain.use_case.LocationTrackingUseCase
 import javax.inject.Inject
 
 @HiltViewModel
 class MapViewModel @Inject constructor(
     private val locationTrackingUseCase: LocationTrackingUseCase,
-    private val getAllSpotsUseCase: GetAllSpotsUseCase,
+    private val getAllSpotsWithUserUseCase: GetAllSpotsWithUserUseCase
 ) : ViewModel() {
 
     var uiState by mutableStateOf(MapUiState())
@@ -45,7 +44,7 @@ class MapViewModel @Inject constructor(
     private fun observeSpots() = viewModelScope.launch {
         uiState = uiState.copy(isLoadingSpots = true)
 
-        getAllSpotsUseCase().collect { result ->
+        getAllSpotsWithUserUseCase().collect { result ->
             result
                 .onSuccess { spots ->
                     uiState = uiState.copy(
