@@ -40,12 +40,12 @@ data class Spot(
     val description: String?,
     val userId: String,
     val createdAt: Long?, // UNIX timestamp (millis)
-    val updatedAt: Long?
+    val updatedAt: Long?,
+    val averageRating: Double = 0.0, // Average rating from reviews
+    val reviewCount: Int = 0 // Number of reviews
 )
 
 data class SpotWithUser (
     val spot: Spot,
     val user: User? = null // User who created the spot
 )
-
-// TODO: Implement data class for Review because reviews is being fetched when modal is opened

@@ -109,6 +109,8 @@
     <string name="review_dialog_comment_label">Your review</string>
     <string name="review_dialog_comment_placeholder">Share your thoughts about this spot…</string>
     <string name="review_dialog_submit_button">Submit Review</string>
+    <string name="review_dialog_success_message">Review submitted successfully!</string>
+    <string name="review_dialog_error_message">Failed to submit review. Please try again later.</string>
 
     <string name="back_button_content_description">Back</string>
 </resources>

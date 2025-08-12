@@ -3,6 +3,7 @@ package rs.gospaleks.waterspot.presentation.components.bottom_sheet
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.widget.Toast
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.WindowInsets
@@ -18,6 +19,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import rs.gospaleks.waterspot.R
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -25,6 +27,8 @@ import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.android.gms.maps.model.MapStyleOptions
 import androidx.core.net.toUri
+import kotlinx.coroutines.launch
+import rs.gospaleks.waterspot.presentation.components.UiEvent
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
@@ -41,6 +45,7 @@ fun SpotDetailsBottomSheet(
     val context = LocalContext.current
     val isDarkTheme = isSystemInDarkTheme()
 
+    // Map Theme
     val mapStyleJson = remember(isDarkTheme) {
         MapStyleOptions.loadRawResourceStyle(
             context,
@@ -61,6 +66,15 @@ fun SpotDetailsBottomSheet(
 
     DisposableEffect(Unit) {
         onDispose { viewModel.stopLocationTracking() }
+    }
+
+    // Toast messages
+    LaunchedEffect(viewModel) {
+        viewModel.eventFlow.collect { event ->
+            if (event is UiEvent.ShowToast) {
+                Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     if (uiState.selectedSpot == null) { return }
@@ -105,7 +119,12 @@ fun SpotDetailsBottomSheet(
                             userLocation = uiState.userLocation,
                             mapStyleJson = mapStyleJson,
                             onBack = viewModel::openDetails,
-                            onSubmitReview = { reviewText, rating ->  }
+                            onSubmitReview = { reviewText, rating ->
+                                viewModel.submitReview(
+                                    reviewText = reviewText,
+                                    rating = rating
+                                )
+                            }
                         )
                     }
                 }

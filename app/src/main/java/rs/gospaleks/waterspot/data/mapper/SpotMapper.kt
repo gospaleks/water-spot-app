@@ -18,7 +18,9 @@ fun FirestoreSpotDto.toDomain(): Spot {
         description = description,
         userId = userId,
         createdAt = createdAt?.toDate()?.time,
-        updatedAt = updatedAt?.toDate()?.time
+        updatedAt = updatedAt?.toDate()?.time,
+        averageRating = averageRating,
+        reviewCount = reviewCount
     )
 }
 

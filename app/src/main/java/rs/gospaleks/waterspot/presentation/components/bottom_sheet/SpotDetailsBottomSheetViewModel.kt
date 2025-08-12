@@ -11,9 +11,14 @@ import javax.inject.Inject
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import com.google.android.gms.maps.model.LatLng
-import rs.gospaleks.waterspot.domain.model.Spot
+import kotlinx.coroutines.flow.MutableSharedFlow
+import rs.gospaleks.waterspot.domain.auth.use_case.GetCurrentUserUseCase
+import rs.gospaleks.waterspot.domain.model.Review
 import rs.gospaleks.waterspot.domain.model.SpotWithUser
+import rs.gospaleks.waterspot.domain.use_case.AddReviewUseCase
 import rs.gospaleks.waterspot.domain.use_case.LocationTrackingUseCase
+import rs.gospaleks.waterspot.presentation.components.UiEvent
+import rs.gospaleks.waterspot.R
 
 data class SpotDetailsBottomSheetUiState(
     val isModalOpen: Boolean = false,
@@ -27,10 +32,46 @@ enum class BottomSheetMode { DETAILS, REVIEW }
 @HiltViewModel
 class SpotDetailsBottomSheetViewModel @Inject constructor(
     private val locationTrackingUseCase: LocationTrackingUseCase,
+    private val addReviewUseCase: AddReviewUseCase,
+    private val getCurrentUserUseCase: GetCurrentUserUseCase,
 ) : ViewModel() {
 
     var uiState by mutableStateOf(SpotDetailsBottomSheetUiState())
         private set
+
+    var eventFlow = MutableSharedFlow<UiEvent>()
+        private set
+
+    fun submitReview(reviewText: String, rating: Float) {
+        if (uiState.selectedSpot == null) {
+            return
+        }
+
+        val currentUserIdResult = getCurrentUserUseCase()
+        val uid = currentUserIdResult.getOrNull()
+
+        if (uid == null) {
+            return
+        }
+
+        val review = Review(
+            comment = reviewText,
+            rating = rating.toInt(),
+            userId = uid,
+        )
+
+        viewModelScope.launch {
+            val result = addReviewUseCase(uiState.selectedSpot!!.spot.id, review)
+
+            if (result.isSuccess) {
+                openDetails()
+                eventFlow.emit(UiEvent.ShowToast("Review submitted successfully!"))
+            } else {
+                eventFlow.emit(UiEvent.ShowToast(result.exceptionOrNull()?.message ?: "Failed to submit review"))
+                result.exceptionOrNull()?.printStackTrace()
+            }
+        }
+    }
 
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     fun startLocationTracking() {

@@ -51,6 +51,7 @@ fun RegisterScreen(
                         snackbarHostState.showSnackbar(message = errorMessage, withDismissAction = true)
                     }
                 }
+                else -> { }
             }
         }
     }

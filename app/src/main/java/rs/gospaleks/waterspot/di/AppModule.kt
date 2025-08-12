@@ -27,6 +27,7 @@ import rs.gospaleks.waterspot.domain.auth.use_case.ValidatePhoneNumberUseCase
 import rs.gospaleks.waterspot.domain.auth.use_case.ValidateRegisterPasswordUseCase
 import rs.gospaleks.waterspot.domain.repository.SpotRepository
 import rs.gospaleks.waterspot.domain.repository.UserRepository
+import rs.gospaleks.waterspot.domain.use_case.AddReviewUseCase
 import rs.gospaleks.waterspot.domain.use_case.AddSpotUseCase
 import rs.gospaleks.waterspot.domain.use_case.GetAllSpotsWithUserUseCase
 import rs.gospaleks.waterspot.domain.use_case.GetUserDataUseCase
@@ -92,6 +93,11 @@ object AppModule {
     }
 
     // Use Cases
+    @Provides
+    fun provideAddReviewUseCase(spotRepository: SpotRepository) : AddReviewUseCase {
+        return AddReviewUseCase(spotRepository)
+    }
+
     @Provides
     @Singleton
     fun provideLocationTrackingUseCase(fusedLocationClient: FusedLocationProviderClient) : LocationTrackingUseCase {

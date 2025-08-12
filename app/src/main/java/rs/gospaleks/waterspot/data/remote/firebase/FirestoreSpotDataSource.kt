@@ -120,4 +120,48 @@ class FirestoreSpotDataSource @Inject constructor(
             Result.failure(e)
         }
     }
+
+    suspend fun addReviewToSpot(spotId: String, review: Map<String, Any?>): Result<Unit> {
+        val userId = review["userId"] as String
+        val rating = review["rating"] as Int
+
+        val reviewRef = firestore.collection("spots")
+            .document(spotId)
+            .collection("reviews")
+            .document(userId)
+
+        val spotRef = firestore.collection("spots").document(spotId)
+
+        return try {
+            val existingReview = reviewRef.get().await()
+
+            if (existingReview.exists()) {
+                Result.failure(Exception("Review already exists for this user"))
+            } else {
+                reviewRef.set(review).await()
+
+                // Azuriraj prosecnu ocenu i broj review-a
+                firestore.runTransaction { transaction ->
+                    val snapshot = transaction.get(spotRef)
+                    val currentAvg = snapshot.getDouble("averageRating") ?: 0.0
+                    val currentCount = snapshot.getLong("reviewCount")?.toInt() ?: 0
+
+                    val newCount = currentCount + 1
+                    val newAvg = ((currentAvg * currentCount) + rating) / newCount
+
+                    transaction.update(spotRef, mapOf(
+                        "averageRating" to newAvg,
+                        "reviewCount" to newCount
+                    ))
+                }.await()
+
+                // TODO: Dodaj poene korisniku za ostavljenu recenziju
+
+                Result.success(Unit)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Result.failure(e)
+        }
+    }
 }

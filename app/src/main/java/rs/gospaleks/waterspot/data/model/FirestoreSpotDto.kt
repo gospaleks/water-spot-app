@@ -13,5 +13,7 @@ data class FirestoreSpotDto(
     val description: String? = null,
     val userId: String = "",
     val createdAt: Timestamp? = null,
-    val updatedAt: Timestamp? = null
+    val updatedAt: Timestamp? = null,
+    val averageRating: Double = 0.0,
+    val reviewCount: Int = 0,
 )

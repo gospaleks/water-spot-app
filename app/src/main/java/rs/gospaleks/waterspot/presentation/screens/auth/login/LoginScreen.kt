@@ -78,6 +78,7 @@ fun LoginScreen(
                         snackbarHostState.showSnackbar(message = errorMessage, withDismissAction = true)
                     }
                 }
+                else -> { }
             }
         }
     }

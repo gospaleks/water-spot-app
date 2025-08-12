@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.Flow
 import rs.gospaleks.waterspot.data.mapper.toFirestoreMap
 import rs.gospaleks.waterspot.data.remote.cloudinary.CloudinaryDataSource
 import rs.gospaleks.waterspot.data.remote.firebase.FirestoreSpotDataSource
+import rs.gospaleks.waterspot.domain.model.Review
 import rs.gospaleks.waterspot.domain.model.Spot
 import rs.gospaleks.waterspot.domain.model.SpotWithUser
 import rs.gospaleks.waterspot.domain.repository.SpotRepository
@@ -37,5 +38,10 @@ class SpotRepositoryImpl @Inject constructor(
 
     override suspend fun getSpotById(id: String): Result<Spot?> {
         return firestoreSpotDataSource.getSpotById(id)
+    }
+
+    override suspend fun addReviewToSpot(spotId: String, review: Review) : Result<Unit> {
+        val reviewData = review.toFirestoreMap()
+        return firestoreSpotDataSource.addReviewToSpot(spotId, reviewData)
     }
 }
