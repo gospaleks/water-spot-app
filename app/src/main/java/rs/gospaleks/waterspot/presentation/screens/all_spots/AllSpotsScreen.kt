@@ -39,7 +39,7 @@ fun AllSpotsScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(outerPadding),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
             items(uiState.spotsWithUser) { spotWithUser ->
                 SpotCard(

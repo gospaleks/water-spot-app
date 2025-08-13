@@ -13,6 +13,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.CalendarToday
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -52,12 +53,16 @@ fun SpotDetailsContent(
         LazyColumn(
             modifier = Modifier
                 .weight(1f)
-                .padding(horizontal = 24.dp),
+                .padding(horizontal = 20.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            // 📷 Image with overlay rating
+            // 📷 Image with gradient overlay and chips
             item {
-                Box(modifier = Modifier.fillMaxWidth()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(20.dp))
+                ) {
                     AsyncImage(
                         model = data.spot.photoUrl,
                         contentDescription = "Spot photo",
@@ -65,22 +70,33 @@ fun SpotDetailsContent(
                         modifier = Modifier
                             .fillMaxWidth()
                             .aspectRatio(4f / 3f)
-                            .clip(RoundedCornerShape(20.dp))
                     )
 
-                    // Rating badge overlay & Cleanliness label side by side
+                    // Gradijent preko donjeg dela slike
+                    Box(
+                        modifier = Modifier
+                            .matchParentSize()
+                            .background(
+                                brush = androidx.compose.ui.graphics.Brush.verticalGradient(
+                                    colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.35f)),
+                                    startY = 200f
+                                )
+                            )
+                    )
+
+                    // Chips u donjem desnom uglu slike
                     Row(
                         modifier = Modifier
-                            .align(Alignment.TopEnd)
+                            .align(Alignment.BottomEnd)
                             .padding(12.dp),
-                        verticalAlignment = Alignment.Top,
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
+                        // Cleanliness chip
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier
                                 .clip(RoundedCornerShape(12.dp))
-                                .background(data.spot.cleanliness.getColor().copy(alpha = 0.80f))
+                                .background(data.spot.cleanliness.getColor().copy(alpha = 0.85f))
                                 .padding(horizontal = 10.dp, vertical = 6.dp)
                         ) {
                             Icon(
@@ -97,11 +113,12 @@ fun SpotDetailsContent(
                             )
                         }
 
+                        // Rating chip
                         if (data.spot.averageRating > 0) {
                             Row(
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(12.dp))
-                                    .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.85f))
+                                    .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.9f))
                                     .padding(horizontal = 10.dp, vertical = 6.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
@@ -123,93 +140,100 @@ fun SpotDetailsContent(
                 }
             }
 
-            // 🌍 Type + date
+            // 🌍 Type + date & user
             item {
-                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
                         Icon(
                             imageVector = data.spot.type.icon(),
                             contentDescription = null,
-                            modifier = Modifier.size(24.dp),
+                            modifier = Modifier.size(28.dp),
                         )
-                        Spacer(Modifier.width(8.dp))
                         Text(
                             text = data.spot.type.toDisplayName(),
                             style = MaterialTheme.typography.titleLarge
                         )
                     }
 
+                    // Date + user stacked
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        if (createdDate.isNotEmpty()) {
-                            Text(
-                                text = "Added on $createdDate",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    }
-                }
-            }
-
-            // 📝 Description
-            data.spot.description?.takeIf { it.isNotBlank() }?.let { description ->
-                item {
-                    Text(
-                        text = description,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
-
-            // 🙋‍♂️ Posted by
-            data.user?.let { user ->
-                item {
-                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
                         modifier = Modifier
-                            .fillMaxWidth()
                             .clip(RoundedCornerShape(12.dp))
-                            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
-                            .padding(12.dp)
-                            .clickable(onClick = onUserProfileClick),
-                        verticalAlignment = Alignment.CenterVertically
+                            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f))
+                            .padding(horizontal = 12.dp, vertical = 8.dp)
                     ) {
-                        AsyncImage(
-                            model = user.profilePictureUrl,
-                            contentDescription = "Profile picture",
-                            modifier = Modifier
-                                .size(44.dp)
-                                .clip(CircleShape),
-                            contentScale = ContentScale.Crop
+                        Icon(
+                            imageVector = Icons.Outlined.CalendarToday,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Column {
-                            Text(
-                                text = "Posted by",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                        Text(
+                            text = "Added on $createdDate",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+
+                        Spacer(Modifier.width(8.dp))
+
+                        data.user?.let { user ->
+                            AsyncImage(
+                                model = user.profilePictureUrl,
+                                contentDescription = "Profile picture",
+                                modifier = Modifier
+                                    .size(22.dp)
+                                    .clip(CircleShape)
+                                    .clickable(onClick = onUserProfileClick),
+                                contentScale = ContentScale.Crop
                             )
                             Text(
                                 text = user.fullName,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurface
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.primary,
+                                maxLines = 1,
+                                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                                modifier = Modifier
+                                    .weight(1f, false)
+                                    .clickable(onClick = onUserProfileClick)
                             )
                         }
-                        Spacer(modifier = Modifier.weight(1f))
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.size(20.dp)
+                    }
+                }
+            }
+
+            // 📝 Description with header
+            data.spot.description?.takeIf { it.isNotBlank() }?.let { description ->
+                item {
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(6.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
+                            .padding(12.dp)
+                    ) {
+                        Text(
+                            text = "Description",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Text(
+                            text = description,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
             }
 
-            // ⭐️ Reviews
+
+            // ⭐ Reviews
             item {
                 ReviewsSection(
                     reviews = reviews,
@@ -222,7 +246,7 @@ fun SpotDetailsContent(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 24.dp, vertical = 16.dp)
+                .padding(horizontal = 20.dp, vertical = 16.dp)
         ) {
             ActionsButtons(
                 onNavigateClick = onNavigateClick,
