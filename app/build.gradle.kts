@@ -108,6 +108,8 @@ dependencies {
     // Datastore for preferences (theme, services, etc.)
     implementation(libs.androidx.datastore.preferences)
 
+    // TODO: Add geofire dependency
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

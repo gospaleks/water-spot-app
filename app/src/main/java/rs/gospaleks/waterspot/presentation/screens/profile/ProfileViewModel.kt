@@ -10,10 +10,16 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import rs.gospaleks.waterspot.domain.use_case.GetUserDataUseCase
 import javax.inject.Inject
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import rs.gospaleks.waterspot.data.local.LocationTrackingPreferences
 import rs.gospaleks.waterspot.domain.auth.use_case.GetCurrentUserUseCase
 import rs.gospaleks.waterspot.domain.model.User
 import rs.gospaleks.waterspot.domain.use_case.UploadAvatarUseCase
+import rs.gospaleks.waterspot.presentation.components.UiEvent
 
 data class ProfileUiState(
     val user: User = User(),
@@ -26,13 +32,41 @@ data class ProfileUiState(
 class ProfileViewModel @Inject constructor(
     private val getUserDataUseCase: GetUserDataUseCase,
     private val getCurrentUserUseCase: GetCurrentUserUseCase,
-    private val uploadAvatarUseCase: UploadAvatarUseCase
+    private val uploadAvatarUseCase: UploadAvatarUseCase,
+    private val locationPrefs: LocationTrackingPreferences
 ) : ViewModel() {
     var uiState by mutableStateOf(ProfileUiState())
         private set
 
+    // Live promene uzima iz locationPrefs
+    private val _isTrackingEnabled = MutableStateFlow(false)
+    val isTrackingEnabled: StateFlow<Boolean> = _isTrackingEnabled.asStateFlow()
+
+    var startServiceEvent = MutableSharedFlow<Unit>()
+        private set
+
+    var stopServiceEvent = MutableSharedFlow<Unit>()
+        private set
+
     init {
         loadUserData()
+
+        viewModelScope.launch {
+            locationPrefs.isTrackingEnabled.collect { enabled ->
+                _isTrackingEnabled.value = enabled
+            }
+        }
+    }
+
+    fun toggleLocationTracking(enable: Boolean) {
+        viewModelScope.launch {
+            locationPrefs.setTrackingEnabled(enable)
+            if (enable) {
+                startServiceEvent.emit(Unit)
+            } else {
+                stopServiceEvent.emit(Unit)
+            }
+        }
     }
 
     fun uploadAvatar(imageUri: Uri) = viewModelScope.launch {

@@ -1,5 +1,6 @@
 package rs.gospaleks.waterspot.presentation.screens.profile
 
+import android.content.Intent
 import android.util.Log
 import rs.gospaleks.waterspot.R
 import androidx.compose.foundation.background
@@ -15,9 +16,11 @@ import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Translate
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,7 +38,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import rs.gospaleks.waterspot.presentation.components.AvatarPicker
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
 import rs.gospaleks.waterspot.domain.model.AppTheme
+import rs.gospaleks.waterspot.service.LocationTrackingService
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -48,6 +54,8 @@ fun ProfileScreen(
     viewModel: ProfileViewModel = hiltViewModel(),
     themeViewModel: ThemeViewModel = hiltViewModel(),
 ) {
+    val context = LocalContext.current
+
     val selectedTheme by themeViewModel.appTheme.collectAsState()
 
     // Basic user data
@@ -59,7 +67,24 @@ fun ProfileScreen(
     val isLoading = viewModel.uiState.isLoading
     val isAvatarUploading = viewModel.uiState.isAvatarUploading
 
-    // Bottom sheet for each option
+    val isTrackingEnabled by viewModel.isTrackingEnabled.collectAsState()
+
+    // LaunchedEffect za pokretanje/zaustavljanje servisa
+    LaunchedEffect(Unit) {
+        viewModel.startServiceEvent.collect {
+            val intent = Intent(context, LocationTrackingService::class.java)
+            ContextCompat.startForegroundService(context, intent)
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.stopServiceEvent.collect {
+            val intent = Intent(context, LocationTrackingService::class.java)
+            context.stopService(intent)
+        }
+    }
+
+    // Reusable bottom sheet for each option
     var showBottomSheet by remember { mutableStateOf(false) }
     var currentSheetContent by remember {
         mutableStateOf<@Composable (ColumnScope.() -> Unit)?>(null)
@@ -149,12 +174,6 @@ fun ProfileScreen(
                     onClick = onEditProfileClick
                 )
                 ProfileOptionItem(
-                    icon = Icons.Default.LocationOn,
-                    iconTint = MaterialTheme.colorScheme.primary,
-                    title = stringResource(R.string.my_spots),
-                    onClick = onMyWaterSpotsClick
-                )
-                ProfileOptionItem(
                     icon = Icons.Default.Lock,
                     iconTint = MaterialTheme.colorScheme.primary,
                     title = stringResource(R.string.change_password),
@@ -176,6 +195,22 @@ fun ProfileScreen(
                                 selectedTheme = selectedTheme,
                                 onThemeSelected = {
                                     themeViewModel.onThemeSelected(it)
+                                }
+                            )
+                        }
+                        showBottomSheet = true
+                    }
+                )
+                ProfileOptionItem(
+                    icon = Icons.Default.Settings,
+                    iconTint = MaterialTheme.colorScheme.primary,
+                    title = stringResource(R.string.settings),
+                    onClick = {
+                        currentSheetContent = {
+                            SettingsBottomSheetContent(
+                                checked = isTrackingEnabled,
+                                onCheckedChange = { enabled ->
+                                    viewModel.toggleLocationTracking(enabled)
                                 }
                             )
                         }

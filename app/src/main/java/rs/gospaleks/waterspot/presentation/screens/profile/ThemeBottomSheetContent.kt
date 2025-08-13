@@ -20,12 +20,12 @@ fun ThemeBottomSheetContent(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
+            .padding(horizontal = 20.dp, vertical = 24.dp)
     ) {
         Text(
             text = stringResource(R.string.theme),
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(bottom = 16.dp, start  = 4.dp)
+            style = MaterialTheme.typography.headlineSmall,
+            modifier = Modifier.padding(bottom = 24.dp)
         )
 
         AppTheme.entries.forEach { theme ->

@@ -56,7 +56,14 @@
     <string name="my_spots">My Water Spots</string>
     <string name="change_password">Change Password</string>
     <string name="change_language">Change Language</string>
+    <string name="theme">Choose Theme</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
+    <string name="theme_system">System</string>
+    <string name="settings">Settings</string>
     <string name="logout">Logout</string>
+    <string name="location_tracking">Location Tracking</string>
+    <string name="location_tracking_description">When service is enabled, you will be notified about nearby water spots.</string>
 
     // Edit Profile Screen
     <string name="edit_profile_title">Edit Profile</string>
@@ -111,12 +118,6 @@
     <string name="review_dialog_submit_button">Submit Review</string>
     <string name="review_dialog_success_message">Review submitted successfully!</string>
     <string name="review_dialog_error_message">Failed to submit review. Please try again later.</string>
-
-    // Theme
-    <string name="theme">Choose Theme</string>
-    <string name="theme_light">Light</string>
-    <string name="theme_dark">Dark</string>
-    <string name="theme_system">System</string>
 
     <string name="location_permission_error">Location permission error</string>
 
