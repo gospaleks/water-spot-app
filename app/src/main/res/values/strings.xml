@@ -112,5 +112,13 @@
     <string name="review_dialog_success_message">Review submitted successfully!</string>
     <string name="review_dialog_error_message">Failed to submit review. Please try again later.</string>
 
+    // Theme
+    <string name="theme">Choose Theme</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
+    <string name="theme_system">System</string>
+
+    <string name="location_permission_error">Location permission error</string>
+
     <string name="back_button_content_description">Back</string>
 </resources>

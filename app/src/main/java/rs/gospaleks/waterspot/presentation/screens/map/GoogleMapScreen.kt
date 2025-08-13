@@ -12,6 +12,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,19 +35,23 @@ import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import kotlinx.coroutines.launch
 import rs.gospaleks.waterspot.R
+import rs.gospaleks.waterspot.domain.model.AppTheme
 import rs.gospaleks.waterspot.presentation.components.toDisplayName
 import rs.gospaleks.waterspot.presentation.screens.map.components.CustomFABs
 import rs.gospaleks.waterspot.presentation.screens.map.components.MapTopAppBar
 import rs.gospaleks.waterspot.presentation.screens.map.components.PermissionDeniedPlaceholder
 import rs.gospaleks.waterspot.presentation.components.bottom_sheet.SpotDetailsBottomSheet
 import rs.gospaleks.waterspot.presentation.components.bottom_sheet.SpotDetailsBottomSheetViewModel
+import androidx.compose.runtime.getValue
+import rs.gospaleks.waterspot.presentation.screens.profile.ThemeViewModel
 
 @OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun GoogleMapScreen(
     navigateToAddSpotScreen: () -> Unit,
     outerPadding: PaddingValues,
-    viewModel: MapViewModel = hiltViewModel()
+    viewModel: MapViewModel = hiltViewModel(),
+    themeViewModel: ThemeViewModel = hiltViewModel(),
 ) {
     val bottomSheetViewModel: SpotDetailsBottomSheetViewModel = hiltViewModel()
 
@@ -54,8 +60,17 @@ fun GoogleMapScreen(
     val locationPermissionState = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
     val cameraPositionState = rememberCameraPositionState()
     val context = LocalContext.current
-    val isDarkTheme = isSystemInDarkTheme()
-    val mapStyleJson = if (isDarkTheme) {
+
+    // Uzmi temu iz theme viewmodel-a i na osnovu nje promeni map style
+    val myTheme by themeViewModel.appTheme.collectAsState(initial = AppTheme.SYSTEM)
+
+    val isDark = when (myTheme) {
+        AppTheme.DARK -> true
+        AppTheme.LIGHT -> false
+        AppTheme.SYSTEM -> isSystemInDarkTheme()
+    }
+
+    val mapStyleJson = if (isDark) {
         MapStyleOptions.loadRawResourceStyle(LocalContext.current, R.raw.map_dark)
     } else {
         MapStyleOptions.loadRawResourceStyle(LocalContext.current, R.raw.map_light)

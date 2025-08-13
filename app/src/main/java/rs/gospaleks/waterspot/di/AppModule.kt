@@ -1,11 +1,16 @@
 package rs.gospaleks.waterspot.di
 
+import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import androidx.datastore.preferences.preferencesDataStoreFile
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import rs.gospaleks.waterspot.data.remote.cloudinary.CloudinaryDataSource
 import rs.gospaleks.waterspot.data.remote.firebase.FirebaseAuthDataSource
@@ -179,5 +184,16 @@ object AppModule {
     @Provides
     fun provideValidatePhoneNumberUseCase(): ValidatePhoneNumberUseCase {
         return ValidatePhoneNumberUseCase()
+    }
+
+    // DataStore
+    @Provides
+    @Singleton
+    fun provideDataStore(
+        @ApplicationContext context: Context
+    ): DataStore<androidx.datastore.preferences.core.Preferences> {
+        return PreferenceDataStoreFactory.create(
+            produceFile = { context.preferencesDataStoreFile("settings") }
+        )
     }
 }

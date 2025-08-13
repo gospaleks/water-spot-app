@@ -15,6 +15,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import rs.gospaleks.waterspot.R
@@ -28,12 +30,15 @@ import com.google.accompanist.permissions.rememberPermissionState
 import com.google.android.gms.maps.model.MapStyleOptions
 import androidx.core.net.toUri
 import kotlinx.coroutines.launch
+import rs.gospaleks.waterspot.domain.model.AppTheme
 import rs.gospaleks.waterspot.presentation.components.UiEvent
+import rs.gospaleks.waterspot.presentation.screens.profile.ThemeViewModel
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
 fun SpotDetailsBottomSheet(
     viewModel: SpotDetailsBottomSheetViewModel = hiltViewModel(),
+    themeViewModel: ThemeViewModel = hiltViewModel()
 ) {
     val uiState = viewModel.uiState
 
@@ -43,14 +48,19 @@ fun SpotDetailsBottomSheet(
 
     val locationPermission = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
     val context = LocalContext.current
-    val isDarkTheme = isSystemInDarkTheme()
 
-    // Map Theme
-    val mapStyleJson = remember(isDarkTheme) {
-        MapStyleOptions.loadRawResourceStyle(
-            context,
-            if (isDarkTheme) R.raw.map_dark else R.raw.map_light
-        )
+    // Change map style based on theme
+    val myTheme by themeViewModel.appTheme.collectAsState(initial = AppTheme.SYSTEM)
+
+    val isDark = when (myTheme) {
+        AppTheme.DARK -> true
+        AppTheme.LIGHT -> false
+        AppTheme.SYSTEM -> isSystemInDarkTheme()
+    }
+    val mapStyleJson = if (isDark) {
+        MapStyleOptions.loadRawResourceStyle(LocalContext.current, R.raw.map_dark)
+    } else {
+        MapStyleOptions.loadRawResourceStyle(LocalContext.current, R.raw.map_light)
     }
 
     // Permission and location tracking

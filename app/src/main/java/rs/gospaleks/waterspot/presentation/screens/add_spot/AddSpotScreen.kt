@@ -1,7 +1,6 @@
 package rs.gospaleks.waterspot.presentation.screens.add_spot
 
-import android.Manifest
-import android.content.pm.PackageManager
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
@@ -33,12 +32,16 @@ import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.CameraUpdateFactory
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.core.content.ContextCompat
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
+import rs.gospaleks.waterspot.domain.model.AppTheme
+import rs.gospaleks.waterspot.presentation.screens.profile.ThemeViewModel
+import androidx.compose.runtime.getValue
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
@@ -46,6 +49,7 @@ fun AddSpotScreen(
     viewModel: AddSpotViewModel,
     onBackClick: () -> Unit,
     onNextClick: () -> Unit,
+    themeViewModel: ThemeViewModel = hiltViewModel(),
 ) {
     val uiState = viewModel.uiState
 
@@ -59,8 +63,16 @@ fun AddSpotScreen(
     val locationPermissionState = rememberPermissionState(
         android.Manifest.permission.ACCESS_FINE_LOCATION
     )
-    val isDarkTheme = isSystemInDarkTheme()
-    val mapStyleJson = if (isDarkTheme) {
+
+    // Change map style based on theme
+    val myTheme by themeViewModel.appTheme.collectAsState(initial = AppTheme.SYSTEM)
+
+    val isDark = when (myTheme) {
+        AppTheme.DARK -> true
+        AppTheme.LIGHT -> false
+        AppTheme.SYSTEM -> isSystemInDarkTheme()
+    }
+    val mapStyleJson = if (isDark) {
         MapStyleOptions.loadRawResourceStyle(LocalContext.current, R.raw.map_dark)
     } else {
         MapStyleOptions.loadRawResourceStyle(LocalContext.current, R.raw.map_light)
@@ -69,7 +81,15 @@ fun AddSpotScreen(
     // Kada permission postane granted, startuj tracking JEDNOM
     LaunchedEffect(locationPermissionState.status) {
         if (locationPermissionState.status.isGranted) {
-            viewModel.startLocationUpdates()
+            try {
+                viewModel.startLocationUpdates()
+            } catch (e: SecurityException) {
+                Toast.makeText(
+                    context,
+                    context.getString(R.string.location_permission_error),
+                    Toast.LENGTH_LONG
+                ).show()
+            }
         } else {
             locationPermissionState.launchPermissionRequest()
         }

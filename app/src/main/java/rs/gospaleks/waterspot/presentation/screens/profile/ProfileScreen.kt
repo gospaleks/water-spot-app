@@ -10,12 +10,17 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Translate
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -28,7 +33,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import rs.gospaleks.waterspot.presentation.components.AvatarPicker
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import rs.gospaleks.waterspot.domain.model.AppTheme
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
     innerPadding: PaddingValues,
@@ -36,16 +45,33 @@ fun ProfileScreen(
     onEditProfileClick: () -> Unit,
     onMyWaterSpotsClick: () -> Unit,
     onChangePasswordClick: () -> Unit,
-    viewModel: ProfileViewModel = hiltViewModel()
+    viewModel: ProfileViewModel = hiltViewModel(),
+    themeViewModel: ThemeViewModel = hiltViewModel(),
 ) {
+    val selectedTheme by themeViewModel.appTheme.collectAsState()
+
     // Basic user data
     val fullName = viewModel.uiState.user.fullName
     val phoneNumber = viewModel.uiState.user.phoneNumber
     val userProfileImage = viewModel.uiState.user.profilePictureUrl
 
-    // Loading states
+    // Loading states for profile data
     val isLoading = viewModel.uiState.isLoading
     val isAvatarUploading = viewModel.uiState.isAvatarUploading
+
+    // Bottom sheet for each option
+    var showBottomSheet by remember { mutableStateOf(false) }
+    var currentSheetContent by remember {
+        mutableStateOf<@Composable (ColumnScope.() -> Unit)?>(null)
+    }
+
+    ReusableBottomSheetHost(
+        show = showBottomSheet,
+        onDismissRequest = { showBottomSheet = false },
+        sheetContent = {
+            currentSheetContent?.invoke(this)
+        }
+    )
 
     Column(
         modifier = Modifier
@@ -101,50 +127,72 @@ fun ProfileScreen(
                 .weight(1f)
                 .clip(RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp))
                 .background(MaterialTheme.colorScheme.background)
-                .padding(horizontal = dimensionResource(R.dimen.padding_large), vertical = 24.dp),
+                .padding(horizontal = 24.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Text(
                 text = stringResource(R.string.account_overview),
                 style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier.padding(bottom = 16.dp)
+                modifier = Modifier.padding(top = 24.dp, bottom = 8.dp)
             )
 
-            ProfileOptionItem(
-                icon = Icons.Default.Person,
-                iconTint = MaterialTheme.colorScheme.primary,
-                title = stringResource(R.string.edit_profile),
-                onClick = onEditProfileClick
-            )
-            ProfileOptionItem(
-                icon = Icons.Default.LocationOn,
-                iconTint = MaterialTheme.colorScheme.primary,
-                title = stringResource(R.string.my_spots),
-                onClick = onMyWaterSpotsClick
-            )
-            ProfileOptionItem(
-                icon = Icons.Default.Lock,
-                iconTint = MaterialTheme.colorScheme.primary,
-                title = stringResource(R.string.change_password),
-                onClick = onChangePasswordClick
-            )
-            ProfileOptionItem(
-                icon = Icons.Default.Translate,
-                iconTint = MaterialTheme.colorScheme.primary,
-                title = stringResource(R.string.change_language),
-                onClick = {} // TODO: Implement language change with bottom sheet
-            )
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            Button(
-                onClick = onLogout,
+            Column (
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 16.dp)
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Text(text = stringResource(R.string.logout))
+                ProfileOptionItem(
+                    icon = Icons.Default.Person,
+                    iconTint = MaterialTheme.colorScheme.primary,
+                    title = stringResource(R.string.edit_profile),
+                    onClick = onEditProfileClick
+                )
+                ProfileOptionItem(
+                    icon = Icons.Default.LocationOn,
+                    iconTint = MaterialTheme.colorScheme.primary,
+                    title = stringResource(R.string.my_spots),
+                    onClick = onMyWaterSpotsClick
+                )
+                ProfileOptionItem(
+                    icon = Icons.Default.Lock,
+                    iconTint = MaterialTheme.colorScheme.primary,
+                    title = stringResource(R.string.change_password),
+                    onClick = onChangePasswordClick
+                )
+                ProfileOptionItem(
+                    icon = Icons.Default.Translate,
+                    iconTint = MaterialTheme.colorScheme.primary,
+                    title = stringResource(R.string.change_language),
+                    onClick = {} // TODO: Implement language change with bottom sheet
+                )
+                ProfileOptionItem(
+                    icon = if (selectedTheme == AppTheme.DARK) Icons.Default.DarkMode else Icons.Default.LightMode,
+                    iconTint = MaterialTheme.colorScheme.primary,
+                    title = stringResource(R.string.theme),
+                    onClick = {
+                        currentSheetContent = {
+                            ThemeBottomSheetContent(
+                                selectedTheme = selectedTheme,
+                                onThemeSelected = {
+                                    themeViewModel.onThemeSelected(it)
+                                }
+                            )
+                        }
+                        showBottomSheet = true
+                    }
+                )
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                Button(
+                    onClick = onLogout,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 16.dp)
+                ) {
+                    Text(text = stringResource(R.string.logout))
+                }
             }
         }
     }
