@@ -34,74 +34,33 @@ import java.io.File
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun AvatarPicker(
-    imageUrl: String?, // URL string za postojeću sliku (može biti null)
-    currentImageUri: Uri?, // Uri iz kamere (može biti null)
-    onImagePicked: (Uri) -> Unit, // callback za novu sliku
+    imageUrl: String?,
+    currentImageUri: Uri?,
+    onImagePicked: (Uri) -> Unit,
     size: Dp = 96.dp,
     showEditIcon: Boolean = true,
-    isLoading: Boolean = false // indikator učitavanja
+    isLoading: Boolean = false
 ) {
-    val context = LocalContext.current
-
-    // Privremeni URI za kameru
-    val imageUri = remember {
-        val imageFile = File.createTempFile(
-            "avatar_", ".jpg",
-            context.cacheDir
-        ).apply { createNewFile() }
-
-        FileProvider.getUriForFile(
-            context,
-            "${context.packageName}.provider",
-            imageFile
-        )
-    }
-
-    val cameraPermissionState = rememberPermissionState(Manifest.permission.CAMERA)
-
-    val takePictureLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.TakePicture()
-    ) { success ->
-        if (success) {
-            onImagePicked(imageUri)
-        }
-    }
-
-    fun requestCameraAndLaunch() {
-        if (cameraPermissionState.status.isGranted) {
-            takePictureLauncher.launch(imageUri)
-        } else {
-            cameraPermissionState.launchPermissionRequest()
-        }
-    }
+    var showSourceDialog by remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier.size(size),
         contentAlignment = Alignment.BottomEnd
     ) {
-        // Avatar ili skeleton
         Box(
             modifier = Modifier
                 .size(size)
                 .clip(CircleShape)
                 .background(MaterialTheme.colorScheme.surfaceVariant)
-                .clickable(enabled = !isLoading) { requestCameraAndLaunch() },
+                .clickable(enabled = !isLoading) { showSourceDialog = true },
             contentAlignment = Alignment.Center
         ) {
             if (isLoading) {
-                // Skeleton loader — ista veličina, bez flickeringa
-                Box(
-                    modifier = Modifier
-                        .matchParentSize()
-                        .background(MaterialTheme.colorScheme.surfaceVariant),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(24.dp),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        strokeWidth = 2.dp
-                    )
-                }
+                CircularProgressIndicator(
+                    modifier = Modifier.size(24.dp),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    strokeWidth = 2.dp
+                )
             } else {
                 when {
                     currentImageUri != null -> {
@@ -131,14 +90,13 @@ fun AvatarPicker(
             }
         }
 
-        // Edit ikonica
         if (showEditIcon && !isLoading) {
             Box(
                 modifier = Modifier
                     .size(28.dp)
                     .background(MaterialTheme.colorScheme.secondary, CircleShape)
                     .border(2.dp, MaterialTheme.colorScheme.background, CircleShape)
-                    .clickable { requestCameraAndLaunch() },
+                    .clickable { showSourceDialog = true },
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
@@ -150,4 +108,14 @@ fun AvatarPicker(
             }
         }
     }
+
+    // Prikaz dialoga za izbor izvora slike
+    PhotoSourceDialog(
+        showDialog = showSourceDialog,
+        onDismiss = { showSourceDialog = false },
+        onImageSelected = {
+            onImagePicked(it)
+        },
+        tempFileNamePrefix = "avatar_"
+    )
 }

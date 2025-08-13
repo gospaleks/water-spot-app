@@ -28,6 +28,7 @@ import coil.compose.rememberAsyncImagePainter
 import com.google.accompanist.permissions.*
 import java.io.File
 import rs.gospaleks.waterspot.R
+import rs.gospaleks.waterspot.presentation.components.PhotoSourceDialog
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
@@ -37,35 +38,7 @@ fun PhotoUploadField(
     onPhotoSelected: (Uri) -> Unit,
     onPhotoRemoved: () -> Unit
 ) {
-    val context = LocalContext.current
     var showSourceDialog by remember { mutableStateOf(false) }
-
-    // Privremeni fajl za fotografiju
-    val tempImageFile = remember {
-        File.createTempFile("spot_", ".jpg", context.cacheDir).apply {
-            createNewFile()
-        }
-    }
-    val imageUri = FileProvider.getUriForFile(
-        context,
-        "${context.packageName}.provider",
-        tempImageFile
-    )
-
-    // Accompanist kamera dozvola
-    val cameraPermissionState = rememberPermissionState(permission = Manifest.permission.CAMERA)
-
-    val pickFromGalleryLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri ->
-        uri?.let { onPhotoSelected(it) }
-    }
-
-    val takePictureLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.TakePicture()
-    ) { success ->
-        if (success) onPhotoSelected(imageUri)
-    }
 
     // UI
     Box(
@@ -119,36 +92,13 @@ fun PhotoUploadField(
         }
     }
 
-    // Dijalog za izbor galerije ili kamere
-    if (showSourceDialog) {
-        AlertDialog(
-            onDismissRequest = { showSourceDialog = false },
-            title = { Text(stringResource(R.string.add_spot_photo_dialog_title)) },
-            text = { Text(stringResource(R.string.add_spot_photo_dialog_message)) },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        showSourceDialog = false
-                        if (cameraPermissionState.status.isGranted) {
-                            takePictureLauncher.launch(imageUri)
-                        } else {
-                            cameraPermissionState.launchPermissionRequest()
-                        }
-                    }
-                ) {
-                    Text(stringResource(R.string.add_spot_photo_camera_button))
-                }
-            },
-            dismissButton = {
-                OutlinedButton(
-                    onClick = {
-                        showSourceDialog = false
-                        pickFromGalleryLauncher.launch("image/*")
-                    }
-                ) {
-                    Text(stringResource(R.string.add_spot_photo_gallery_button))
-                }
-            }
-        )
-    }
+    PhotoSourceDialog(
+        showDialog = showSourceDialog,
+        onDismiss = { showSourceDialog = false },
+        onImageSelected = {
+            onPhotoSelected(it)
+            showSourceDialog = false
+        },
+        tempFileNamePrefix = "spot_"
+    )
 }
