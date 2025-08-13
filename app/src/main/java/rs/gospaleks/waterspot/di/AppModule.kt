@@ -29,6 +29,7 @@ import rs.gospaleks.waterspot.domain.repository.SpotRepository
 import rs.gospaleks.waterspot.domain.repository.UserRepository
 import rs.gospaleks.waterspot.domain.use_case.AddReviewUseCase
 import rs.gospaleks.waterspot.domain.use_case.AddSpotUseCase
+import rs.gospaleks.waterspot.domain.use_case.GetAllReviewsForSpotUseCase
 import rs.gospaleks.waterspot.domain.use_case.GetAllSpotsWithUserUseCase
 import rs.gospaleks.waterspot.domain.use_case.GetUserDataUseCase
 import rs.gospaleks.waterspot.domain.use_case.LocationTrackingUseCase
@@ -93,6 +94,11 @@ object AppModule {
     }
 
     // Use Cases
+    @Provides
+    fun provideGetAllReviewsForSpotUseCase(spotRepository: SpotRepository): GetAllReviewsForSpotUseCase {
+        return GetAllReviewsForSpotUseCase(spotRepository)
+    }
+
     @Provides
     fun provideAddReviewUseCase(spotRepository: SpotRepository) : AddReviewUseCase {
         return AddReviewUseCase(spotRepository)

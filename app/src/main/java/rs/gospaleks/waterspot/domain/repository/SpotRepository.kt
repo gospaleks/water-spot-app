@@ -3,6 +3,7 @@ package rs.gospaleks.waterspot.domain.repository
 import android.net.Uri
 import kotlinx.coroutines.flow.Flow
 import rs.gospaleks.waterspot.domain.model.Review
+import rs.gospaleks.waterspot.domain.model.ReviewWithUser
 import rs.gospaleks.waterspot.domain.model.Spot
 import rs.gospaleks.waterspot.domain.model.SpotWithUser
 
@@ -16,6 +17,8 @@ interface SpotRepository {
     suspend fun getSpotById(id: String): Result<Spot?>
 
     suspend fun addReviewToSpot(spotId: String, review: Review) : Result<Unit>
+
+    fun getReviewsForSpot(spotId: String): Flow<Result<List<ReviewWithUser>>>
 
 //
 //

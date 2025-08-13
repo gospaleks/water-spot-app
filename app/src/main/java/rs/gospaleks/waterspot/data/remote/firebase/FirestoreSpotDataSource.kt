@@ -11,7 +11,10 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import rs.gospaleks.waterspot.data.mapper.toDomain
+import rs.gospaleks.waterspot.data.model.FirestoreReviewDto
 import rs.gospaleks.waterspot.data.model.FirestoreSpotDto
+import rs.gospaleks.waterspot.domain.model.Review
+import rs.gospaleks.waterspot.domain.model.ReviewWithUser
 import rs.gospaleks.waterspot.domain.model.Spot
 import rs.gospaleks.waterspot.domain.model.SpotWithUser
 import rs.gospaleks.waterspot.domain.model.User
@@ -105,6 +108,56 @@ class FirestoreSpotDataSource @Inject constructor(
         awaitClose { listener.remove() }
     }
 
+    fun getAllReviewsForSpotWithUsers(spotId: String): Flow<Result<List<ReviewWithUser>>> = callbackFlow {
+        val reviewsCollection = firestore.collection("spots")
+            .document(spotId)
+            .collection("reviews")
+
+        val listener = reviewsCollection
+            .orderBy("createdAt", Query.Direction.DESCENDING)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    trySend(Result.failure(error))
+                    return@addSnapshotListener
+                }
+
+                val reviewDtos = snapshot?.documents?.mapNotNull { doc ->
+                    try {
+                        doc.toObject(FirestoreReviewDto::class.java)
+                            ?.copy(userId = doc.id)
+                            ?.toDomain()
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        null
+                    }
+                } ?: emptyList()
+
+                CoroutineScope(Dispatchers.IO).launch {
+                    val reviewsWithUsers = reviewDtos.mapNotNull { review ->
+                        try {
+                            val userSnapshot = firestore.collection("users")
+                                .document(review.userId)
+                                .get()
+                                .await()
+
+                            val user = userSnapshot.toObject(User::class.java)
+
+                            if (user != null) {
+                                ReviewWithUser(review, user)
+                            } else {
+                                null
+                            }
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                            null
+                        }
+                    }
+                    trySend(Result.success(reviewsWithUsers))
+                }
+            }
+
+        awaitClose { listener.remove() }
+    }
 
     suspend fun getSpotById(id: String): Result<Spot?> {
         return try {

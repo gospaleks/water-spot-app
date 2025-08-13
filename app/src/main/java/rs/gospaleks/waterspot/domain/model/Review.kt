@@ -6,3 +6,8 @@ data class Review (
     val comment: String,
     val createdAt: Long? = null // UNIX timestamp (millis)
 )
+
+data class ReviewWithUser (
+    val review: Review,
+    val user: User
+)

@@ -92,6 +92,8 @@ fun SpotDetailsBottomSheet(
                     BottomSheetMode.DETAILS -> {
                         SpotDetailsContent(
                             data = uiState.selectedSpot,
+                            reviews = uiState.reviews,
+                            isLoading = uiState.isLoading,
                             onReviewClick = viewModel::openReview,
                             onNavigateClick = {
                                 val data = uiState.selectedSpot
