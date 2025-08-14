@@ -1,5 +1,6 @@
 package rs.gospaleks.waterspot.data.remote.firebase
 
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 import rs.gospaleks.waterspot.data.mapper.toDomain
@@ -45,6 +46,17 @@ class FirestoreUserDataSource @Inject constructor(
         return try {
             val userDocRef = firestore.collection("users").document(uid)
             userDocRef.update("profilePictureUrl", profilePicture).await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Result.failure(e)
+        }
+    }
+
+    suspend fun addPoints(uid: String, points: Int): Result<Unit> {
+        return try {
+            val userDocRef = firestore.collection("users").document(uid)
+            userDocRef.update("points", FieldValue.increment(points.toLong())).await()
             Result.success(Unit)
         } catch (e: Exception) {
             e.printStackTrace()

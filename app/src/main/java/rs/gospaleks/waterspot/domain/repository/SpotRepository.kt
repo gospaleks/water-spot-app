@@ -1,6 +1,7 @@
 package rs.gospaleks.waterspot.domain.repository
 
 import android.net.Uri
+import com.firebase.geofire.GeoLocation
 import kotlinx.coroutines.flow.Flow
 import rs.gospaleks.waterspot.domain.model.Review
 import rs.gospaleks.waterspot.domain.model.ReviewWithUser
@@ -12,7 +13,10 @@ interface SpotRepository {
 
     fun getAllSpots(): Flow<Result<List<Spot>>>
 
-    fun getAllSpotsWithUsers(): Flow<Result<List<SpotWithUser>>>
+    fun getAllSpotsWithUsers(
+        center: GeoLocation,
+        radius: Double
+    ): Flow<Result<List<SpotWithUser>>>
 
     suspend fun getSpotById(id: String): Result<Spot?>
 

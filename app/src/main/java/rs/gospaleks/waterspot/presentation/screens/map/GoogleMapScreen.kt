@@ -42,7 +42,6 @@ import rs.gospaleks.waterspot.presentation.screens.map.components.MapTopAppBar
 import rs.gospaleks.waterspot.presentation.screens.map.components.PermissionDeniedPlaceholder
 import rs.gospaleks.waterspot.presentation.components.bottom_sheet.SpotDetailsBottomSheet
 import rs.gospaleks.waterspot.presentation.components.bottom_sheet.SpotDetailsBottomSheetViewModel
-import androidx.compose.runtime.getValue
 import rs.gospaleks.waterspot.presentation.screens.profile.ThemeViewModel
 
 @OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)
@@ -110,7 +109,12 @@ fun GoogleMapScreen(
 
     Scaffold(
         topBar = {
-            MapTopAppBar()
+            MapTopAppBar(
+                currentFilters = uiState.filters,
+                onFilterApply = { filters ->
+                    viewModel.updateFilters(filters)
+                }
+            )
         },
         floatingActionButton = {
             CustomFABs(

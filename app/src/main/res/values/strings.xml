@@ -71,6 +71,12 @@
     // Google Maps Screen
     <string name="permission_denied_message">"Location permission is required.\nPlease enable it in settings."</string>
 
+    // Filters
+    <string name="filter_title">Filters</string>
+    <string name="filter_radius_label">Radius:</string>
+    <string name="cancel_button">Cancel</string>
+    <string name="apply_button">Apply</string>
+
     // Add Spot Screen (step 1)
     <string name="add_spot_title">Add Spot: Location</string>
     <string name="add_spot_instructions">Move the marker to\nthe precise location</string>
@@ -118,6 +124,9 @@
     <string name="review_dialog_submit_button">Submit Review</string>
     <string name="review_dialog_success_message">Review submitted successfully!</string>
     <string name="review_dialog_error_message">Failed to submit review. Please try again later.</string>
+
+    // All Spots Screen
+    <string name="all_spots_empty_message">No water spots found.</string>
 
     <string name="location_permission_error">Location permission error</string>
 

@@ -1,10 +1,13 @@
 package rs.gospaleks.waterspot.data.repository
 
 import android.net.Uri
+import com.firebase.geofire.GeoFireUtils
+import com.firebase.geofire.GeoLocation
 import kotlinx.coroutines.flow.Flow
 import rs.gospaleks.waterspot.data.mapper.toFirestoreMap
 import rs.gospaleks.waterspot.data.remote.cloudinary.CloudinaryDataSource
 import rs.gospaleks.waterspot.data.remote.firebase.FirestoreSpotDataSource
+import rs.gospaleks.waterspot.data.remote.firebase.FirestoreUserDataSource
 import rs.gospaleks.waterspot.domain.model.Review
 import rs.gospaleks.waterspot.domain.model.ReviewWithUser
 import rs.gospaleks.waterspot.domain.model.Spot
@@ -14,7 +17,8 @@ import javax.inject.Inject
 
 class SpotRepositoryImpl @Inject constructor(
     private val cloudinaryDataSource: CloudinaryDataSource,
-    private val firestoreSpotDataSource: FirestoreSpotDataSource
+    private val firestoreSpotDataSource: FirestoreSpotDataSource,
+    private val firestoreUserDataSource: FirestoreUserDataSource
 ): SpotRepository {
     override suspend fun addSpot(spot: Spot, photoUri: Uri): Result<Unit> {
         // 1. Upload photo to cloudinary
@@ -23,9 +27,16 @@ class SpotRepositoryImpl @Inject constructor(
 
         // 2. Create a new Spot object with the photo URL and convert it to Firestore DTO
         val updatedSpot = spot.copy(photoUrl = url)
-        val spotDataMap = updatedSpot.toFirestoreMap()
+        val spotDataMap = updatedSpot.toFirestoreMap().toMutableMap()
 
-        // 3. Save spot to Firestore
+        // 3. Get hash for geolocation and update map
+        val hash = GeoFireUtils.getGeoHashForLocation(GeoLocation(updatedSpot.latitude, updatedSpot.longitude))
+        spotDataMap["geohash"] = hash
+
+        // 4. Add points to user for adding a new spot (gamification logic)
+        firestoreUserDataSource.addPoints(updatedSpot.userId, 10);
+
+        // 5. Save spot to Firestore
         return firestoreSpotDataSource.saveSpot(spotDataMap)
     }
 
@@ -33,8 +44,11 @@ class SpotRepositoryImpl @Inject constructor(
         return firestoreSpotDataSource.getAllSpots()
     }
 
-    override fun getAllSpotsWithUsers(): Flow<Result<List<SpotWithUser>>> {
-        return firestoreSpotDataSource.getAllSpotsWithUsers()
+    override fun getAllSpotsWithUsers(
+        center: GeoLocation,
+        radius: Double
+    ): Flow<Result<List<SpotWithUser>>> {
+        return firestoreSpotDataSource.getAllSpotsWithUsers(center, radius)
     }
 
     override suspend fun getSpotById(id: String): Result<Spot?> {
@@ -42,6 +56,9 @@ class SpotRepositoryImpl @Inject constructor(
     }
 
     override suspend fun addReviewToSpot(spotId: String, review: Review) : Result<Unit> {
+        // Add Points to user for adding a review (gamification logic)
+        firestoreUserDataSource.addPoints(review.userId, 5)
+
         val reviewData = review.toFirestoreMap()
         return firestoreSpotDataSource.addReviewToSpot(spotId, reviewData)
     }

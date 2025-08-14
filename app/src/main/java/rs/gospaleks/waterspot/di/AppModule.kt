@@ -94,8 +94,8 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideSpotRepository(cloudinaryDataSource: CloudinaryDataSource, firestoreSpotDataSource: FirestoreSpotDataSource): SpotRepository {
-        return SpotRepositoryImpl(cloudinaryDataSource, firestoreSpotDataSource)
+    fun provideSpotRepository(cloudinaryDataSource: CloudinaryDataSource, firestoreSpotDataSource: FirestoreSpotDataSource, firestoreUserDataSource: FirestoreUserDataSource): SpotRepository {
+        return SpotRepositoryImpl(cloudinaryDataSource, firestoreSpotDataSource, firestoreUserDataSource)
     }
 
     // Use Cases

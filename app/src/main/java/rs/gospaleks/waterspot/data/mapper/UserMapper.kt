@@ -9,7 +9,8 @@ fun FirestoreUserDto.toDomain(): User {
         email = email,
         fullName = fullName,
         phoneNumber = phoneNumber,
-        profilePictureUrl = profilePictureUrl
+        profilePictureUrl = profilePictureUrl,
+        points = points
     )
 }
 //

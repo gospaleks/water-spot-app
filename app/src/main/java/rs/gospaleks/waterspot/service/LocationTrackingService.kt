@@ -6,8 +6,10 @@ import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import android.util.Log
+import dagger.hilt.android.AndroidEntryPoint
 import rs.gospaleks.waterspot.common.NotificationHelper
 
+@AndroidEntryPoint
 class LocationTrackingService : Service() {
 
     private lateinit var notificationHelper: NotificationHelper

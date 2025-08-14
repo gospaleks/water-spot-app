@@ -108,7 +108,8 @@ dependencies {
     // Datastore for preferences (theme, services, etc.)
     implementation(libs.androidx.datastore.preferences)
 
-    // TODO: Add geofire dependency
+    // Geofire for geographic queries (get all spots within a certain radius)
+    implementation(libs.geofire.android.common)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

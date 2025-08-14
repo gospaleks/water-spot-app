@@ -10,8 +10,8 @@ import rs.gospaleks.waterspot.domain.model.SpotTypeEnum
 fun FirestoreSpotDto.toDomain(): Spot {
     return Spot(
         id = id,
-        latitude = location?.latitude ?: 0.0,
-        longitude = location?.longitude ?: 0.0,
+        latitude = lat,
+        longitude = lng,
         photoUrl = photoUrl,
         type = type.toSpotTypeEnum(),
         cleanliness = cleanliness.toCleanlinessLevelEnum(),
@@ -26,7 +26,9 @@ fun FirestoreSpotDto.toDomain(): Spot {
 
 fun Spot.toFirestoreMap(): Map<String, Any?> {
     return mapOf(
-        "location" to GeoPoint(latitude, longitude),
+        "lat" to latitude,
+        "lng" to longitude,
+        "geohash" to null, // Geohash can be generated if needed
         "photoUrl" to photoUrl,
         "type" to type.toFirestoreString(),
         "cleanliness" to cleanliness.toFirestoreString(),

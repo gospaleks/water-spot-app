@@ -1,19 +1,24 @@
 package rs.gospaleks.waterspot.data.remote.firebase
 
+import android.util.Log
+import com.firebase.geofire.GeoFireUtils
+import com.firebase.geofire.GeoLocation
+import com.google.android.gms.tasks.Tasks
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.QuerySnapshot
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import rs.gospaleks.waterspot.data.mapper.toDomain
 import rs.gospaleks.waterspot.data.model.FirestoreReviewDto
 import rs.gospaleks.waterspot.data.model.FirestoreSpotDto
-import rs.gospaleks.waterspot.domain.model.Review
 import rs.gospaleks.waterspot.domain.model.ReviewWithUser
 import rs.gospaleks.waterspot.domain.model.Spot
 import rs.gospaleks.waterspot.domain.model.SpotWithUser
@@ -62,51 +67,77 @@ class FirestoreSpotDataSource @Inject constructor(
         awaitClose { listener.remove() }
     }
 
-    fun getAllSpotsWithUsers(): Flow<Result<List<SpotWithUser>>> = callbackFlow {
-        val spotsCollection = firestore.collection("spots")
-        val listener = spotsCollection
-            .orderBy("createdAt", Query.Direction.DESCENDING)
-            .addSnapshotListener { snapshot, error ->
-                if (error != null) {
-                    trySend(Result.failure(error))
-                    return@addSnapshotListener
-                }
+    fun getAllSpotsWithUsers(
+        center: GeoLocation = GeoLocation(43.1571, 22.5840),
+        radius: Double = 10_000.0 // u metrima
+    ): Flow<Result<List<SpotWithUser>>> = flow {
+        try {
+            Log.d("FirestoreSpotDataSource", "Fetching spots within radius: $radius meters from center: $center")
+            val spotsCollection = firestore.collection("spots")
 
-                val spotDtos = snapshot?.documents?.mapNotNull { doc ->
-                    try {
-                        doc.toObject(FirestoreSpotDto::class.java)
-                            ?.copy(id = doc.id)
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                        null
-                    }
-                } ?: emptyList()
+            // 1. Pripremi upite po hash boundovima
+            val bounds = GeoFireUtils.getGeoHashQueryBounds(center, radius)
+            val tasks = bounds.map { bound ->
+                spotsCollection
+                    .orderBy("geohash")
+                    .startAt(bound.startHash)
+                    .endAt(bound.endHash)
+                    .get()
+            }
 
-                val spots = spotDtos.map { it.toDomain() }
+            // 2. Sačekaj sve upite
+            val snapshots = Tasks.whenAllSuccess<QuerySnapshot>(tasks).await()
 
-                // Launch a coroutine to fetch users and combine
-                CoroutineScope(Dispatchers.IO).launch {
-                    val spotsWithUsers = spots.map { spot ->
-                        try {
-                            val userSnapshot = firestore.collection("users")
-                                .document(spot.userId)
-                                .get()
-                                .await()
+            val matchingDocs = mutableListOf<DocumentSnapshot>()
+            for (snap in snapshots) {
+                for (doc in snap.documents) {
+                    val lat = doc.getDouble("lat")
+                    val lng = doc.getDouble("lng")
 
-                            val user = userSnapshot.toObject(User::class.java)
-
-                            SpotWithUser(spot, user)
-                        } catch (e: Exception) {
-                            e.printStackTrace()
-                            SpotWithUser(spot) // Return spot without user if error occurs
+                    if (lat != null && lng != null) {
+                        val docLocation = GeoLocation(lat, lng)
+                        val distanceInM = GeoFireUtils.getDistanceBetween(docLocation, center)
+                        if (distanceInM <= radius) {
+                            matchingDocs.add(doc)
                         }
                     }
-                    trySend(Result.success(spotsWithUsers))
                 }
             }
 
-        awaitClose { listener.remove() }
+            // 3. Mapiraj spotove
+            val spotDtos = matchingDocs.mapNotNull { doc ->
+                try {
+                    doc.toObject(FirestoreSpotDto::class.java)?.copy(id = doc.id)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    null
+                }
+            }
+
+            val spots = spotDtos.map { it.toDomain() }
+
+            // 4. Fetchuj korisnike i spoji
+            val spotsWithUsers = spots.map { spot ->
+                try {
+                    val userSnapshot = firestore.collection("users")
+                        .document(spot.userId)
+                        .get()
+                        .await()
+
+                    val user = userSnapshot.toObject(User::class.java)
+                    SpotWithUser(spot, user)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    SpotWithUser(spot)
+                }
+            }.sortedByDescending { it.spot.createdAt }
+
+            emit(Result.success(spotsWithUsers))
+        } catch (e: Exception) {
+            emit(Result.failure(e))
+        }
     }
+
 
     fun getAllReviewsForSpotWithUsers(spotId: String): Flow<Result<List<ReviewWithUser>>> = callbackFlow {
         val reviewsCollection = firestore.collection("spots")

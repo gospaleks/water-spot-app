@@ -2,11 +2,12 @@ package rs.gospaleks.waterspot.data.model
 
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentId
-import com.google.firebase.firestore.GeoPoint
 
 data class FirestoreSpotDto(
     @DocumentId val id: String = "",
-    val location: GeoPoint? = null,
+    val lat: Double = 0.0,
+    val lng: Double = 0.0,
+    val geohash: String? = null,
     val photoUrl: String? = null,
     val type: String = "",
     val cleanliness: String = "",
@@ -16,4 +17,5 @@ data class FirestoreSpotDto(
     val updatedAt: Timestamp? = null,
     val averageRating: Double = 0.0,
     val reviewCount: Int = 0,
+
 )
