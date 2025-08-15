@@ -14,12 +14,12 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import rs.gospaleks.waterspot.data.local.LocationTrackingPreferences
 import rs.gospaleks.waterspot.domain.auth.use_case.GetCurrentUserUseCase
 import rs.gospaleks.waterspot.domain.model.User
 import rs.gospaleks.waterspot.domain.use_case.UploadAvatarUseCase
-import rs.gospaleks.waterspot.presentation.components.UiEvent
 
 data class ProfileUiState(
     val user: User = User(),
@@ -42,6 +42,9 @@ class ProfileViewModel @Inject constructor(
     private val _isTrackingEnabled = MutableStateFlow(false)
     val isTrackingEnabled: StateFlow<Boolean> = _isTrackingEnabled.asStateFlow()
 
+    private val _nearbyRadiusMeters = MutableStateFlow(100)
+    val nearbyRadiusMeters: StateFlow<Int> = _nearbyRadiusMeters.asStateFlow()
+
     var startServiceEvent = MutableSharedFlow<Unit>()
         private set
 
@@ -55,6 +58,17 @@ class ProfileViewModel @Inject constructor(
             locationPrefs.isTrackingEnabled.collect { enabled ->
                 _isTrackingEnabled.value = enabled
             }
+        }
+        viewModelScope.launch {
+            locationPrefs.nearbyRadiusMeters.collectLatest { radius ->
+                _nearbyRadiusMeters.value = radius
+            }
+        }
+    }
+
+    fun setNearbyRadiusMeters(radiusMeters: Int) {
+        viewModelScope.launch {
+            locationPrefs.setNearbyRadiusMeters(radiusMeters)
         }
     }
 

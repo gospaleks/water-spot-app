@@ -18,8 +18,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.collectLatest
 import rs.gospaleks.waterspot.common.NotificationHelper
 import rs.gospaleks.waterspot.domain.use_case.NearbyTrackingUseCase
+import rs.gospaleks.waterspot.data.local.LocationTrackingPreferences
 
 @AndroidEntryPoint
 class LocationTrackingService : Service() {
@@ -29,21 +31,29 @@ class LocationTrackingService : Service() {
 
     @Inject lateinit var fusedLocationClient: FusedLocationProviderClient
     @Inject lateinit var nearbyTrackingUseCase: NearbyTrackingUseCase
+    @Inject lateinit var locationPrefs: LocationTrackingPreferences
 
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var lastNotifiedSpotIds: Set<String> = emptySet()
+    private var nearbyRadiusMeters: Double = 100.0
 
     companion object {
         private const val NOTIFICATION_ID = 1
-        private const val INTERVAL_MS = 10_000L
+        private const val INTERVAL_MS = 60_000L
         private const val TAG = "LocationTrackingService"
-        private const val NEARBY_RADIUS_METERS = 50.0
         private const val NEARBY_NOTIFICATION_ID = 1001
     }
 
     override fun onCreate() {
         super.onCreate()
         notificationHelper = NotificationHelper(this)
+
+        // Observe user-configured nearby radius
+        serviceScope.launch {
+            locationPrefs.nearbyRadiusMeters.collectLatest { radius ->
+                nearbyRadiusMeters = radius.toDouble()
+            }
+        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -93,12 +103,13 @@ class LocationTrackingService : Service() {
 
     private fun triggerNearbyCheck(lat: Double, lng: Double) {
         serviceScope.launch {
-            val result = nearbyTrackingUseCase(lat, lng, NEARBY_RADIUS_METERS)
+            val radius = nearbyRadiusMeters
+            val result = nearbyTrackingUseCase(lat, lng, radius)
             result.onSuccess { spotsWithUsers ->
                 val ids = spotsWithUsers.map { it.spot.id }.toSet()
                 if (ids.isNotEmpty() && ids != lastNotifiedSpotIds) {
                     val title = "Nearby water spot"
-                    val within = NEARBY_RADIUS_METERS.toInt()
+                    val within = radius.toInt()
                     val message = if (spotsWithUsers.size == 1) {
                         "There is 1 spot within ${within}m."
                     } else {

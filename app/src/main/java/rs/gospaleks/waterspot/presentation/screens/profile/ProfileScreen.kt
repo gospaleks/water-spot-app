@@ -69,6 +69,7 @@ fun ProfileScreen(
     var pendingStartService by remember { mutableStateOf(false) }
 
     val selectedTheme by themeViewModel.appTheme.collectAsState()
+    val nearbyRadius by viewModel.nearbyRadiusMeters.collectAsState()
 
     // Basic user data
     val fullName = viewModel.uiState.user.fullName
@@ -237,6 +238,10 @@ fun ProfileScreen(
                                 checked = isTrackingEnabled,
                                 onCheckedChange = { enabled ->
                                     viewModel.toggleLocationTracking(enabled)
+                                },
+                                radiusMeters = nearbyRadius,
+                                onRadiusChange = { newRadius ->
+                                    viewModel.setNearbyRadiusMeters(newRadius)
                                 }
                             )
                         }
