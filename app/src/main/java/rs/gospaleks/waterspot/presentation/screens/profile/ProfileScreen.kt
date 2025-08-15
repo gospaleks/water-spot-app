@@ -1,7 +1,13 @@
 package rs.gospaleks.waterspot.presentation.screens.profile
 
+import android.Manifest
 import android.content.Intent
+import android.os.Build
 import android.util.Log
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.PermissionState
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
 import rs.gospaleks.waterspot.R
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -43,7 +49,7 @@ import androidx.core.content.ContextCompat
 import rs.gospaleks.waterspot.domain.model.AppTheme
 import rs.gospaleks.waterspot.service.LocationTrackingService
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
 fun ProfileScreen(
     innerPadding: PaddingValues,
@@ -55,6 +61,12 @@ fun ProfileScreen(
     themeViewModel: ThemeViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
+
+    // Notification permission state (Android 13+)
+    val notificationsPermissionState: PermissionState? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        rememberPermissionState(Manifest.permission.POST_NOTIFICATIONS)
+    } else null
+    var pendingStartService by remember { mutableStateOf(false) }
 
     val selectedTheme by themeViewModel.appTheme.collectAsState()
 
@@ -72,6 +84,20 @@ fun ProfileScreen(
     // LaunchedEffect za pokretanje/zaustavljanje servisa
     LaunchedEffect(Unit) {
         viewModel.startServiceEvent.collect {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && notificationsPermissionState?.status?.isGranted == false) {
+                pendingStartService = true
+                notificationsPermissionState.launchPermissionRequest()
+            } else {
+                val intent = Intent(context, LocationTrackingService::class.java)
+                ContextCompat.startForegroundService(context, intent)
+            }
+        }
+    }
+
+    // If user just granted notifications, start the service now
+    LaunchedEffect(notificationsPermissionState?.status?.isGranted, pendingStartService) {
+        if (pendingStartService && (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU || notificationsPermissionState?.status?.isGranted == true)) {
+            pendingStartService = false
             val intent = Intent(context, LocationTrackingService::class.java)
             ContextCompat.startForegroundService(context, intent)
         }

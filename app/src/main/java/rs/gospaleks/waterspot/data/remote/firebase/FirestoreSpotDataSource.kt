@@ -71,7 +71,7 @@ class FirestoreSpotDataSource @Inject constructor(
         center: GeoLocation = GeoLocation(43.1571, 22.5840),
         radius: Double = 10_000.0 // u metrima
     ): Flow<Result<List<SpotWithUser>>> = flow {
-        try {
+        val result: Result<List<SpotWithUser>> = try {
             Log.d("FirestoreSpotDataSource", "Fetching spots within radius: $radius meters from center: $center")
             val spotsCollection = firestore.collection("spots")
 
@@ -132,10 +132,12 @@ class FirestoreSpotDataSource @Inject constructor(
                 }
             }.sortedByDescending { it.spot.createdAt }
 
-            emit(Result.success(spotsWithUsers))
+            Result.success(spotsWithUsers)
         } catch (e: Exception) {
-            emit(Result.failure(e))
+            Result.failure(e)
         }
+
+        emit(result)
     }
 
 

@@ -38,6 +38,7 @@ import rs.gospaleks.waterspot.domain.use_case.GetAllReviewsForSpotUseCase
 import rs.gospaleks.waterspot.domain.use_case.GetAllSpotsWithUserUseCase
 import rs.gospaleks.waterspot.domain.use_case.GetUserDataUseCase
 import rs.gospaleks.waterspot.domain.use_case.LocationTrackingUseCase
+import rs.gospaleks.waterspot.domain.use_case.NearbyTrackingUseCase
 import rs.gospaleks.waterspot.domain.use_case.UploadAvatarUseCase
 import javax.inject.Singleton
 
@@ -118,6 +119,11 @@ object AppModule {
     @Provides
     fun provideGetAllSpotsWithUserUseCase(spotRepository: SpotRepository) : GetAllSpotsWithUserUseCase {
         return GetAllSpotsWithUserUseCase(spotRepository)
+    }
+
+    @Provides
+    fun provideNearbyTrackingUseCase(spotRepository: SpotRepository): NearbyTrackingUseCase {
+        return NearbyTrackingUseCase(spotRepository)
     }
 
     @Provides
