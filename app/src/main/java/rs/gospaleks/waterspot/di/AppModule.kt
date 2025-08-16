@@ -37,6 +37,7 @@ import rs.gospaleks.waterspot.domain.use_case.AddReviewUseCase
 import rs.gospaleks.waterspot.domain.use_case.AddSpotUseCase
 import rs.gospaleks.waterspot.domain.use_case.GetAllReviewsForSpotUseCase
 import rs.gospaleks.waterspot.domain.use_case.GetAllSpotsWithUserUseCase
+import rs.gospaleks.waterspot.domain.use_case.GetAllUsersUseCase
 import rs.gospaleks.waterspot.domain.use_case.GetUserDataUseCase
 import rs.gospaleks.waterspot.domain.use_case.LocationTrackingUseCase
 import rs.gospaleks.waterspot.domain.use_case.NearbyTrackingUseCase
@@ -153,6 +154,11 @@ object AppModule {
     }
 
     // Auth Use Cases
+    @Provides
+    fun provideGetAllUsersUse(userRepository: UserRepository) : GetAllUsersUseCase {
+        return GetAllUsersUseCase(userRepository)
+    }
+
     @Provides
     fun provideGetCurrentUserUserCase(authRepository: AuthRepository): GetCurrentUserUseCase {
         return GetCurrentUserUseCase(authRepository)

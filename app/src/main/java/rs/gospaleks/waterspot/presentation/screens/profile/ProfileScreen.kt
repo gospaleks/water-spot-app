@@ -43,6 +43,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import rs.gospaleks.waterspot.domain.model.AppTheme
+import rs.gospaleks.waterspot.presentation.components.RankBadge
 import rs.gospaleks.waterspot.service.LocationTrackingService
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
@@ -69,8 +70,8 @@ fun ProfileScreen(
 
     // Basic user data
     val fullName = viewModel.uiState.user.fullName
-    val phoneNumber = viewModel.uiState.user.phoneNumber
     val userProfileImage = viewModel.uiState.user.profilePictureUrl
+    val points = viewModel.uiState.user.points
 
     // Loading states for profile data
     val isLoading = viewModel.uiState.isLoading
@@ -159,11 +160,39 @@ fun ProfileScreen(
                         style = MaterialTheme.typography.titleLarge,
                         color = MaterialTheme.colorScheme.onPrimary
                     )
-                    Text(
-                        text = phoneNumber,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f)
-                    )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    // Rank and points chips
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        // Rank chip
+                        RankBadge(points)
+
+                        // Points chip
+                        Surface(
+                            shape = RoundedCornerShape(20.dp),
+                            color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.15f),
+                            contentColor = MaterialTheme.colorScheme.onPrimary,
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.WaterDrop,
+                                    contentDescription = stringResource(R.string.app_name)
+                                )
+                                Text(
+                                    text = "$points",
+                                    style = MaterialTheme.typography.labelLarge
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -333,15 +362,6 @@ fun ProfileHeaderLoadingState(innerPadding: PaddingValues) {
         )
 
         Spacer(modifier = Modifier.height(8.dp))
-
-        // Telefon placeholder
-        Box(
-            modifier = Modifier
-                .height(22.dp)
-                .width(120.dp)
-                .clip(RoundedCornerShape(4.dp))
-                .background(MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.15f))
-        )
     }
 }
 

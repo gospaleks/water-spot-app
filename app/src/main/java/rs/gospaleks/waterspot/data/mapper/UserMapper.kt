@@ -13,13 +13,3 @@ fun FirestoreUserDto.toDomain(): User {
         points = points
     )
 }
-//
-//fun User.toDto(): FirestoreUserDto {
-//    return FirestoreUserDto(
-//        id = id,
-//        email = email,
-//        fullName = fullName,
-//        phoneNumber = phoneNumber,
-//        profilePictureUrl = profilePictureUrl
-//    )
-//}

@@ -136,6 +136,13 @@
     // All Spots Screen
     <string name="all_spots_empty_message">No water spots found.</string>
 
+    // Ranks
+    <string name="rank_explorer">Explorer</string>
+    <string name="rank_contributor">Contributor</string>
+    <string name="rank_scout">Scout</string>
+    <string name="rank_guide">Guide</string>
+    <string name="rank_water_guardian">Water Guardian</string>
+
     <string name="location_permission_error">Location permission error</string>
 
     <string name="back_button_content_description">Back</string>

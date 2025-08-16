@@ -1,6 +1,7 @@
 package rs.gospaleks.waterspot.data.repository
 
 import android.net.Uri
+import kotlinx.coroutines.flow.Flow
 import rs.gospaleks.waterspot.data.remote.cloudinary.CloudinaryDataSource
 import rs.gospaleks.waterspot.data.remote.firebase.FirebaseAuthDataSource
 import rs.gospaleks.waterspot.data.remote.firebase.FirestoreUserDataSource
@@ -31,5 +32,9 @@ class UserRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             Result.failure(e)
         }
+    }
+
+    override fun getAllUsers(): Flow<Result<List<User>>> {
+        return firestoreUserDataSource.getAllUsers()
     }
 }

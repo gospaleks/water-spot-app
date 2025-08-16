@@ -2,8 +2,13 @@ package rs.gospaleks.waterspot.data.remote.firebase
 
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import rs.gospaleks.waterspot.data.mapper.toDomain
+import rs.gospaleks.waterspot.data.model.FirestoreSpotDto
 import rs.gospaleks.waterspot.data.model.FirestoreUserDto
 import rs.gospaleks.waterspot.domain.model.User
 import javax.inject.Inject
@@ -62,5 +67,30 @@ class FirestoreUserDataSource @Inject constructor(
             e.printStackTrace()
             Result.failure(e)
         }
+    }
+
+    fun getAllUsers(): Flow<Result<List<User>>> = callbackFlow {
+        val userCollectionRef = firestore.collection("users")
+        val snapshotListener = userCollectionRef.addSnapshotListener { snapshot, e ->
+            if (e != null) {
+                trySend(Result.failure(e))
+                return@addSnapshotListener
+            }
+
+            val users = snapshot?.documents?.mapNotNull { doc ->
+                try {
+                    doc.toObject(FirestoreUserDto::class.java)
+                        ?.copy(id = doc.id)
+                        ?.toDomain()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    null
+                }
+            } ?: emptyList()
+
+            trySend(Result.success(users))
+        }
+
+        awaitClose { snapshotListener.remove() }
     }
 }
