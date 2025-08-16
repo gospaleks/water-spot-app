@@ -39,15 +39,15 @@ fun MainNavGraph(
             // ScoreboardScreen()
         }
         composable (route = MainRouteScreen.Profile.route) {
-             ProfileScreen(
-                 innerPadding = innerPadding,
-                 onLogout = onLogout,
-                 onEditProfileClick = {
-                        rootNavHostController.navigate(ProfileRouteScreen.EditProfile.route)
-                 },
-                 onMyWaterSpotsClick = {},
-                 onChangePasswordClick = {},
-             )
+            ProfileScreen(
+                innerPadding = innerPadding,
+                onLogout = onLogout,
+                onEditProfileClick = {
+                    rootNavHostController.navigate(ProfileRouteScreen.EditProfile.route)
+                },
+                onMyWaterSpotsClick = {},
+                onChangePasswordClick = {},
+            )
         }
     }
 }

@@ -1,9 +1,14 @@
 package rs.gospaleks.waterspot.presentation.components.bottom_sheet
 
 import android.Manifest
+import android.content.ContentValues
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
+import android.provider.MediaStore
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.WindowInsets
@@ -33,6 +38,7 @@ import kotlinx.coroutines.launch
 import rs.gospaleks.waterspot.domain.model.AppTheme
 import rs.gospaleks.waterspot.presentation.components.UiEvent
 import rs.gospaleks.waterspot.presentation.screens.profile.ThemeViewModel
+import android.location.Location
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
@@ -42,12 +48,47 @@ fun SpotDetailsBottomSheet(
 ) {
     val uiState = viewModel.uiState
 
+    // Prepare camera launcher for Add Photo
+    val context = LocalContext.current
+    val pendingPhotoUri = remember { androidx.compose.runtime.mutableStateOf<Uri?>(null) }
+    val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+        val uri = pendingPhotoUri.value
+        if (success && uri != null) {
+            viewModel.addAdditionalPhotoToSpot(uri)
+        }
+        // Clear after attempt
+        pendingPhotoUri.value = null
+    }
+
+    fun createImageUri(): Uri? {
+        val contentValues = ContentValues().apply {
+            val name = "waterspot_${System.currentTimeMillis()}.jpg"
+            put(MediaStore.Images.Media.DISPLAY_NAME, name)
+            put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
+        }
+        return context.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+    }
+
+    // Compute distance and zone status (shared by Details and Review screens)
+    val (distanceMeters, isInZone) = remember(uiState.userLocation, uiState.selectedSpot) {
+        val user = uiState.userLocation
+        val spot = uiState.selectedSpot?.spot
+        if (user != null && spot != null) {
+            val result = FloatArray(1)
+            Location.distanceBetween(
+                user.latitude, user.longitude,
+                spot.latitude, spot.longitude,
+                result
+            )
+            result[0] to (result[0] <= 50f)
+        } else null to false
+    }
+
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true,
     )
 
     val locationPermission = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
-    val context = LocalContext.current
 
     // Change map style based on theme
     val myTheme by themeViewModel.appTheme.collectAsState(initial = AppTheme.SYSTEM)
@@ -123,6 +164,16 @@ fun SpotDetailsBottomSheet(
                                 }
                             },
                             onUserProfileClick = { },
+                            onAddPhotoClick = {
+                                // Only proceed if enabled (also guarded in ActionsButtons)
+                                val uri = createImageUri()
+                                if (uri != null) {
+                                    pendingPhotoUri.value = uri
+                                    cameraLauncher.launch(uri)
+                                }
+                            },
+                            isAddPhotoEnabled = isInZone,
+                            isUploadingPhoto = uiState.isUploadingPhoto,
                         )
                     }
                     BottomSheetMode.REVIEW -> {
@@ -136,7 +187,9 @@ fun SpotDetailsBottomSheet(
                                     reviewText = reviewText,
                                     rating = rating
                                 )
-                            }
+                            },
+                            isInZone = isInZone,
+                            distanceMeters = distanceMeters
                         )
                     }
                 }

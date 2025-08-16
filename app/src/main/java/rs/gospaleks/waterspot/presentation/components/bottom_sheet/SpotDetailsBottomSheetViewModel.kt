@@ -1,6 +1,7 @@
 package rs.gospaleks.waterspot.presentation.components.bottom_sheet
 
 import android.Manifest
+import android.net.Uri
 import android.util.Log
 import androidx.annotation.RequiresPermission
 import androidx.compose.runtime.mutableStateOf
@@ -20,7 +21,9 @@ import rs.gospaleks.waterspot.domain.use_case.AddReviewUseCase
 import rs.gospaleks.waterspot.domain.use_case.LocationTrackingUseCase
 import rs.gospaleks.waterspot.presentation.components.UiEvent
 import rs.gospaleks.waterspot.domain.model.ReviewWithUser
+import rs.gospaleks.waterspot.domain.use_case.AddAditionalPhotoToSpotUseCase
 import rs.gospaleks.waterspot.domain.use_case.GetAllReviewsForSpotUseCase
+import rs.gospaleks.waterspot.domain.use_case.GetSpotByIdUseCase
 
 data class SpotDetailsBottomSheetUiState(
     val isModalOpen: Boolean = false,
@@ -29,6 +32,7 @@ data class SpotDetailsBottomSheetUiState(
     val selectedSpot: SpotWithUser? = null,
     val reviews: List<ReviewWithUser> = emptyList(),
     val isLoading: Boolean = false,
+    val isUploadingPhoto: Boolean = false,
 )
 
 enum class BottomSheetMode { DETAILS, REVIEW }
@@ -39,6 +43,8 @@ class SpotDetailsBottomSheetViewModel @Inject constructor(
     private val addReviewUseCase: AddReviewUseCase,
     private val getCurrentUserUseCase: GetCurrentUserUseCase,
     private val getAllReviewsForSpotUseCase: GetAllReviewsForSpotUseCase,
+    private val addAditionalPhotoToSpotUseCase: AddAditionalPhotoToSpotUseCase,
+    private val getSpotByIdUseCase: GetSpotByIdUseCase,
 ) : ViewModel() {
 
     var uiState by mutableStateOf(SpotDetailsBottomSheetUiState())
@@ -92,10 +98,48 @@ class SpotDetailsBottomSheetViewModel @Inject constructor(
 
             if (result.isSuccess) {
                 openDetails()
-                eventFlow.emit(UiEvent.ShowToast("Review submitted successfully!"))
+                eventFlow.emit(UiEvent.ShowToast("Submitted successfully!"))
             } else {
                 eventFlow.emit(UiEvent.ShowToast(result.exceptionOrNull()?.message ?: "Failed to submit review"))
                 result.exceptionOrNull()?.printStackTrace()
+            }
+        }
+    }
+
+    fun addAdditionalPhotoToSpot(photoUri: Uri) {
+        if (uiState.selectedSpot == null) {
+            return
+        }
+
+        viewModelScope.launch {
+            uiState = uiState.copy(isUploadingPhoto = true)
+            val result = addAditionalPhotoToSpotUseCase(uiState.selectedSpot!!.spot.id, photoUri)
+
+            if (result.isSuccess) {
+                eventFlow.emit(UiEvent.ShowToast("Photo added successfully!"))
+                uiState = uiState.copy(isUploadingPhoto = false)
+
+                // Refresh spot data to include new photo
+                val spotResult = getSpotByIdUseCase(uiState.selectedSpot!!.spot.id)
+                if (spotResult.isSuccess) {
+                    val updatedSpot = spotResult.getOrNull()
+                    if (updatedSpot == null) {
+                        eventFlow.emit(UiEvent.ShowToast("Failed to refresh spot data"))
+                    }
+
+                    uiState = uiState.copy(
+                        selectedSpot = SpotWithUser(
+                            spot = updatedSpot!!,
+                            user = uiState.selectedSpot?.user
+                        )
+                    )
+                } else {
+                    eventFlow.emit(UiEvent.ShowToast("Failed to refresh spot data"))
+                }
+            } else {
+                eventFlow.emit(UiEvent.ShowToast(result.exceptionOrNull()?.message ?: "Failed to add photo"))
+                result.exceptionOrNull()?.printStackTrace()
+                uiState = uiState.copy(isUploadingPhoto = false)
             }
         }
     }

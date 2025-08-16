@@ -1,6 +1,5 @@
 package rs.gospaleks.waterspot.presentation.components.bottom_sheet
 
-import android.location.Location
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -52,7 +51,9 @@ fun ReviewContent(
     data: SpotWithUser,
     userLocation: LatLng?,
     onBack: () -> Unit,
-    onSubmitReview: (String, Float) -> Unit
+    onSubmitReview: (String, Float) -> Unit,
+    isInZone: Boolean,
+    distanceMeters: Float?
 ) {
     val spotLatLng = LatLng(data.spot.latitude, data.spot.longitude)
     val cameraPositionState = rememberCameraPositionState()
@@ -74,18 +75,6 @@ fun ReviewContent(
         }
     }
 
-    val distanceMeters = remember(userLocation, spotLatLng) {
-        userLocation?.let {
-            val result = FloatArray(1)
-            Location.distanceBetween(
-                it.latitude, it.longitude,
-                spotLatLng.latitude, spotLatLng.longitude,
-                result
-            )
-            result[0]
-        }
-    }
-    val isInZone = distanceMeters?.let { it <= 50f } ?: false
 
     LazyColumn (
         modifier = Modifier.padding(horizontal = 24.dp),

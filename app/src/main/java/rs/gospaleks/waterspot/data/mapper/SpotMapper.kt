@@ -13,6 +13,7 @@ fun FirestoreSpotDto.toDomain(): Spot {
         latitude = lat,
         longitude = lng,
         photoUrl = photoUrl,
+        additionalPhotos = additionalPhotos,
         type = type.toSpotTypeEnum(),
         cleanliness = cleanliness.toCleanlinessLevelEnum(),
         description = description,

@@ -32,6 +32,7 @@ import rs.gospaleks.waterspot.domain.auth.use_case.ValidatePhoneNumberUseCase
 import rs.gospaleks.waterspot.domain.auth.use_case.ValidateRegisterPasswordUseCase
 import rs.gospaleks.waterspot.domain.repository.SpotRepository
 import rs.gospaleks.waterspot.domain.repository.UserRepository
+import rs.gospaleks.waterspot.domain.use_case.AddAditionalPhotoToSpotUseCase
 import rs.gospaleks.waterspot.domain.use_case.AddReviewUseCase
 import rs.gospaleks.waterspot.domain.use_case.AddSpotUseCase
 import rs.gospaleks.waterspot.domain.use_case.GetAllReviewsForSpotUseCase
@@ -95,11 +96,21 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideSpotRepository(cloudinaryDataSource: CloudinaryDataSource, firestoreSpotDataSource: FirestoreSpotDataSource, firestoreUserDataSource: FirestoreUserDataSource): SpotRepository {
-        return SpotRepositoryImpl(cloudinaryDataSource, firestoreSpotDataSource, firestoreUserDataSource)
+    fun provideSpotRepository(
+        cloudinaryDataSource: CloudinaryDataSource,
+        firebaseAuthDataSource: FirebaseAuthDataSource,
+        firestoreSpotDataSource: FirestoreSpotDataSource,
+        firestoreUserDataSource: FirestoreUserDataSource
+    ): SpotRepository {
+        return SpotRepositoryImpl(cloudinaryDataSource, firebaseAuthDataSource, firestoreSpotDataSource, firestoreUserDataSource)
     }
 
     // Use Cases
+    @Provides
+    fun provideAddAditionalPhotoToSpotUseCase(spotRepository: SpotRepository): AddAditionalPhotoToSpotUseCase {
+        return AddAditionalPhotoToSpotUseCase(spotRepository)
+    }
+
     @Provides
     fun provideGetAllReviewsForSpotUseCase(spotRepository: SpotRepository): GetAllReviewsForSpotUseCase {
         return GetAllReviewsForSpotUseCase(spotRepository)

@@ -5,6 +5,7 @@ import com.firebase.geofire.GeoFireUtils
 import com.firebase.geofire.GeoLocation
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.QuerySnapshot
@@ -222,7 +223,7 @@ class FirestoreSpotDataSource @Inject constructor(
             val existingReview = reviewRef.get().await()
 
             if (existingReview.exists()) {
-                Result.failure(Exception("Review already exists for this user"))
+                Result.failure(Exception("Review already exists"))
             } else {
                 reviewRef.set(review).await()
 
@@ -245,6 +246,24 @@ class FirestoreSpotDataSource @Inject constructor(
 
                 Result.success(Unit)
             }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Result.failure(e)
+        }
+    }
+
+    suspend fun addAdditionalPhotoToSpot(spotId: String, photoUrl: String): Result<String> {
+        return try {
+            val spotRef = firestore.collection("spots").document(spotId)
+            val spotSnapshot = spotRef.get().await()
+
+            if (!spotSnapshot.exists()) {
+                return Result.failure(Exception("Spot not found"))
+            }
+
+            // Add the new photo URL to the additionalPhotos array
+            spotRef.update("additionalPhotos", FieldValue.arrayUnion(photoUrl)).await()
+            Result.success(photoUrl)
         } catch (e: Exception) {
             e.printStackTrace()
             Result.failure(e)

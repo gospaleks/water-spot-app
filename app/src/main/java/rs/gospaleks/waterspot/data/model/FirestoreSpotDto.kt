@@ -8,7 +8,8 @@ data class FirestoreSpotDto(
     val lat: Double = 0.0,
     val lng: Double = 0.0,
     val geohash: String? = null,
-    val photoUrl: String? = null,
+    val photoUrl: String? = null, // glavna fotografija (od korisnika koji je dodao spot)
+    val additionalPhotos: List<String> = emptyList(), // nove fotografije od drugih korisnika
     val type: String = "",
     val cleanliness: String = "",
     val description: String? = null,

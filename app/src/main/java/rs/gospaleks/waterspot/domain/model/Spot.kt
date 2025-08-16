@@ -35,6 +35,7 @@ data class Spot(
     val latitude: Double,
     val longitude: Double,
     val photoUrl: String? = null,
+    val additionalPhotos: List<String> = emptyList(), // URLs of additional photos
     val type: SpotTypeEnum,
     val cleanliness: CleanlinessLevelEnum,
     val description: String?,

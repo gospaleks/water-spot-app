@@ -6,6 +6,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddAPhoto
 import androidx.compose.material.icons.filled.Navigation
 import androidx.compose.material.icons.filled.RateReview
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -27,6 +28,7 @@ fun ActionsButtons(
     onReviewClick: () -> Unit,
     onAddPhotoClick: () -> Unit = {},
     isAddPhotoEnabled: Boolean = false,
+    isUploadingPhoto: Boolean = false,
 ) {
     Row(
         horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -51,8 +53,9 @@ fun ActionsButtons(
         ActionItem(
             icon = Icons.Default.AddAPhoto,
             label = stringResource(R.string.spot_details_add_photo_button),
-            enabled = isAddPhotoEnabled,
+            enabled = isAddPhotoEnabled && !isUploadingPhoto,
             onClick = onAddPhotoClick,
+            showProgress = isUploadingPhoto,
             modifier = Modifier.weight(1f)
         )
     }
@@ -64,7 +67,8 @@ private fun ActionItem(
     label: String,
     enabled: Boolean,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    showProgress: Boolean = false,
 ) {
     // Transparent clickable surface for ripple + semantics
     Surface(
@@ -84,12 +88,19 @@ private fun ActionItem(
                 .padding(vertical = 6.dp, horizontal = 4.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = if (enabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
-                modifier = Modifier.size(26.dp)
-            )
+            if (showProgress) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(20.dp),
+                    strokeWidth = 2.dp,
+                )
+            } else {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = if (enabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
+                    modifier = Modifier.size(26.dp)
+                )
+            }
             Spacer(modifier = Modifier.height(6.dp))
             Text(
                 text = label,
