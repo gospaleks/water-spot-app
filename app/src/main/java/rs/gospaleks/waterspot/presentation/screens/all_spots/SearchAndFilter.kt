@@ -1,16 +1,9 @@
 package rs.gospaleks.waterspot.presentation.screens.all_spots
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
-import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -19,9 +12,8 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.FilterList
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -31,10 +23,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.traversalIndex
@@ -46,27 +34,34 @@ import rs.gospaleks.waterspot.domain.model.SpotWithUser
 import rs.gospaleks.waterspot.presentation.components.icon
 import rs.gospaleks.waterspot.presentation.components.toDisplayName
 import rs.gospaleks.waterspot.presentation.components.getColor
-import androidx.compose.foundation.shape.RoundedCornerShape
+import rs.gospaleks.waterspot.presentation.components.ReusableBottomSheetHost
+import rs.gospaleks.waterspot.presentation.screens.all_spots.components.CleanlinessFilterBottomSheetContent
+import rs.gospaleks.waterspot.presentation.screens.all_spots.components.RadiusFilterBottomSheetContent
+import rs.gospaleks.waterspot.presentation.screens.all_spots.components.TypeFilterBottomSheetContent
+
+private enum class FilterSheet { Type, Cleanliness, Radius }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchAndFilter(
     textFieldState: TextFieldState,
-    // Changed: provide full items instead of just strings
     searchResults: List<SpotWithUser>,
-    // Filters
     selectedTypes: Set<SpotTypeEnum>,
     onToggleType: (SpotTypeEnum) -> Unit,
     selectedCleanliness: Set<CleanlinessLevelEnum>,
     onToggleCleanliness: (CleanlinessLevelEnum) -> Unit,
-    radiusKm: Int,
-    onRadiusChange: (Int) -> Unit,
+    radiusMeters: Int,
+    onRadiusMetersChange: (Int) -> Unit,
     onRadiusChangeFinished: () -> Unit,
     onQueryChange: (String) -> Unit,
+    onClearAllFilters: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var expanded by rememberSaveable { mutableStateOf(false) }
-    var filtersVisible by rememberSaveable { mutableStateOf(false) }
+
+    // Bottom sheet host state
+    var showBottomSheet by rememberSaveable { mutableStateOf(false) }
+    var currentSheet by rememberSaveable { mutableStateOf<FilterSheet?>(null) }
 
     Column(
         modifier
@@ -152,231 +147,225 @@ fun SearchAndFilter(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     if (searchResults.isEmpty()) {
-                        item {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(top = 12.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Outlined.Search,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.size(20.dp)
-                                )
-                                Spacer(Modifier.width(8.dp))
-                                Text(
-                                    text = "No results",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                        }
+                        item { NoResultsRow() }
                     } else {
                         items(searchResults.size) { idx ->
                             val item = searchResults[idx]
                             val spot = item.spot
-
                             val isFirst = idx == 0
                             val isLast = idx == searchResults.lastIndex
-
-                            Surface(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(
-                                        top = if (isFirst) 8.dp else 0.dp,
-                                        bottom = if (isLast) 8.dp else 0.dp
-                                    ).animateItem(),
-                                shape = RoundedCornerShape(20.dp),
-                                color = MaterialTheme.colorScheme.background,
-                                tonalElevation = 1.dp
-                            ) {
-                                ListItem(
-                                    leadingContent = {
-                                        Icon(
-                                            imageVector = spot.type.icon(),
-                                            contentDescription = null,
-                                            modifier = Modifier.size(20.dp),
-                                            tint = MaterialTheme.colorScheme.onSurface
-                                        )
-                                    },
-                                    headlineContent = {
-                                        Text(
-                                            text = spot.description?.ifBlank { spot.type.toDisplayName() } ?: spot.type.toDisplayName(),
-                                            maxLines = 1,
-                                            overflow = TextOverflow.Ellipsis
-                                        )
-                                    },
-                                    supportingContent = {
-                                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                                            Text(
-                                                text = spot.type.toDisplayName(),
-                                                style = MaterialTheme.typography.labelMedium,
-                                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                                            )
-                                            Text("•", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                            Icon(
-                                                imageVector = spot.cleanliness.icon(),
-                                                contentDescription = null,
-                                                modifier = Modifier.size(14.dp),
-                                                tint = spot.cleanliness.getColor()
-                                            )
-                                            Text(
-                                                text = spot.cleanliness.toDisplayName(),
-                                                style = MaterialTheme.typography.labelMedium,
-                                                color = spot.cleanliness.getColor()
-                                            )
-                                            item.user?.let { user ->
-                                                Text(
-                                                    text = "• by ${user.fullName}",
-                                                    style = MaterialTheme.typography.labelSmall,
-                                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                                    maxLines = 1,
-                                                    overflow = TextOverflow.Ellipsis
-                                                )
-                                            }
-                                        }
-                                    },
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .clickable {
-                                            val queryToApply = spot.description?.takeIf { it.isNotBlank() } ?: spot.type.name
-                                            textFieldState.edit { replace(0, length, queryToApply) }
-                                            onQueryChange(queryToApply)
-                                            expanded = false
-                                        }
-                                )
-                            }
+                            SearchSuggestionItem(
+                                isFirst = isFirst,
+                                isLast = isLast,
+                                title = spot.description?.ifBlank { spot.type.toDisplayName() } ?: spot.type.toDisplayName(),
+                                type = spot.type,
+                                cleanliness = spot.cleanliness,
+                                author = item.user?.fullName,
+                                onClick = {
+                                    val queryToApply = spot.description?.takeIf { it.isNotBlank() } ?: spot.type.name
+                                    textFieldState.edit { replace(0, length, queryToApply) }
+                                    onQueryChange(queryToApply)
+                                    expanded = false
+                                }
+                            )
                         }
                     }
                 }
             }
         }
 
-        Spacer(Modifier.height(2.dp))
+        Spacer(Modifier.height(8.dp))
 
-        // Filters toggle row (icon only)
-        val rotation by animateFloatAsState(
-            targetValue = if (filtersVisible) 180f else 0f,
-            animationSpec = tween(220, easing = FastOutSlowInEasing),
-            label = "filtersIconRotation"
-        )
-        val iconTint by animateColorAsState(
-            targetValue = if (filtersVisible) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
-            animationSpec = tween(220, easing = FastOutSlowInEasing),
-            label = "filtersIconTint"
-        )
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp, vertical = 12.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
+        // Gmail-like filters row -> LazyRow with chips + clear icon
+        val hasActiveFilters = selectedTypes.isNotEmpty() || selectedCleanliness.isNotEmpty() || radiusMeters != DEFAULT_RADIUS_METERS
+        LazyRow(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = "Spot List")
-            Row(
-                modifier = Modifier.clickable { filtersVisible = !filtersVisible },
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(text = "Filters")
-                Spacer(Modifier.width(8.dp))
-                Icon(
-                    imageVector = Icons.Default.FilterList,
-                    contentDescription = "Toggle filters",
-                    tint = iconTint,
-                    modifier = Modifier
-                        .size(24.dp)
-                        .rotate(rotation)
+            item {
+                FilterChip(
+                    selected = selectedTypes.isNotEmpty(),
+                    onClick = {
+                        currentSheet = FilterSheet.Type
+                        showBottomSheet = true
+                    },
+                    label = {
+                        val count = selectedTypes.size
+                        Text(if (count == 0) "Type" else "Type ($count)")
+                    }
                 )
             }
-        }
-
-        AnimatedVisibility(
-            visible = filtersVisible,
-            enter = fadeIn() + expandVertically(),
-            exit = fadeOut() + shrinkVertically()
-        ) {
-            Column {
-                Spacer(Modifier.height(8.dp))
-
-                // Spot Types
-                LazyRow(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    contentPadding = PaddingValues(horizontal = 24.dp)
-                ) {
-                    val allTypes = SpotTypeEnum.entries
-                    items(allTypes.size) { idx ->
-                        val type = allTypes[idx]
-                        FilterChip(
-                            selected = selectedTypes.contains(type),
-                            onClick = { onToggleType(type) },
-                            label = { Text(type.toDisplayName()) },
-                            leadingIcon = {
-                                Icon(
-                                    imageVector = type.icon(),
-                                    contentDescription = null,
-                                    modifier = Modifier.size(18.dp)
-                                )
-                            }
+            item {
+                FilterChip(
+                    selected = selectedCleanliness.isNotEmpty(),
+                    onClick = {
+                        currentSheet = FilterSheet.Cleanliness
+                        showBottomSheet = true
+                    },
+                    label = {
+                        val count = selectedCleanliness.size
+                        Text(if (count == 0) "Cleanliness" else "Cleanliness ($count)")
+                    }
+                )
+            }
+            item {
+                FilterChip(
+                    selected = radiusMeters != DEFAULT_RADIUS_METERS,
+                    onClick = {
+                        currentSheet = FilterSheet.Radius
+                        showBottomSheet = true
+                    },
+                    label = {
+                        Text("Radius: ${formatRadius(radiusMeters)}")
+                    }
+                )
+            }
+            item {
+                if (hasActiveFilters) {
+                    IconButton(
+                        onClick = onClearAllFilters,
+                        enabled = true
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Close,
+                            contentDescription = "Clear filters"
                         )
                     }
                 }
-
-                Spacer(Modifier.height(6.dp))
-
-                // Cleanliness Levels
-                val allLevels = CleanlinessLevelEnum.entries
-                LazyRow(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    contentPadding = PaddingValues(horizontal = 24.dp)
-                ) {
-                    items(allLevels.size) { idx ->
-                        val level = allLevels[idx]
-                        FilterChip(
-                            selected = selectedCleanliness.contains(level),
-                            onClick = { onToggleCleanliness(level) },
-                            label = { Text(level.toDisplayName()) },
-                            leadingIcon = {
-                                Icon(
-                                    imageVector = level.icon(),
-                                    contentDescription = null,
-                                    tint = level.getColor(),
-                                    modifier = Modifier.size(18.dp)
-                                )
-                            }
-                        )
-                    }
-                }
-
-                Spacer(Modifier.height(6.dp))
-
-                val radiusOptions = listOf(1, 2, 5, 10, 20, 30, 50)
-                LazyRow(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    contentPadding = PaddingValues(horizontal = 24.dp)
-                ) {
-                    items(radiusOptions.size) { idx ->
-                        val km = radiusOptions[idx]
-                        FilterChip(
-                            selected = radiusKm == km,
-                            onClick = {
-                                if (radiusKm != km) {
-                                    onRadiusChange(km)
-                                    onRadiusChangeFinished()
-                                }
-                            },
-                            label = { Text("$km km") }
-                        )
-                    }
-                }
-
-                Spacer(Modifier.height(8.dp))
             }
         }
+
+        Spacer(Modifier.height(8.dp))
+
+        // Bottom sheet host - renders with latest state
+        ReusableBottomSheetHost(
+            show = showBottomSheet,
+            onDismissRequest = { showBottomSheet = false },
+            sheetContent = {
+                when (currentSheet) {
+                    FilterSheet.Type -> TypeFilterBottomSheetContent(
+                        selectedTypes = selectedTypes,
+                        onToggleType = onToggleType,
+                    )
+                    FilterSheet.Cleanliness -> CleanlinessFilterBottomSheetContent(
+                        selectedCleanliness = selectedCleanliness,
+                        onToggleCleanliness = onToggleCleanliness,
+                    )
+                    FilterSheet.Radius -> RadiusFilterBottomSheetContent(
+                        currentMeters = radiusMeters,
+                        onMetersChange = onRadiusMetersChange,
+                        onApply = {
+                            onRadiusChangeFinished()
+                            showBottomSheet = false
+                        }
+                    )
+
+                    null -> {}
+                }
+            }
+        )
     }
+}
+
+@Composable
+private fun NoResultsRow() {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = Icons.Outlined.Search,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.size(20.dp)
+        )
+        Spacer(Modifier.width(8.dp))
+        Text(
+            text = "No results",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SearchSuggestionItem(
+    isFirst: Boolean,
+    isLast: Boolean,
+    title: String,
+    type: SpotTypeEnum,
+    cleanliness: CleanlinessLevelEnum,
+    author: String?,
+    onClick: () -> Unit
+) {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(
+                top = if (isFirst) 8.dp else 0.dp,
+                bottom = if (isLast) 8.dp else 0.dp
+            ),
+        shape = MaterialTheme.shapes.large,
+        color = MaterialTheme.colorScheme.background,
+        tonalElevation = 1.dp
+    ) {
+        ListItem(
+            leadingContent = {
+                Icon(
+                    imageVector = type.icon(),
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp),
+                    tint = MaterialTheme.colorScheme.onSurface
+                )
+            },
+            headlineContent = {
+                Text(
+                    text = title,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            },
+            supportingContent = {
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = type.toDisplayName(),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text("•", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Icon(
+                        imageVector = cleanliness.icon(),
+                        contentDescription = null,
+                        modifier = Modifier.size(14.dp),
+                        tint = cleanliness.getColor()
+                    )
+                    Text(
+                        text = cleanliness.toDisplayName(),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = cleanliness.getColor()
+                    )
+                    author?.let {
+                        Text(
+                            text = "• by $it",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                }
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { onClick() }
+        )
+    }
+}
+
+private fun formatRadius(meters: Int): String {
+    return if (meters < 1000) "${meters} m" else "${meters / 1000} km"
 }

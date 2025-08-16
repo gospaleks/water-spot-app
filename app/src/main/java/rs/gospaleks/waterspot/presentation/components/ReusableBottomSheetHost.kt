@@ -1,8 +1,7 @@
-package rs.gospaleks.waterspot.presentation.screens.profile
+package rs.gospaleks.waterspot.presentation.components
 
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.SheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api

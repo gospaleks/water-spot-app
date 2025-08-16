@@ -44,6 +44,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import rs.gospaleks.waterspot.domain.model.AppTheme
 import rs.gospaleks.waterspot.presentation.components.RankBadge
+import rs.gospaleks.waterspot.presentation.components.ReusableBottomSheetHost
 import rs.gospaleks.waterspot.service.LocationTrackingService
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)

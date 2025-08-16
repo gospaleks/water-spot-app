@@ -1,7 +1,6 @@
 package rs.gospaleks.waterspot.presentation.screens.all_spots
 
 import androidx.compose.animation.core.*
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
@@ -23,11 +22,13 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import rs.gospaleks.waterspot.presentation.components.card.SpotCard
 import rs.gospaleks.waterspot.presentation.components.bottom_sheet.SpotDetailsBottomSheet
 import rs.gospaleks.waterspot.presentation.components.bottom_sheet.SpotDetailsBottomSheetViewModel
 import rs.gospaleks.waterspot.R
-import rs.gospaleks.waterspot.presentation.components.toDisplayName
 
 @Composable
 fun AllSpotsScreen(
@@ -37,6 +38,18 @@ fun AllSpotsScreen(
     val bottomSheetViewModel: SpotDetailsBottomSheetViewModel = hiltViewModel()
 
     val uiState = viewModel.uiState
+
+    // Re-fetch spots on every screen entry (ON_START)
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_START) {
+                viewModel.observeSpots(viewModel.uiState.radiusMeters)
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
 
     Column (
         modifier = Modifier
@@ -53,16 +66,22 @@ fun AllSpotsScreen(
             onToggleType = viewModel::toggleTypeFilter,
             selectedCleanliness = uiState.selectedCleanlinessFilters,
             onToggleCleanliness = viewModel::toggleCleanlinessFilter,
-            radiusKm = uiState.radiusKm,
-            onRadiusChange = viewModel::updateRadiusKm,
+            radiusMeters = uiState.radiusMeters,
+            onRadiusMetersChange = viewModel::updateRadiusMeters,
             onRadiusChangeFinished = viewModel::applyRadiusChange,
             onQueryChange = viewModel::setSearchQuery,
+            onClearAllFilters = viewModel::clearAllFilters,
         )
+
+        // Lightweight loading bar for background refresh (e.g., radius change)
+        if (uiState.isLoading && uiState.filteredSpots.isNotEmpty()) {
+            LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+        }
 
         // Content area (list/loading/empty)
         when {
-            uiState.isLoading -> {
-                // Shimmer skeleton list
+            uiState.isLoading && uiState.filteredSpots.isEmpty() -> {
+                // Shimmer skeleton list (only for initial load when list is empty)
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxWidth()

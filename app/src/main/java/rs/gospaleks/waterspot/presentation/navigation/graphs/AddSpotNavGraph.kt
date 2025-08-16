@@ -13,7 +13,6 @@ import rs.gospaleks.waterspot.presentation.screens.add_spot.AddSpotDetailsScreen
 import rs.gospaleks.waterspot.presentation.screens.add_spot.AddSpotPhotoScreen
 import rs.gospaleks.waterspot.presentation.screens.add_spot.AddSpotScreen
 import rs.gospaleks.waterspot.presentation.screens.add_spot.AddSpotViewModel
-import rs.gospaleks.waterspot.presentation.screens.settings.SettingsScreen
 
 fun NavGraphBuilder.addSpotNavGraph(
     rootNavHostController: NavHostController,

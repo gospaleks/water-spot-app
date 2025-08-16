@@ -27,15 +27,17 @@ data class AllSpotsUiState(
     val selectedTypeFilters: Set<SpotTypeEnum> = emptySet(),
     val selectedCleanlinessFilters: Set<CleanlinessLevelEnum> = emptySet(),
     val searchQuery: String = "",
-    // Radius in kilometers (default 5 km)
-    val radiusKm: Int = 5,
+    // Store radius in meters for finer control (supports sub-km)
+    val radiusMeters: Int = DEFAULT_RADIUS_METERS,
     val error: String? = null
 )
+
+const val DEFAULT_RADIUS_METERS = 5_000
 
 @HiltViewModel
 class AllSpotsViewModel @Inject constructor(
     private val getAllSpotsWithUserUseCase: GetAllSpotsWithUserUseCase,
-    private val locationTrackingUseCase: LocationTrackingUseCase
+    locationTrackingUseCase: LocationTrackingUseCase
 ) : ViewModel() {
     var uiState by mutableStateOf(AllSpotsUiState())
         private set
@@ -47,8 +49,8 @@ class AllSpotsViewModel @Inject constructor(
 
     init {
         currLocation = locationTrackingUseCase.currentLocation.value ?: currLocation
-        // Initial fetch with default radius
-        observeSpots(radiusKm = uiState.radiusKm)
+        // Initial fetch with default radius (meters)
+        observeSpots(radiusMeters = uiState.radiusMeters)
     }
 
     // Public API to update filters/search
@@ -73,25 +75,42 @@ class AllSpotsViewModel @Inject constructor(
         applyFilters()
     }
 
-    // Called while the slider moves (do not re-fetch)
-    fun updateRadiusKm(km: Int) {
-        if (km != uiState.radiusKm) {
-            uiState = uiState.copy(radiusKm = km)
+    // Slider moves (no fetch yet)
+    fun updateRadiusMeters(meters: Int) {
+        if (meters != uiState.radiusMeters) {
+            uiState = uiState.copy(radiusMeters = meters)
         }
     }
 
-    // Call this when user releases the slider to re-fetch data for the new radius
+    // Called when slider finishes or quick-chip selected
     fun applyRadiusChange() {
-        observeSpots(radiusKm = uiState.radiusKm)
+        observeSpots(radiusMeters = uiState.radiusMeters, forceLoading = true)
     }
 
-    private fun observeSpots(radiusKm: Int) {
+    fun clearAllFilters() {
+        val reset = uiState.copy(
+            selectedTypeFilters = emptySet(),
+            selectedCleanlinessFilters = emptySet(),
+            radiusMeters = DEFAULT_RADIUS_METERS
+        )
+        uiState = reset
+        applyFilters()
+        // Refresh for default radius
+        observeSpots(radiusMeters = uiState.radiusMeters, forceLoading = true)
+    }
+
+    fun observeSpots(radiusMeters: Int, forceLoading: Boolean = false) {
         observeJob?.cancel()
         observeJob = viewModelScope.launch {
-            uiState = uiState.copy(isLoading = true)
+            // Show loading only on first load (empty) or if explicitly forced (e.g., radius change)
+            val shouldShowLoading = forceLoading || uiState.allSpots.isEmpty()
+            uiState = uiState.copy(isLoading = shouldShowLoading)
 
-            val radiusMeters = radiusKm * 1000.0
-            getAllSpotsWithUserUseCase(currLocation.latitude, currLocation.longitude, radiusMeters).collect { result ->
+            getAllSpotsWithUserUseCase(
+                currLocation.latitude,
+                currLocation.longitude,
+                radiusMeters.toDouble()
+            ).collect { result ->
                 result
                     .onSuccess { spots ->
                         uiState = uiState.copy(
