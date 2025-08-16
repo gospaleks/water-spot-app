@@ -3,7 +3,6 @@ package rs.gospaleks.waterspot.presentation.screens.profile
 import android.Manifest
 import android.content.Intent
 import android.os.Build
-import android.util.Log
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionState
 import com.google.accompanist.permissions.isGranted
@@ -19,11 +18,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.LightMode
-import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Translate
+import androidx.compose.material.icons.filled.WaterDrop
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -36,10 +34,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import rs.gospaleks.waterspot.presentation.components.AvatarPicker
 import androidx.compose.runtime.getValue
@@ -200,18 +196,24 @@ fun ProfileScreen(
                     title = stringResource(R.string.edit_profile),
                     onClick = onEditProfileClick
                 )
+//                ProfileOptionItem(
+//                    icon = Icons.Default.WaterDrop,
+//                    iconTint = MaterialTheme.colorScheme.primary,
+//                    title = stringResource(R.string.my_spots),
+//                    onClick = onMyWaterSpotsClick
+//                )
                 ProfileOptionItem(
                     icon = Icons.Default.Lock,
                     iconTint = MaterialTheme.colorScheme.primary,
                     title = stringResource(R.string.change_password),
                     onClick = onChangePasswordClick
                 )
-                ProfileOptionItem(
-                    icon = Icons.Default.Translate,
-                    iconTint = MaterialTheme.colorScheme.primary,
-                    title = stringResource(R.string.change_language),
-                    onClick = {} // TODO: Implement language change with bottom sheet
-                )
+//                ProfileOptionItem(
+//                    icon = Icons.Default.Translate,
+//                    iconTint = MaterialTheme.colorScheme.primary,
+//                    title = stringResource(R.string.change_language),
+//                    onClick = {} // TODO: Implement language change with bottom sheet
+//                )
                 ProfileOptionItem(
                     icon = if (selectedTheme == AppTheme.DARK) Icons.Default.DarkMode else Icons.Default.LightMode,
                     iconTint = MaterialTheme.colorScheme.primary,

@@ -1,21 +1,19 @@
 package rs.gospaleks.waterspot.presentation.components.bottom_sheet
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.CalendarToday
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -26,9 +24,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import coil.compose.SubcomposeAsyncImage
 import rs.gospaleks.waterspot.domain.model.ReviewWithUser
 import rs.gospaleks.waterspot.domain.model.SpotWithUser
-import rs.gospaleks.waterspot.presentation.components.CleanlinessChip
 import rs.gospaleks.waterspot.presentation.components.getColor
 import rs.gospaleks.waterspot.presentation.components.icon
 import rs.gospaleks.waterspot.presentation.components.toDisplayName
@@ -54,7 +52,7 @@ fun SpotDetailsContent(
             modifier = Modifier
                 .weight(1f)
                 .padding(horizontal = 20.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp)
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             // 📷 Image with gradient overlay and chips
             item {
@@ -62,14 +60,33 @@ fun SpotDetailsContent(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(20.dp))
+                        .border( // subtle outline around image card
+                            width = 1.dp,
+                            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
+                            shape = RoundedCornerShape(20.dp)
+                        )
                 ) {
-                    AsyncImage(
+                    SubcomposeAsyncImage(
                         model = data.spot.photoUrl,
                         contentDescription = "Spot photo",
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .aspectRatio(4f / 3f)
+                            .aspectRatio(4f / 3f),
+                        loading = {
+                            Box(
+                                Modifier
+                                    .fillMaxSize()
+                                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f))
+                            )
+                        },
+                        error = {
+                            Box(
+                                Modifier
+                                    .fillMaxSize()
+                                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f))
+                            )
+                        }
                     )
 
                     // Gradijent preko donjeg dela slike
@@ -140,105 +157,149 @@ fun SpotDetailsContent(
                 }
             }
 
-            // 🌍 Type + date & user
+            // 🌍 Type + date & user (elevated container)
             item {
-                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                Surface(
+                    shape = RoundedCornerShape(16.dp),
+                    color = MaterialTheme.colorScheme.surfaceContainer,
+                    tonalElevation = 2.dp,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(10.dp),
+                        modifier = Modifier.padding(12.dp)
                     ) {
-                        Icon(
-                            imageVector = data.spot.type.icon(),
-                            contentDescription = null,
-                            modifier = Modifier.size(28.dp),
-                        )
-                        Text(
-                            text = data.spot.type.toDisplayName(),
-                            style = MaterialTheme.typography.titleLarge
-                        )
-                    }
-
-                    // Date + user stacked
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f))
-                            .padding(horizontal = 12.dp, vertical = 8.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Outlined.CalendarToday,
-                            contentDescription = null,
-                            modifier = Modifier.size(16.dp),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Text(
-                            text = "Added on $createdDate",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-
-                        Spacer(Modifier.width(8.dp))
-
-                        data.user?.let { user ->
-                            AsyncImage(
-                                model = user.profilePictureUrl,
-                                contentDescription = "Profile picture",
-                                modifier = Modifier
-                                    .size(22.dp)
-                                    .clip(CircleShape)
-                                    .clickable(onClick = onUserProfileClick),
-                                contentScale = ContentScale.Crop
+                        // Type row (no chip)
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Icon(
+                                imageVector = data.spot.type.icon(),
+                                contentDescription = null,
+                                modifier = Modifier.size(22.dp)
                             )
                             Text(
-                                text = user.fullName,
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.primary,
-                                maxLines = 1,
-                                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
-                                modifier = Modifier
-                                    .weight(1f, false)
-                                    .clickable(onClick = onUserProfileClick)
+                                text = data.spot.type.toDisplayName(),
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                        }
+
+                        HorizontalDivider(
+                            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
+                            thickness = 0.5.dp
+                        )
+
+                        // Date + user row
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.CalendarToday,
+                                contentDescription = null,
+                                modifier = Modifier.size(20.dp),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Text(
+                                text = createdDate,
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+
+                            Spacer(Modifier.width(8.dp))
+
+                            data.user?.let { user ->
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier
+                                        .weight(1f, false)
+                                        .clickable(onClick = onUserProfileClick)
+                                        .padding(vertical = 4.dp, horizontal = 4.dp)
+                                ) {
+                                    AsyncImage(
+                                        model = user.profilePictureUrl,
+                                        contentDescription = "Profile picture",
+                                        modifier = Modifier
+                                            .size(28.dp) // larger touch target
+                                            .clip(CircleShape),
+                                        contentScale = ContentScale.Crop
+                                    )
+                                    Text(
+                                        text = user.fullName,
+                                        style = MaterialTheme.typography.bodyMedium, // slightly bigger than labelSmall
+                                        color = MaterialTheme.colorScheme.primary,
+                                        maxLines = 1,
+                                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                                        modifier = Modifier.padding(start = 8.dp)
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // 📝 Description with header (elevated container)
+            data.spot.description?.takeIf { it.isNotBlank() }?.let { description ->
+                item {
+                    Surface(
+                        shape = RoundedCornerShape(16.dp),
+                        color = MaterialTheme.colorScheme.surfaceContainer,
+                        tonalElevation = 1.dp,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier.padding(12.dp)
+                        ) {
+                            Text(
+                                text = "Description",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            HorizontalDivider(
+                                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
+                                thickness = 0.5.dp
+                            )
+                            Text(
+                                text = description,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     }
                 }
             }
 
-            // 📝 Description with header
-            data.spot.description?.takeIf { it.isNotBlank() }?.let { description ->
-                item {
+            // ⭐ Reviews
+            item {
+                Surface(
+                    shape = RoundedCornerShape(16.dp),
+                    color = MaterialTheme.colorScheme.surfaceContainer,
+                    tonalElevation = 1.dp,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
                     Column(
-                        verticalArrangement = Arrangement.spacedBy(6.dp),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
-                            .padding(12.dp)
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.padding(12.dp)
                     ) {
                         Text(
-                            text = "Description",
+                            text = "Reviews",
                             style = MaterialTheme.typography.titleMedium,
                             color = MaterialTheme.colorScheme.onSurface
                         )
-                        Text(
-                            text = description,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        HorizontalDivider(
+                            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
+                            thickness = 0.5.dp
+                        )
+                        ReviewsSection(
+                            reviews = reviews,
+                            isLoading = isLoading
                         )
                     }
                 }
-            }
-
-
-            // ⭐ Reviews
-            item {
-                ReviewsSection(
-                    reviews = reviews,
-                    isLoading = isLoading
-                )
             }
         }
 

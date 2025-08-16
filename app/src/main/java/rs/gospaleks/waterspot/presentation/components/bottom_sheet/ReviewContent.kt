@@ -2,16 +2,7 @@ package rs.gospaleks.waterspot.presentation.components.bottom_sheet
 
 import android.location.Location
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -24,6 +15,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -104,50 +96,61 @@ fun ReviewContent(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 12.dp),
+                    .padding(top = 8.dp, bottom = 12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(onClick = onBack) {
                     Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                 }
                 Spacer(Modifier.width(8.dp))
-                Text(stringResource(R.string.review_dialog_title), style = MaterialTheme.typography.titleLarge)
+                Text(
+                    text = stringResource(R.string.review_dialog_title),
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
             }
         }
 
         // Map View
         item {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp)
-                    .clip(RoundedCornerShape(12.dp))
+            Surface(
+                shape = RoundedCornerShape(16.dp),
+                tonalElevation = 1.dp,
+                color = MaterialTheme.colorScheme.surfaceContainer,
+                modifier = Modifier.fillMaxWidth()
             ) {
-                GoogleMap(
-                    modifier = Modifier.fillMaxSize(),
-                    cameraPositionState = cameraPositionState,
-                    properties = MapProperties(
-                        mapStyleOptions = mapStyleJson,
-                        isMyLocationEnabled = userLocation != null
-                    ),
-                    uiSettings = MapUiSettings(
-                        zoomControlsEnabled = false,
-                        myLocationButtonEnabled = false,
-                        compassEnabled = false,
-                    )
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp)
+                        .clip(RoundedCornerShape(16.dp))
                 ) {
-                    val spotMarkerState = remember { MarkerState(position = spotLatLng) }
-                    Marker(
-                        state = spotMarkerState,
-                        icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)
-                    )
-                    Circle(
-                        center = spotLatLng,
-                        fillColor = Color(0xFF81C784).copy(alpha = 0.4f),
-                        strokeColor = Color(0xFF81C784),
-                        strokeWidth = 4f,
-                        radius = 50.0,
-                    )
+                    GoogleMap(
+                        modifier = Modifier.fillMaxSize(),
+                        cameraPositionState = cameraPositionState,
+                        properties = MapProperties(
+                            mapStyleOptions = mapStyleJson,
+                            isMyLocationEnabled = userLocation != null
+                        ),
+                        uiSettings = MapUiSettings(
+                            zoomControlsEnabled = false,
+                            myLocationButtonEnabled = false,
+                            compassEnabled = false,
+                        )
+                    ) {
+                        val spotMarkerState = remember { MarkerState(position = spotLatLng) }
+                        Marker(
+                            state = spotMarkerState,
+                            icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)
+                        )
+                        Circle(
+                            center = spotLatLng,
+                            fillColor = Color(0xFF81C784).copy(alpha = 0.35f),
+                            strokeColor = Color(0xFF81C784),
+                            strokeWidth = 3f,
+                            radius = 50.0,
+                        )
+                    }
                 }
             }
         }
@@ -155,41 +158,71 @@ fun ReviewContent(
         if (!isInZone) {
             item {
                 Spacer(Modifier.height(12.dp))
-                Text(
-                    text = "${stringResource(R.string.review_dialog_move_closer)} ${distanceMeters?.toInt() ?: "?"} m)",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                Surface(
+                    shape = RoundedCornerShape(12.dp),
+                    color = MaterialTheme.colorScheme.surfaceContainerLowest,
+                    tonalElevation = 0.dp,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Row(
+                        modifier = Modifier.padding(12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.RateReview,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        Text(
+                            text = "${stringResource(R.string.review_dialog_move_closer)} ${distanceMeters?.toInt() ?: "?"} m)",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
             }
         }
 
         // Rating
         item {
             Spacer(Modifier.height(16.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
+            Surface(
+                shape = RoundedCornerShape(16.dp),
+                tonalElevation = 1.dp,
+                color = MaterialTheme.colorScheme.surfaceContainer,
+                modifier = Modifier.fillMaxWidth()
             ) {
-                val starCount = 5
-                val spacing = 4.dp
-
-                for (i in 1..starCount) {
-                    val selected = i <= starRating.toInt()
-                    Icon(
-                        imageVector = if (selected) Icons.Filled.Star else Icons.Outlined.Star,
-                        contentDescription = "Star $i",
-                        tint = if (selected) MaterialTheme.colorScheme.primary else Color.Gray,
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(50.dp))
-                            .weight(1f)
-                            .aspectRatio(1f)
-                            .clickable(enabled = isInZone) {
-                                starRating = i.toFloat()
-                            }
+                Column(modifier = Modifier.padding(12.dp)) {
+                    Text(
+                        text = stringResource(R.string.review_dialog_rating_label),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
-                    if (i != starCount) {
-                        Spacer(Modifier.width(spacing))
+                    Spacer(Modifier.height(8.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        val starCount = 5
+                        for (i in 1..starCount) {
+                            val selected = i <= starRating.toInt()
+                            Box(
+                                modifier = Modifier
+                                    .size(44.dp)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .clickable(enabled = isInZone) { starRating = i.toFloat() },
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = if (selected) Icons.Filled.Star else Icons.Outlined.Star,
+                                    contentDescription = "Star $i",
+                                    tint = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -204,6 +237,7 @@ fun ReviewContent(
                 onValueChange = { comment = it },
                 placeholder = { Text(text = stringResource(R.string.review_dialog_comment_placeholder)) },
                 enabled = isInZone,
+                shape = RoundedCornerShape(12.dp),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(140.dp)

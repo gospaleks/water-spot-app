@@ -115,17 +115,17 @@ fun AllSpotsScreen(
                     ) { spotWithUser ->
                         val index = uiState.filteredSpots.indexOf(spotWithUser)
 
-                            SpotCard(
-                                spotWithUser = spotWithUser,
-                                modifier = (if (index == 0) Modifier.padding(top = 8.dp) else Modifier)
-                                    .animateContentSize(),
-                                onCardClick = {
-                                    bottomSheetViewModel.onSpotClick(spotWithUser)
-                                },
-                                onUserClick = { userId ->
-                                    // TODO: Navigiraj do profila korisnika
-                                },
-                            )
+                        SpotCard(
+                            spotWithUser = spotWithUser,
+                            modifier = (if (index == 0) Modifier.padding(top = 8.dp) else Modifier)
+                                .animateItem(),
+                            onCardClick = {
+                                bottomSheetViewModel.onSpotClick(spotWithUser)
+                            },
+                            onUserClick = { userId ->
+                                // TODO: Navigiraj do profila korisnika
+                            },
+                        )
 
                     }
                 }

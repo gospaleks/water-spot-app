@@ -118,10 +118,15 @@
     <string name="spot_details_posted_by">Posted by</string>
     <string name="spot_details_review_button">Review</string>
     <string name="spot_details_navigate_button">Navigate</string>
+    <string name="spot_details_add_photo_button">Add photo</string>
+    <string name="show_less">Show less</string>
+    <string name="read_more">Read more</string>
+    <string name="spot_details_no_reviews">No reviews yet.</string>
 
     // Spot Details Bottom Sheet Modal - Review Dialog
     <string name="review_dialog_title">Review Spot</string>
     <string name="review_dialog_move_closer">Move closer to review (distance:</string>
+    <string name="review_dialog_rating_label">Rate this spot</string>
     <string name="review_dialog_comment_label">Your review</string>
     <string name="review_dialog_comment_placeholder">Share your thoughts about this spot…</string>
     <string name="review_dialog_submit_button">Submit Review</string>
