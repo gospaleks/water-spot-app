@@ -43,9 +43,8 @@ fun RootNavGraph(
         }
         authNavGraph(rootNavHostController = rootNavController)
         profileNavGraph(rootNavHostController = rootNavController)
-        settingsNavGraph(rootNavHostController = rootNavController)
         addSpotNavGraph(rootNavHostController = rootNavController)
 
-        // Napomena: Sa rootNavController se upravlja kroz sve ekrane (mozda suziti da se samo prosledi funkcija umesto celog navController)
+        // Napomena: Sa rootNavController se upravlja kroz sve ekrane
     }
 }

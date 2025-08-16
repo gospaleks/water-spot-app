@@ -118,28 +118,16 @@ class ProfileViewModel @Inject constructor(
             return@launch
         }
 
-        val userDataResult = getUserDataUseCase(uid)
-
-        Log.d("ProfileViewModel", "User data result: $userDataResult")
-
-        if (userDataResult.isSuccess) {
-            val userData = userDataResult.getOrNull()
-            uiState = if (userData != null) {
-                uiState.copy(
-                    user = userData,
-                    isLoading = false
-                )
-            } else {
-                uiState.copy(
-                    isLoading = false,
-                    errorMessage = "User data not found."
-                )
-            }
-        } else {
-            uiState = uiState.copy(
-                isLoading = false,
-                errorMessage = "Failed to load user data."
-            )
+        // Collect flow of user updates and update UI state on every emission
+        getUserDataUseCase(uid).collectLatest { result ->
+            uiState = uiState.copy(isLoading = false)
+            result
+                .onSuccess { user ->
+                    uiState = uiState.copy(user = user, errorMessage = null)
+                }
+                .onFailure { ex ->
+                    uiState = uiState.copy(errorMessage = ex.message)
+                }
         }
     }
 }

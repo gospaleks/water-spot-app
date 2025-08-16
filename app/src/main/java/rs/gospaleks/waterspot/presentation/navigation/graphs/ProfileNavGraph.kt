@@ -22,5 +22,7 @@ fun NavGraphBuilder.profileNavGraph(
                 }
             )
         }
+
+        // TODO: Dodaj dinamicke ekrane za javne profile korisnika
     }
 }

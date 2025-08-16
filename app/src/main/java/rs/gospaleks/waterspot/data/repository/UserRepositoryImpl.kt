@@ -14,7 +14,7 @@ class UserRepositoryImpl @Inject constructor(
     private val firestoreUserDataSource: FirestoreUserDataSource,
     private val cloudinaryDataSource: CloudinaryDataSource
 ) : UserRepository {
-    override suspend fun getUserData(uid: String): Result<User> {
+    override fun getUserData(uid: String): Flow<Result<User>> {
         return firestoreUserDataSource.getUserData(uid)
     }
 

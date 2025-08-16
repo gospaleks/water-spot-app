@@ -2,13 +2,11 @@ package rs.gospaleks.waterspot.data.remote.firebase
 
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import rs.gospaleks.waterspot.data.mapper.toDomain
-import rs.gospaleks.waterspot.data.model.FirestoreSpotDto
 import rs.gospaleks.waterspot.data.model.FirestoreUserDto
 import rs.gospaleks.waterspot.domain.model.User
 import javax.inject.Inject
@@ -26,25 +24,33 @@ class FirestoreUserDataSource @Inject constructor(
         }
     }
 
-    suspend fun getUserData(uid: String): Result<User> {
-        return try {
-            val userDocRef = firestore.collection("users").document(uid)
-            val userSnapshot = userDocRef.get().await()
+    fun getUserData(uid: String): Flow<Result<User>> = callbackFlow {
+        val userDocRef = firestore.collection("users").document(uid)
+        val listener = userDocRef.addSnapshotListener { snapshot, e ->
+            if (e != null) {
+                trySend(Result.failure(e))
+                return@addSnapshotListener
+            }
 
-            if (userSnapshot.exists()) {
-                val dto = userSnapshot.toObject(FirestoreUserDto::class.java)
-                if (dto != null) {
-                    Result.success(dto.toDomain())
-                } else {
-                    Result.failure(Exception("User data is null"))
+            if (snapshot != null && snapshot.exists()) {
+                try {
+                    val dto = snapshot.toObject(FirestoreUserDto::class.java)
+                    val user = dto?.copy(id = snapshot.id)?.toDomain()
+                    if (user != null) {
+                        trySend(Result.success(user))
+                    } else {
+                        trySend(Result.failure(Exception("User data is null")))
+                    }
+                } catch (ex: Exception) {
+                    ex.printStackTrace()
+                    trySend(Result.failure(ex))
                 }
             } else {
-                Result.failure(Exception("User document does not exist"))
+                trySend(Result.failure(Exception("User document does not exist")))
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            Result.failure(e)
         }
+
+        awaitClose { listener.remove() }
     }
 
     suspend fun updateUserProfilePicture(uid: String, profilePicture: String) : Result<Unit> {
