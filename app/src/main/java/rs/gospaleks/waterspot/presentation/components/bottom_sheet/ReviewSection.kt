@@ -26,15 +26,16 @@ import rs.gospaleks.waterspot.R
 @Composable
 fun ReviewsSection(
     reviews: List<ReviewWithUser>,
-    isLoading: Boolean
+    isLoading: Boolean,
+    onReviewerClick: (String) -> Unit,
 ) {
     Column(
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         when {
             isLoading -> repeat(4) { ReviewPlaceholder() }
             reviews.isEmpty() -> NoReviews()
-            else -> reviews.forEach { reviewWithUser -> ReviewCard(reviewWithUser) }
+            else -> reviews.forEach { reviewWithUser -> ReviewCard(reviewWithUser, onReviewerClick) }
         }
     }
 }
@@ -110,7 +111,7 @@ private fun ReviewPlaceholder() {
 }
 
 @Composable
-private fun ReviewCard(reviewWithUser: ReviewWithUser) {
+private fun ReviewCard(reviewWithUser: ReviewWithUser, onReviewerClick: (String) -> Unit) {
     val review = reviewWithUser.review
     val user = reviewWithUser.user
 
@@ -127,13 +128,16 @@ private fun ReviewCard(reviewWithUser: ReviewWithUser) {
                     contentDescription = "${user.fullName}'s profile picture",
                     modifier = Modifier
                         .size(40.dp)
-                        .clip(CircleShape),
+                        .clip(CircleShape)
+                        .clickable { onReviewerClick(user.id) },
                     contentScale = ContentScale.Crop
                 )
 
                 Spacer(Modifier.width(12.dp))
 
-                Column {
+                Column(
+                    modifier = Modifier.clickable { onReviewerClick(user.id) }
+                ) {
                     Text(
                         text = user.fullName.ifBlank { "Anonymous" },
                         style = MaterialTheme.typography.labelLarge

@@ -39,6 +39,7 @@ import rs.gospaleks.waterspot.domain.use_case.GetAllReviewsForSpotUseCase
 import rs.gospaleks.waterspot.domain.use_case.GetAllSpotsWithUserUseCase
 import rs.gospaleks.waterspot.domain.use_case.GetAllUsersUseCase
 import rs.gospaleks.waterspot.domain.use_case.GetUserDataUseCase
+import rs.gospaleks.waterspot.domain.use_case.GetUserWithSpotsUseCase
 import rs.gospaleks.waterspot.domain.use_case.LocationTrackingUseCase
 import rs.gospaleks.waterspot.domain.use_case.NearbyTrackingUseCase
 import rs.gospaleks.waterspot.domain.use_case.UploadAvatarUseCase
@@ -107,6 +108,11 @@ object AppModule {
     }
 
     // Use Cases
+    @Provides
+    fun provideGetUserWithSpotsUseCase(userRepository: UserRepository) : GetUserWithSpotsUseCase {
+        return GetUserWithSpotsUseCase(userRepository)
+    }
+
     @Provides
     fun provideAddAditionalPhotoToSpotUseCase(spotRepository: SpotRepository): AddAditionalPhotoToSpotUseCase {
         return AddAditionalPhotoToSpotUseCase(spotRepository)

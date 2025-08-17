@@ -6,6 +6,7 @@ import rs.gospaleks.waterspot.data.remote.cloudinary.CloudinaryDataSource
 import rs.gospaleks.waterspot.data.remote.firebase.FirebaseAuthDataSource
 import rs.gospaleks.waterspot.data.remote.firebase.FirestoreUserDataSource
 import rs.gospaleks.waterspot.domain.model.User
+import rs.gospaleks.waterspot.domain.model.UserWithSpots
 import rs.gospaleks.waterspot.domain.repository.UserRepository
 import javax.inject.Inject
 
@@ -36,5 +37,9 @@ class UserRepositoryImpl @Inject constructor(
 
     override fun getAllUsers(): Flow<Result<List<User>>> {
         return firestoreUserDataSource.getAllUsers()
+    }
+
+    override fun getUserWithSpots(uid: String): Flow<Result<UserWithSpots>> {
+        return firestoreUserDataSource.getUserWithSpots(uid)
     }
 }

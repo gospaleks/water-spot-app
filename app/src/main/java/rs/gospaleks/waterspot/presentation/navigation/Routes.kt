@@ -5,17 +5,13 @@ object Graph {
     const val AUTH_GRAPH = "auth_graph"
     const val MAIN_SCREEN_GRAPH = "main_screen_graph"
     const val ADD_SPOT_GRAPH = "add_spot_graph"
-    const val SETTINGS_GRAPH = "settings_graph"
-
     const val PROFILE_GRAPH = "profile_graph"
-    // Other graphs here
 }
 
 sealed class AuthRouteScreen(val route: String) {
     object Welcome : AuthRouteScreen("welcome")
     object Login : AuthRouteScreen("login")
     object Register : AuthRouteScreen("register")
-    // more authentication-related screens here (e.g., ForgotPassword, ResetPassword...)
 }
 
 sealed class MainRouteScreen(val route: String) {
@@ -33,11 +29,7 @@ sealed class AddSpotRouteScreen(val route: String) {
 
 sealed class ProfileRouteScreen(val route: String) {
     object EditProfile : ProfileRouteScreen("edit_profile")
-    // change password
-    // my water spots
-}
-
-sealed class SettingsRouteScreen(val route: String) {
-    object Settings : SettingsRouteScreen("settings")
-    // more settings-related screens here
+    object PublicProfile : ProfileRouteScreen("public_profile/{userId}") {
+        fun createRoute(userId: String) = "public_profile/$userId"
+    }
 }

@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.foundation.layout.windowInsetsTopHeight
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -23,10 +22,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
 import rs.gospaleks.waterspot.R
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -39,12 +38,17 @@ import rs.gospaleks.waterspot.domain.model.AppTheme
 import rs.gospaleks.waterspot.presentation.components.UiEvent
 import rs.gospaleks.waterspot.presentation.screens.profile.ThemeViewModel
 import android.location.Location
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.navigation.NavHostController
+import rs.gospaleks.waterspot.presentation.navigation.ProfileRouteScreen
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
 fun SpotDetailsBottomSheet(
+    rootNavHostController: NavHostController,
     viewModel: SpotDetailsBottomSheetViewModel = hiltViewModel(),
-    themeViewModel: ThemeViewModel = hiltViewModel()
+    themeViewModel: ThemeViewModel = hiltViewModel(),
+    canClickOnAuthor: Boolean = true,
 ) {
     val uiState = viewModel.uiState
 
@@ -128,9 +132,13 @@ fun SpotDetailsBottomSheet(
         }
     }
 
+    val scope = rememberCoroutineScope()
+
     if (uiState.selectedSpot == null) { return }
 
     if (uiState.isModalOpen) {
+        val saveableStateHolder = rememberSaveableStateHolder()
+
         ModalBottomSheet(
             onDismissRequest = viewModel::dismissBottomSheet,
             sheetState = sheetState,
@@ -141,40 +149,64 @@ fun SpotDetailsBottomSheet(
             AnimatedContent(targetState = uiState.sheetMode) { mode ->
                 when (mode) {
                     BottomSheetMode.DETAILS -> {
-                        SpotDetailsContent(
-                            data = uiState.selectedSpot,
-                            reviews = uiState.reviews,
-                            isLoading = uiState.isLoading,
-                            onReviewClick = viewModel::openReview,
-                            onNavigateClick = {
-                                val data = uiState.selectedSpot
+                        val stateKey = "spot_details_${uiState.selectedSpot.spot.id}"
+                        saveableStateHolder.SaveableStateProvider(stateKey) {
+                            SpotDetailsContent(
+                                data = uiState.selectedSpot,
+                                reviews = uiState.reviews,
+                                isLoading = uiState.isLoading,
+                                onReviewClick = viewModel::openReview,
+                                onNavigateClick = {
+                                    val data = uiState.selectedSpot
 
-                                val uri =
-                                    "google.navigation:q=${data.spot.latitude},${data.spot.longitude}&mode=w".toUri()
-                                val intent = Intent(Intent.ACTION_VIEW, uri).apply {
-                                    setPackage("com.google.android.apps.maps")
-                                }
+                                    val uri =
+                                        "google.navigation:q=${data.spot.latitude},${data.spot.longitude}&mode=w".toUri()
+                                    val intent = Intent(Intent.ACTION_VIEW, uri).apply {
+                                        setPackage("com.google.android.apps.maps")
+                                    }
 
-                                if (intent.resolveActivity(context.packageManager) != null) {
-                                    context.startActivity(intent)
-                                } else {
-                                    val fallbackUri =
-                                        "https://www.google.com/maps/dir/?api=1&destination=${data.spot.latitude},${data.spot.longitude}".toUri()
-                                    context.startActivity(Intent(Intent.ACTION_VIEW, fallbackUri))
+                                    if (intent.resolveActivity(context.packageManager) != null) {
+                                        context.startActivity(intent)
+                                    } else {
+                                        val fallbackUri =
+                                            "https://www.google.com/maps/dir/?api=1&destination=${data.spot.latitude},${data.spot.longitude}".toUri()
+                                        context.startActivity(Intent(Intent.ACTION_VIEW, fallbackUri))
+                                    }
+                                },
+                                onUserProfileClick = {
+                                    if (canClickOnAuthor) {
+                                        // Zatvori modal i navigiraj na javni profil
+                                        scope.launch {
+                                            sheetState.hide()
+                                            rootNavHostController.navigate("public_profile/${uiState.selectedSpot.spot.userId}")
+                                        }
+                                    } else {
+                                        // Sakrij modal
+                                        scope.launch {
+                                            sheetState.hide()
+                                            viewModel.dismissBottomSheet()
+                                        }
+                                    }
+                                },
+                                onAddPhotoClick = {
+                                    // Only proceed if enabled (also guarded in ActionsButtons)
+                                    val uri = createImageUri()
+                                    if (uri != null) {
+                                        pendingPhotoUri.value = uri
+                                        cameraLauncher.launch(uri)
+                                    }
+                                },
+                                isAddPhotoEnabled = isInZone,
+                                isUploadingPhoto = uiState.isUploadingPhoto,
+                                onReviewerProfileClick = { reviewerId ->
+                                    scope.launch {
+                                        sheetState.hide()
+                                        rootNavHostController.navigate(
+                                            ProfileRouteScreen.PublicProfile.createRoute(reviewerId)
+                                        )                                }
                                 }
-                            },
-                            onUserProfileClick = { },
-                            onAddPhotoClick = {
-                                // Only proceed if enabled (also guarded in ActionsButtons)
-                                val uri = createImageUri()
-                                if (uri != null) {
-                                    pendingPhotoUri.value = uri
-                                    cameraLauncher.launch(uri)
-                                }
-                            },
-                            isAddPhotoEnabled = isInZone,
-                            isUploadingPhoto = uiState.isUploadingPhoto,
-                        )
+                            )
+                        }
                     }
                     BottomSheetMode.REVIEW -> {
                         ReviewContent(

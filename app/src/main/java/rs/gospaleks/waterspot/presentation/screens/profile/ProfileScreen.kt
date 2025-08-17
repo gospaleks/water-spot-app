@@ -21,7 +21,6 @@ import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.WaterDrop
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -43,6 +42,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import rs.gospaleks.waterspot.domain.model.AppTheme
+import rs.gospaleks.waterspot.presentation.components.PointsChip
 import rs.gospaleks.waterspot.presentation.components.RankBadge
 import rs.gospaleks.waterspot.presentation.components.ReusableBottomSheetHost
 import rs.gospaleks.waterspot.service.LocationTrackingService
@@ -173,26 +173,7 @@ fun ProfileScreen(
                         RankBadge(points)
 
                         // Points chip
-                        Surface(
-                            shape = RoundedCornerShape(20.dp),
-                            color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.15f),
-                            contentColor = MaterialTheme.colorScheme.onPrimary,
-                        ) {
-                            Row(
-                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.WaterDrop,
-                                    contentDescription = stringResource(R.string.app_name)
-                                )
-                                Text(
-                                    text = "$points",
-                                    style = MaterialTheme.typography.labelLarge
-                                )
-                            }
-                        }
+                        PointsChip(points)
                     }
                 }
             }

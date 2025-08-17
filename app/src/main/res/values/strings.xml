@@ -1,28 +1,29 @@
 <resources>
+    <!-- App name -->
     <string name="app_name">Water Spot</string>
 
-    // Bottom Navigation Labels
+    <!-- Bottom Navigation Labels -->
     <string name="map_label">Explore</string>
     <string name="all_spots_label">All Spots</string>
     <string name="scoreboard_label">Ranking</string>
     <string name="profile_label">Profile</string>
 
-    // FAB
+    <!-- FAB -->
     <string name="add_spot_fab_content_description">Add Spot</string>
 
-    // Welcome Screen
+    <!-- Welcome Screen -->
     <string name="welcome_to">Welcome to</string>
     <string name="welcome_description">Discover free water sources around you. \n Get involved. Share. Refresh yourself.</string>
     <string name="login_button">Login</string>
     <string name="register_button">Register</string>
 
-    // Login Screen
+    <!-- Login Screen -->
     <string name="login_title">Login</string>
     <string name="login_welcome">Welcome back!</string>
     <string name="login_welcome_description">Enter your credentials to continue</string>
     <string name="forgot_password">Forgot password?</string>
 
-    // Register Screen
+    <!-- Register Screen -->
     <string name="register_title">Register</string>
     <string name="register_welcome">Create an account</string>
     <string name="register_welcome_description">Join us to discover and share water spots</string>
@@ -31,14 +32,14 @@
     <string name="full_name_label">Full Name</string>
     <string name="phone_number_label">Phone Number</string>
 
-    // Login/Register Common
+    <!-- Login/Register Common -->
     <string name="email_label">Email</string>
     <string name="email_icon_content_description">Email Icon</string>
     <string name="password_label">Password</string>
     <string name="password_icon_content_description">Password Icon</string>
     <string name="toggle_password_visibility">Tooggle Password Visibility</string>
 
-    // Error Messages
+    <!-- Error Messages -->
     <string name="error_empty_email">Email field can\'t be empty</string>
     <string name="error_invalid_email">Invalid email address</string>
     <string name="error_empty_password">Password field can\'t be empty</string>
@@ -50,7 +51,7 @@
     <string name="error_login_failed">Login failed. Please check your credentials and try again.</string>
     <string name="error_register_failed">Registration failed. Please try again.</string>
 
-    // Profile Screen
+    <!-- Profile Screen -->
     <string name="account_overview">Account overview</string>
     <string name="edit_profile">Edit Profile</string>
     <string name="my_spots">My Water Spots</string>
@@ -68,25 +69,31 @@
     <string name="nearby_radius_updated">Updated to %1$d meters.</string>
     <string name="nearby_radius_description">Larger radius may increase battery usage and deliver more notifications.</string>
 
-    // Edit Profile Screen
+    <!-- Edit Profile Screen -->
     <string name="edit_profile_title">Edit Profile</string>
 
-    // Google Maps Screen
+    <!-- Public Profile Screen -->
+    <string name="public_profile_title">Public Profile</string>
+    <string name="public_profile_spots_title">Water spots</string>
+    <string name="public_profile_no_spots">No spots added yet.</string>
+    <string name="public_profile_empty_state">No profile data.</string>
+
+    <!-- Google Maps Screen -->
     <string name="permission_denied_message">"Location permission is required.\nPlease enable it in settings."</string>
 
-    // Filters
+    <!-- Filters -->
     <string name="filter_title">Filters</string>
     <string name="filter_radius_label">Radius:</string>
     <string name="cancel_button">Cancel</string>
     <string name="apply_button">Apply</string>
 
-    // Add Spot Screen (step 1)
+    <!-- Add Spot Screen (step 1) -->
     <string name="add_spot_title">Add Spot: Location</string>
     <string name="add_spot_instructions">Move the marker to\nthe precise location</string>
     <string name="add_spot_confirmation">Confirm Location</string>
     <string name="add_spot_location_error">Please Move Closer</string>
 
-    // Add Spot Photo Screen (step 2)
+    <!-- Add Spot Photo Screen (step 2) -->
     <string name="add_spot_photo_title">Add Spot: Photo</string>
     <string name="add_spot_photo_instructions">Take a photo of water source \nor select one from your gallery.</string>
     <string name="add_spot_photo_placeholder">Click to add</string>
@@ -96,7 +103,7 @@
     <string name="add_spot_photo_gallery_button">Gallery</string>
     <string name="add_spot_photo_camera_button">Camera</string>
 
-    // Add Spot Details Screen (step 3)
+    <!-- Add Spot Details Screen (step 3) -->
     <string name="add_spot_details_title">Add Spot: Details</string>
     <string name="add_spot_details_instructions">Provide details about\nthe water source.</string>
     <string name="add_spot_details_confirmation">Submit</string>
@@ -113,7 +120,7 @@
     <string name="add_spot_details_cleanliness_dirty">Dirty</string>
     <string name="add_spot_failed">Failed to add spot. Please try again later.</string>
 
-    // Spot Details Bottom Sheet Modal
+    <!-- Spot Details Bottom Sheet Modal -->
     <string name="spot_details_description_label">Description</string>
     <string name="spot_details_posted_by">Posted by</string>
     <string name="spot_details_review_button">Review</string>
@@ -123,7 +130,7 @@
     <string name="read_more">Read more</string>
     <string name="spot_details_no_reviews">No reviews yet.</string>
 
-    // Spot Details Bottom Sheet Modal - Review Dialog
+    <!-- Spot Details Bottom Sheet Modal - Review Dialog -->
     <string name="review_dialog_title">Review Spot</string>
     <string name="review_dialog_move_closer">Move closer to review (distance:</string>
     <string name="review_dialog_rating_label">Rate this spot</string>
@@ -133,10 +140,10 @@
     <string name="review_dialog_success_message">Review submitted successfully!</string>
     <string name="review_dialog_error_message">Failed to submit review. Please try again later.</string>
 
-    // All Spots Screen
+    <!-- All Spots Screen -->
     <string name="all_spots_empty_message">No water spots found.</string>
 
-    // Ranks
+    <!-- Ranks -->
     <string name="rank_explorer">Explorer</string>
     <string name="rank_contributor">Contributor</string>
     <string name="rank_scout">Scout</string>

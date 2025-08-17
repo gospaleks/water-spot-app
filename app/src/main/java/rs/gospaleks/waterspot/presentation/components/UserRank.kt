@@ -10,6 +10,7 @@ import androidx.compose.material.icons.filled.Explore
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.WaterDrop
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -95,6 +96,30 @@ fun RankBadge(
             rank.icon()
             Text(
                 text = rank.toDisplayName(),
+                style = MaterialTheme.typography.labelLarge
+            )
+        }
+    }
+}
+
+@Composable
+fun PointsChip(points: Int) {
+    Surface(
+        shape = RoundedCornerShape(20.dp),
+        color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.15f),
+        contentColor = MaterialTheme.colorScheme.onPrimary,
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.WaterDrop,
+                contentDescription = stringResource(R.string.app_name)
+            )
+            Text(
+                text = "$points",
                 style = MaterialTheme.typography.labelLarge
             )
         }

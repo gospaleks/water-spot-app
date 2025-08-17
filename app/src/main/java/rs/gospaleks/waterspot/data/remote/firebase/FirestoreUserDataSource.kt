@@ -8,7 +8,10 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import rs.gospaleks.waterspot.data.mapper.toDomain
 import rs.gospaleks.waterspot.data.model.FirestoreUserDto
+import rs.gospaleks.waterspot.data.model.FirestoreSpotDto
 import rs.gospaleks.waterspot.domain.model.User
+import rs.gospaleks.waterspot.domain.model.Spot
+import rs.gospaleks.waterspot.domain.model.UserWithSpots
 import javax.inject.Inject
 
 class FirestoreUserDataSource @Inject constructor(
@@ -98,5 +101,77 @@ class FirestoreUserDataSource @Inject constructor(
         }
 
         awaitClose { snapshotListener.remove() }
+    }
+
+    fun getUserWithSpots(uid: String): Flow<Result<UserWithSpots>> = callbackFlow {
+        val userDocRef = firestore.collection("users").document(uid)
+        val spotsQueryRef = firestore.collection("spots").whereEqualTo("userId", uid)
+
+        var currentUser: User? = null
+        var currentSpots: List<Spot>? = null
+
+        fun emitIfReady() {
+            val u = currentUser
+            val s = currentSpots
+            if (u != null && s != null) {
+                trySend(Result.success(UserWithSpots(u, s)))
+            }
+        }
+
+        val userListener = userDocRef.addSnapshotListener { snapshot, e ->
+            if (e != null) {
+                trySend(Result.failure(e))
+                return@addSnapshotListener
+            }
+
+            if (snapshot != null && snapshot.exists()) {
+                try {
+                    val dto = snapshot.toObject(FirestoreUserDto::class.java)
+                    val user = dto?.copy(id = snapshot.id)?.toDomain()
+                    if (user != null) {
+                        currentUser = user
+                        emitIfReady()
+                    } else {
+                        trySend(Result.failure(Exception("User data is null")))
+                    }
+                } catch (ex: Exception) {
+                    ex.printStackTrace()
+                    trySend(Result.failure(ex))
+                }
+            } else {
+                trySend(Result.failure(Exception("User document does not exist")))
+            }
+        }
+
+        val spotsListener = spotsQueryRef.addSnapshotListener { snapshot, e ->
+            if (e != null) {
+                trySend(Result.failure(e))
+                return@addSnapshotListener
+            }
+
+            try {
+                val spots = snapshot?.documents?.mapNotNull { doc ->
+                    try {
+                        doc.toObject(FirestoreSpotDto::class.java)
+                            ?.copy(id = doc.id)
+                            ?.toDomain()
+                    } catch (ex: Exception) {
+                        ex.printStackTrace()
+                        null
+                    }
+                } ?: emptyList()
+
+                currentSpots = spots
+                emitIfReady()
+            } catch (ex: Exception) {
+                ex.printStackTrace()
+                trySend(Result.failure(ex))
+            }
+        }
+
+        awaitClose {
+            userListener.remove()
+            spotsListener.remove()
+        }
     }
 }

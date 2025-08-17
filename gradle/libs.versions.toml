@@ -1,6 +1,6 @@
 [versions]
 accompanistPermissions = "0.37.3"
-agp = "8.11.1"
+agp = "8.12.0"
 cloudinaryAndroid = "3.1.1"
 coilCompose = "2.7.0"
 datastorePreferences = "1.1.7"

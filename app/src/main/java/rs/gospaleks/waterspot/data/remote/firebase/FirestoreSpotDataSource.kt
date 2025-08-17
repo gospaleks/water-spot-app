@@ -5,6 +5,7 @@ import com.firebase.geofire.GeoFireUtils
 import com.firebase.geofire.GeoLocation
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
@@ -20,6 +21,7 @@ import kotlinx.coroutines.tasks.await
 import rs.gospaleks.waterspot.data.mapper.toDomain
 import rs.gospaleks.waterspot.data.model.FirestoreReviewDto
 import rs.gospaleks.waterspot.data.model.FirestoreSpotDto
+import rs.gospaleks.waterspot.data.model.FirestoreUserDto
 import rs.gospaleks.waterspot.domain.model.ReviewWithUser
 import rs.gospaleks.waterspot.domain.model.Spot
 import rs.gospaleks.waterspot.domain.model.SpotWithUser
@@ -89,7 +91,8 @@ class FirestoreSpotDataSource @Inject constructor(
             // 2. Sačekaj sve upite
             val snapshots = Tasks.whenAllSuccess<QuerySnapshot>(tasks).await()
 
-            val matchingDocs = mutableListOf<DocumentSnapshot>()
+            // 2a. Prikupi matching dokumente uz deduplikaciju (zbog preklapanja bound-ova)
+            val matchingDocsById = linkedMapOf<String, DocumentSnapshot>()
             for (snap in snapshots) {
                 for (doc in snap.documents) {
                     val lat = doc.getDouble("lat")
@@ -99,14 +102,15 @@ class FirestoreSpotDataSource @Inject constructor(
                         val docLocation = GeoLocation(lat, lng)
                         val distanceInM = GeoFireUtils.getDistanceBetween(docLocation, center)
                         if (distanceInM <= radius) {
-                            matchingDocs.add(doc)
+                            // čuvamo prvi viđeni dokument za dati ID
+                            matchingDocsById.putIfAbsent(doc.id, doc)
                         }
                     }
                 }
             }
 
             // 3. Mapiraj spotove
-            val spotDtos = matchingDocs.mapNotNull { doc ->
+            val spotDtos = matchingDocsById.values.mapNotNull { doc ->
                 try {
                     doc.toObject(FirestoreSpotDto::class.java)?.copy(id = doc.id)
                 } catch (e: Exception) {
@@ -117,21 +121,36 @@ class FirestoreSpotDataSource @Inject constructor(
 
             val spots = spotDtos.map { it.toDomain() }
 
-            // 4. Fetchuj korisnike i spoji
-            val spotsWithUsers = spots.map { spot ->
-                try {
-                    val userSnapshot = firestore.collection("users")
-                        .document(spot.userId)
-                        .get()
-                        .await()
+            // 4. Fetchuj korisnike u batch-evima i spoji
+            val userIds = spots.map { it.userId }.filter { it.isNotBlank() }.toSet()
+            val usersById = mutableMapOf<String, User>()
+            if (userIds.isNotEmpty()) {
+                val chunks = userIds.chunked(10) // Firestore 'in' operator limit
+                for (chunk in chunks) {
+                    try {
+                        val userSnap = firestore.collection("users")
+                            .whereIn(FieldPath.documentId(), chunk)
+                            .get()
+                            .await()
 
-                    val user = userSnapshot.toObject(User::class.java)
-                    SpotWithUser(spot, user)
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                    SpotWithUser(spot)
+                        for (doc in userSnap.documents) {
+                            val user = doc.toObject(FirestoreUserDto::class.java)
+                                ?.copy(id = doc.id)
+                                ?.toDomain()
+                            if (user != null) {
+                                usersById[doc.id] = user
+                            }
+                        }
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        // Nastavi sa ostatkom chunk-ova čak i ako jedan padne
+                    }
                 }
-            }.sortedByDescending { it.spot.createdAt }
+            }
+
+            val spotsWithUsers = spots
+                .map { spot -> SpotWithUser(spot, usersById[spot.userId]) }
+                .sortedByDescending { it.spot.createdAt }
 
             Result.success(spotsWithUsers)
         } catch (e: Exception) {
@@ -174,7 +193,9 @@ class FirestoreSpotDataSource @Inject constructor(
                                 .get()
                                 .await()
 
-                            val user = userSnapshot.toObject(User::class.java)
+                            val user = userSnapshot.toObject(FirestoreUserDto::class.java)
+                                ?.copy(id = userSnapshot.id)
+                                ?.toDomain()
 
                             if (user != null) {
                                 ReviewWithUser(review, user)

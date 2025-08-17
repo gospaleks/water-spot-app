@@ -6,8 +6,10 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -20,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
@@ -47,6 +50,7 @@ import rs.gospaleks.waterspot.presentation.screens.profile.ThemeViewModel
 @OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun GoogleMapScreen(
+    rootNavHostController: NavHostController,
     navigateToAddSpotScreen: () -> Unit,
     outerPadding: PaddingValues,
     viewModel: MapViewModel = hiltViewModel(),
@@ -168,8 +172,16 @@ fun GoogleMapScreen(
                     }
                 }
 
-                SpotDetailsBottomSheet(viewModel = bottomSheetViewModel)
+                SpotDetailsBottomSheet(rootNavHostController = rootNavHostController, viewModel = bottomSheetViewModel)
 
+                // Subtilan loading indikator dok se trenutna lokacija ne ucita
+                if (uiState.location == null || uiState.isLoadingSpots) {
+                    LinearProgressIndicator(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .align(Alignment.TopCenter)
+                    )
+                }
             } else {
                 PermissionDeniedPlaceholder()
             }

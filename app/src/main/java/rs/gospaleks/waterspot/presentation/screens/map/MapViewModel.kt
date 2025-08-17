@@ -72,6 +72,10 @@ class MapViewModel @Inject constructor(
 
     private fun observeSpots(location: LatLng) {
         viewModelScope.launch {
+            uiState = uiState.copy(
+                isLoadingSpots = true,
+                error = null
+            )
             getAllSpotsWithUserUseCase(
                 location.latitude,
                 location.longitude,

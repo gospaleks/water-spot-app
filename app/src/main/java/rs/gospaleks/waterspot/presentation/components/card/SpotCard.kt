@@ -33,7 +33,8 @@ fun SpotCard(
     spotWithUser: SpotWithUser,
     onCardClick: () -> Unit,
     onUserClick: (userId: String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    showAuthor: Boolean = true,
 ) {
     val spot = spotWithUser.spot
     val user = spotWithUser.user
@@ -179,32 +180,34 @@ fun SpotCard(
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    user?.let {
-                        if (!it.profilePictureUrl.isNullOrBlank()) {
-                            coil.compose.AsyncImage(
-                                model = it.profilePictureUrl,
-                                contentDescription = "User Avatar",
+                    if (showAuthor) {
+                        user?.let {
+                            if (!it.profilePictureUrl.isNullOrBlank()) {
+                                coil.compose.AsyncImage(
+                                    model = it.profilePictureUrl,
+                                    contentDescription = "User Avatar",
+                                    modifier = Modifier
+                                        .size(22.dp)
+                                        .clip(CircleShape)
+                                        .clickable { onUserClick(user.id) },
+                                    contentScale = ContentScale.Crop
+                                )
+                            }
+                            Text(
+                                text = it.fullName,
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.primary,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
                                 modifier = Modifier
-                                    .size(22.dp)
-                                    .clip(CircleShape)
-                                    .clickable { onUserClick(it.id) },
-                                contentScale = ContentScale.Crop
+                                    .weight(1f, false)
+                                    .clickable { onUserClick(user.id) }
                             )
                         }
-                        Text(
-                            text = it.fullName,
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.primary,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier
-                                .weight(1f, false)
-                                .clickable { onUserClick(it.id) }
-                        )
                     }
                     if (createdDate.isNotEmpty()) {
                         Text(
-                            text = "· $createdDate",
+                            text = if (showAuthor) "· $createdDate" else createdDate,
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )

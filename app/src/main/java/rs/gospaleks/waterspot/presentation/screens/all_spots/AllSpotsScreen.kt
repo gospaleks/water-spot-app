@@ -1,5 +1,6 @@
 package rs.gospaleks.waterspot.presentation.screens.all_spots
 
+import android.util.Log
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -25,13 +26,16 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.navigation.NavHostController
 import rs.gospaleks.waterspot.presentation.components.card.SpotCard
 import rs.gospaleks.waterspot.presentation.components.bottom_sheet.SpotDetailsBottomSheet
 import rs.gospaleks.waterspot.presentation.components.bottom_sheet.SpotDetailsBottomSheetViewModel
 import rs.gospaleks.waterspot.R
+import rs.gospaleks.waterspot.presentation.navigation.ProfileRouteScreen
 
 @Composable
 fun AllSpotsScreen(
+    rootNavHostController: NavHostController,
     outerPadding: PaddingValues,
     viewModel: AllSpotsViewModel = hiltViewModel()
 ) {
@@ -142,7 +146,14 @@ fun AllSpotsScreen(
                                 bottomSheetViewModel.onSpotClick(spotWithUser)
                             },
                             onUserClick = { userId ->
-                                // TODO: Navigiraj do profila korisnika
+                                if (userId.isNotBlank()) {
+                                    Log.d("AllSpotsScreen", "Navigating to user profile: $userId")
+                                    rootNavHostController.navigate(
+                                        ProfileRouteScreen.PublicProfile.createRoute(userId)
+                                    )
+                                } else {
+                                    Log.w("AllSpotsScreen", "User ID is blank, cannot navigate to profile")
+                                }
                             },
                         )
 
@@ -152,7 +163,7 @@ fun AllSpotsScreen(
         }
     }
 
-    SpotDetailsBottomSheet(viewModel = bottomSheetViewModel)
+    SpotDetailsBottomSheet(rootNavHostController = rootNavHostController, viewModel = bottomSheetViewModel)
 }
 
 @Composable

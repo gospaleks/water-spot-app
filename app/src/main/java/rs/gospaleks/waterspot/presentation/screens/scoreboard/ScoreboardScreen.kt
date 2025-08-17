@@ -1,6 +1,7 @@
 package rs.gospaleks.waterspot.presentation.screens.scoreboard
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -32,6 +33,7 @@ import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import rs.gospaleks.waterspot.domain.model.User
 import rs.gospaleks.waterspot.presentation.components.RankBadge
+import rs.gospaleks.waterspot.presentation.navigation.ProfileRouteScreen
 
 @Composable
 fun ScoreboardScreen(
@@ -62,19 +64,26 @@ fun ScoreboardScreen(
             }
             else -> {
                 val sorted = userList.sortedByDescending { it.points }
+                val onUserClick: (User) -> Unit = { user ->
+                    if (user.id.isNotBlank()) {
+                        rootNavHostController.navigate(
+                            ProfileRouteScreen.PublicProfile.createRoute(user.id)
+                        )
+                    }
+                }
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(bottom = 24.dp)
                 ) {
                     item {
-                        PodiumSection(users = sorted.take(3))
+                        PodiumSection(users = sorted.take(3), onUserClick = onUserClick)
                         Spacer(Modifier.height(8.dp))
                         HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant)
                     }
 
                     itemsIndexed(sorted.drop(3), key = { index, user -> user.id.ifBlank { "pos_${index+4}" } }) { index, user ->
                         val position = index + 4 // since we dropped 3
-                        LeaderboardRow(position = position, user = user)
+                        LeaderboardRow(position = position, user = user, onClick = { onUserClick(user) })
                     }
                 }
             }
@@ -83,7 +92,7 @@ fun ScoreboardScreen(
 }
 
 @Composable
-private fun PodiumSection(users: List<User>) {
+private fun PodiumSection(users: List<User>, onUserClick: (User) -> Unit) {
     if (users.isEmpty()) return
 
     val first = users.getOrNull(0)
@@ -104,7 +113,8 @@ private fun PodiumSection(users: List<User>) {
                 avatarSize = 112.dp,
                 cardHeight = 220.dp,
                 accentColor = Color(0xFFFFD700), // Gold
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                onClick = { onUserClick(first) }
             )
         }
 
@@ -125,7 +135,8 @@ private fun PodiumSection(users: List<User>) {
                         cardHeight = 180.dp,
                         accentColor = Color(0xFFC0C0C0), // Silver
                         modifier = Modifier.fillMaxWidth(),
-                        compact = true
+                        compact = true,
+                        onClick = { onUserClick(second) }
                     )
                 }
             }
@@ -138,7 +149,8 @@ private fun PodiumSection(users: List<User>) {
                         cardHeight = 180.dp,
                         accentColor = Color(0xFFCD7F32), // Bronze
                         modifier = Modifier.fillMaxWidth(),
-                        compact = true
+                        compact = true,
+                        onClick = { onUserClick(third) }
                     )
                 }
             }
@@ -155,10 +167,12 @@ private fun PodiumCard(
     accentColor: Color,
     modifier: Modifier = Modifier,
     compact: Boolean = false,
+    onClick: () -> Unit,
 ) {
     Card(
         modifier = modifier
-            .height(cardHeight),
+            .height(cardHeight)
+            .clickable(onClick = onClick),
         shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = if (place == 1) 8.dp else 4.dp)
@@ -205,10 +219,11 @@ private fun PodiumCard(
 }
 
 @Composable
-private fun LeaderboardRow(position: Int, user: User) {
+private fun LeaderboardRow(position: Int, user: User, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .clickable(onClick = onClick)
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {

@@ -8,3 +8,8 @@ data class User(
     val profilePictureUrl: String? = "",
     val points: Int = 0,
 )
+
+data class UserWithSpots (
+    val user: User,
+    val spots: List<Spot> = emptyList() // List of spots created by the user
+)

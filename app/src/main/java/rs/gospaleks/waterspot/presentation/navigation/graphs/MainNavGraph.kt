@@ -27,6 +27,7 @@ fun MainNavGraph(
     ) {
         composable (route = MainRouteScreen.Map.route) {
             GoogleMapScreen(
+                rootNavHostController = rootNavHostController,
                 navigateToAddSpotScreen = {
                     rootNavHostController.navigate(Graph.ADD_SPOT_GRAPH)
                 },
@@ -34,7 +35,10 @@ fun MainNavGraph(
             )
         }
         composable (route = MainRouteScreen.AllSpots.route) {
-            AllSpotsScreen(outerPadding = innerPadding)
+            AllSpotsScreen(
+                rootNavHostController = rootNavHostController,
+                outerPadding = innerPadding
+            )
         }
         composable (route = MainRouteScreen.Scoreboard.route) {
             ScoreboardScreen(

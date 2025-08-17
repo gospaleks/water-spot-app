@@ -24,12 +24,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.lazy.LazyListState
 import coil.compose.AsyncImage
 import coil.compose.SubcomposeAsyncImage
 import kotlinx.coroutines.launch
@@ -50,6 +52,7 @@ fun SpotDetailsContent(
     onAddPhotoClick: () -> Unit = {},
     isAddPhotoEnabled: Boolean = false,
     isUploadingPhoto: Boolean = false,
+    onReviewerProfileClick: (String) -> Unit = {},
 ) {
     val createdDate = remember(data.spot.createdAt) {
         data.spot.createdAt?.let { millis ->
@@ -59,7 +62,11 @@ fun SpotDetailsContent(
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
+        // Remember scroll across navigation using a stable key per spot
+        val listState = rememberSaveable(data.spot.id, saver = LazyListState.Saver) { LazyListState() }
+
         LazyColumn(
+            state = listState,
             modifier = Modifier
                 .weight(1f)
                 .padding(horizontal = 20.dp),
@@ -316,7 +323,7 @@ fun SpotDetailsContent(
                         }
                     }
 
-                    // Dot indicators unchanged
+                    // Dot indicators
                     if (totalPhotos > 1) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -479,7 +486,8 @@ fun SpotDetailsContent(
                         )
                         ReviewsSection(
                             reviews = reviews,
-                            isLoading = isLoading
+                            isLoading = isLoading,
+                            onReviewerClick = onReviewerProfileClick,
                         )
                     }
                 }

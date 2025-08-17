@@ -9,6 +9,7 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.tasks.CancellationTokenSource
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -22,6 +23,7 @@ class LocationTrackingUseCase @Inject constructor(
     val currentLocation: StateFlow<LatLng?> = _currentLocation.asStateFlow()
 
     private var activeTrackers = 0
+    private var currentLocationTokenSource: CancellationTokenSource? = null
 
     private val locationRequest = LocationRequest.Builder(3000L)
         .setMinUpdateIntervalMillis(2000L)
@@ -40,10 +42,17 @@ class LocationTrackingUseCase @Inject constructor(
     @RequiresPermission(allOf = [android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION])
     fun startTracking() {
         if (activeTrackers == 0) {
-            fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+            // Trazi svezu (current) lokaciju umesto poslednje poznate
+            currentLocationTokenSource = CancellationTokenSource()
+            fusedLocationClient.getCurrentLocation(
+                Priority.PRIORITY_HIGH_ACCURACY,
+                currentLocationTokenSource!!.token
+            ).addOnSuccessListener { location ->
                 location?.let {
                     _currentLocation.value = LatLng(it.latitude, it.longitude)
                 }
+            }.addOnFailureListener { e ->
+                Log.w("LocationTrackingUseCase", "getCurrentLocation failed", e)
             }
 
             fusedLocationClient.requestLocationUpdates(
@@ -63,6 +72,9 @@ class LocationTrackingUseCase @Inject constructor(
 
         if (activeTrackers <= 0) {
             fusedLocationClient.removeLocationUpdates(locationCallback)
+            // Otkaži eventualan pending getCurrentLocation
+            currentLocationTokenSource?.cancel()
+            currentLocationTokenSource = null
             activeTrackers = 0
             Log.d("LocationTrackingUseCase", "STOP tracking")
         }
