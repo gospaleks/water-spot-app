@@ -40,8 +40,11 @@ import rs.gospaleks.waterspot.domain.use_case.GetAllSpotsWithUserUseCase
 import rs.gospaleks.waterspot.domain.use_case.GetAllUsersUseCase
 import rs.gospaleks.waterspot.domain.use_case.GetUserDataUseCase
 import rs.gospaleks.waterspot.domain.use_case.GetUserWithSpotsUseCase
+import rs.gospaleks.waterspot.domain.use_case.GetUsersWithLocationSharingUseCase
 import rs.gospaleks.waterspot.domain.use_case.LocationTrackingUseCase
 import rs.gospaleks.waterspot.domain.use_case.NearbyTrackingUseCase
+import rs.gospaleks.waterspot.domain.use_case.SetUserLocationUseCase
+import rs.gospaleks.waterspot.domain.use_case.ToggleLocationSharingUseCase
 import rs.gospaleks.waterspot.domain.use_case.UploadAvatarUseCase
 import javax.inject.Singleton
 
@@ -108,6 +111,21 @@ object AppModule {
     }
 
     // Use Cases
+    @Provides
+    fun provideGetUsersWithLocationSharingUseCase(userRepository: UserRepository): GetUsersWithLocationSharingUseCase {
+        return GetUsersWithLocationSharingUseCase(userRepository)
+    }
+
+    @Provides
+    fun provideSetUserLocationUseCase(userRepository: UserRepository) : SetUserLocationUseCase {
+        return SetUserLocationUseCase(userRepository)
+    }
+
+    @Provides
+    fun provideToggleLocationSharingUseCase(userRepository: UserRepository) : ToggleLocationSharingUseCase {
+        return ToggleLocationSharingUseCase(userRepository)
+    }
+
     @Provides
     fun provideGetUserWithSpotsUseCase(userRepository: UserRepository) : GetUserWithSpotsUseCase {
         return GetUserWithSpotsUseCase(userRepository)

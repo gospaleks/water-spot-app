@@ -1,6 +1,8 @@
 package rs.gospaleks.waterspot.data.repository
 
 import android.net.Uri
+import com.firebase.geofire.GeoFireUtils
+import com.firebase.geofire.GeoLocation
 import kotlinx.coroutines.flow.Flow
 import rs.gospaleks.waterspot.data.remote.cloudinary.CloudinaryDataSource
 import rs.gospaleks.waterspot.data.remote.firebase.FirebaseAuthDataSource
@@ -41,5 +43,36 @@ class UserRepositoryImpl @Inject constructor(
 
     override fun getUserWithSpots(uid: String): Flow<Result<UserWithSpots>> {
         return firestoreUserDataSource.getUserWithSpots(uid)
+    }
+
+    override suspend fun toggleLocationSharing(
+        isShared: Boolean
+    ): Result<Unit> {
+        val uid = firebaseAuthDataSource.getCurrentUserId()
+
+        if (uid == null) {
+            return Result.failure(Exception("No authenticated user found"))
+        }
+
+        return firestoreUserDataSource.toggleLocationSharing(uid, isShared)
+    }
+
+    override suspend fun setUserLocation(
+        latitude: Double,
+        longitude: Double
+    ): Result<Unit> {
+        val uid = firebaseAuthDataSource.getCurrentUserId()
+
+        if (uid == null) {
+            return Result.failure(Exception("No authenticated user found"))
+        }
+
+        val geohash = GeoFireUtils.getGeoHashForLocation(GeoLocation(latitude, longitude))
+
+        return firestoreUserDataSource.setUserLocation(uid, latitude, longitude, geohash)
+    }
+
+    override fun getUsersWithLocationSharing(): Flow<Result<List<User>>> {
+        return firestoreUserDataSource.getUsersWithLocationSharing()
     }
 }

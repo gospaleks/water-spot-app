@@ -13,4 +13,10 @@ interface UserRepository {
     fun getAllUsers(): Flow<Result<List<User>>>
 
     fun getUserWithSpots(uid: String): Flow<Result<UserWithSpots>>
+
+    suspend fun toggleLocationSharing(isShared: Boolean): Result<Unit>
+
+    suspend fun setUserLocation(latitude: Double, longitude: Double): Result<Unit>
+
+    fun getUsersWithLocationSharing(): Flow<Result<List<User>>>
 }

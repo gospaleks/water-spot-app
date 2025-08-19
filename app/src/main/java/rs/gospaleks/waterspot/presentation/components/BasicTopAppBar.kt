@@ -1,5 +1,6 @@
 package rs.gospaleks.waterspot.presentation.components
 
+import androidx.compose.animation.Crossfade
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -8,7 +9,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import rs.gospaleks.waterspot.R
 
@@ -16,10 +16,17 @@ import rs.gospaleks.waterspot.R
 @Composable
 fun BasicTopAppBar(title: String, onBackClick: () -> Unit) {
     TopAppBar(
-        title = { Text(text = title) },
+        title = {
+            Crossfade(targetState = title, label = "TopBarTitleCrossfade") { animatedTitle ->
+                Text(text = animatedTitle)
+            }
+        },
         navigationIcon = {
             IconButton(onClick = onBackClick) {
-                Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(id = R.string.back_button_content_description))
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = stringResource(id = R.string.back_button_content_description)
+                )
             }
         }
     )

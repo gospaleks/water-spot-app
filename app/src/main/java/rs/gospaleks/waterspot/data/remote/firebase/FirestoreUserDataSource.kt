@@ -174,4 +174,59 @@ class FirestoreUserDataSource @Inject constructor(
             spotsListener.remove()
         }
     }
+
+    suspend fun toggleLocationSharing(uid: String, isShared: Boolean): Result<Unit> {
+        return try {
+            val userDocRef = firestore.collection("users").document(uid)
+            userDocRef.update("isLocationShared", isShared).await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Result.failure(e)
+        }
+    }
+
+    suspend fun setUserLocation(uid: String, latitude: Double, longitude: Double, geohash: String): Result<Unit> {
+        return try {
+            val userDocRef = firestore.collection("users").document(uid)
+            userDocRef.update(
+                mapOf(
+                    "lat" to latitude,
+                    "lng" to longitude,
+                    "geohash" to geohash
+                )
+            ).await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Result.failure(e)
+        }
+    }
+
+    fun getUsersWithLocationSharing(): Flow<Result<List<User>>> = callbackFlow {
+        val userCollectionRef = firestore.collection("users")
+            .whereEqualTo("isLocationShared", true)
+
+        val snapshotListener = userCollectionRef.addSnapshotListener { snapshot, e ->
+            if (e != null) {
+                trySend(Result.failure(e))
+                return@addSnapshotListener
+            }
+
+            val users = snapshot?.documents?.mapNotNull { doc ->
+                try {
+                    doc.toObject(FirestoreUserDto::class.java)
+                        ?.copy(id = doc.id)
+                        ?.toDomain()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    null
+                }
+            } ?: emptyList()
+
+            trySend(Result.success(users))
+        }
+
+        awaitClose { snapshotListener.remove() }
+    }
 }

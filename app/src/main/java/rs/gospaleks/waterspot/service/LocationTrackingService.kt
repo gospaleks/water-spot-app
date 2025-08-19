@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.collectLatest
 import rs.gospaleks.waterspot.common.NotificationHelper
 import rs.gospaleks.waterspot.domain.use_case.NearbyTrackingUseCase
 import rs.gospaleks.waterspot.data.local.LocationTrackingPreferences
+import rs.gospaleks.waterspot.domain.use_case.SetUserLocationUseCase
 
 @AndroidEntryPoint
 class LocationTrackingService : Service() {
@@ -31,6 +32,7 @@ class LocationTrackingService : Service() {
 
     @Inject lateinit var fusedLocationClient: FusedLocationProviderClient
     @Inject lateinit var nearbyTrackingUseCase: NearbyTrackingUseCase
+    @Inject lateinit var setUserLocationUseCase: SetUserLocationUseCase
     @Inject lateinit var locationPrefs: LocationTrackingPreferences
 
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -39,7 +41,7 @@ class LocationTrackingService : Service() {
 
     companion object {
         private const val NOTIFICATION_ID = 1
-        private const val INTERVAL_MS = 60_000L
+        private const val INTERVAL_MS = 30_000L
         private const val TAG = "LocationTrackingService"
         private const val NEARBY_NOTIFICATION_ID = 1001
     }
@@ -104,7 +106,10 @@ class LocationTrackingService : Service() {
     private fun triggerNearbyCheck(lat: Double, lng: Double) {
         serviceScope.launch {
             val radius = nearbyRadiusMeters
+
+            val setLocationResult = setUserLocationUseCase(lat, lng)
             val result = nearbyTrackingUseCase(lat, lng, radius)
+
             result.onSuccess { spotsWithUsers ->
                 val ids = spotsWithUsers.map { it.spot.id }.toSet()
                 if (ids.isNotEmpty() && ids != lastNotifiedSpotIds) {

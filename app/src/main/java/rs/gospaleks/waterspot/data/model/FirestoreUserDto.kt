@@ -17,10 +17,10 @@ data class FirestoreUserDto(
 
     // Ovo je za deljenje lokacije
     val isLocationShared: Boolean = false,
-    val location: GeoPoint? = null,
     val lastUpdated: Timestamp? = null,
 
-    // Geohash podaci
+    // Geohash podaci (ako resim da pribavljam i korisnike u radius-u)
+    // Za sada zbog observe pribavljam sve i vracam flow kako bih imao real-time podatke (FIX sa nekim pooling-om mozda?!?!)
     val geohash: String? = null,
     val lat: Double? = null,
     val lng: Double? = null,

@@ -10,6 +10,8 @@ fun FirestoreUserDto.toDomain(): User {
         fullName = fullName,
         phoneNumber = phoneNumber,
         profilePictureUrl = profilePictureUrl,
-        points = points
+        points = points,
+        lat = lat ?: 44.7866,
+        lng = lng ?: 20.4489,
     )
 }

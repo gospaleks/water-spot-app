@@ -3,6 +3,7 @@ package rs.gospaleks.waterspot.presentation.screens.public_profile
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -15,10 +16,14 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -52,10 +57,26 @@ fun PublicProfileScreen(
         viewModel.loadUserWithSpots(userId)
     }
 
+    // Observe scroll to decide when to show the user's name in the top bar
+    val listState = rememberLazyListState()
+    val density = LocalDensity.current
+    // Approximate Y position of the name inside the hero section from the top: 28dp (top padding) + 100dp (avatar) + 12dp (spacing)
+    val nameOffsetThresholdPx = with(density) { (28.dp + 100.dp + 12.dp + 24.dp).roundToPx() }
+    val showUserTitle by remember {
+        derivedStateOf {
+            // When the first visible item is beyond the hero, or the hero is scrolled enough that the name would be under the top bar
+            listState.firstVisibleItemIndex > 0 || listState.firstVisibleItemScrollOffset >= nameOffsetThresholdPx
+        }
+    }
+
     Scaffold (
         topBar = {
+            val titleText = when {
+                userWithSpots != null && showUserTitle -> userWithSpots.user.fullName
+                else -> stringResource(id = R.string.public_profile_title)
+            }
             BasicTopAppBar(
-                title = stringResource(id = R.string.public_profile_title),
+                title = titleText,
                 onBackClick = onBackClick
             )
         },
@@ -82,7 +103,8 @@ fun PublicProfileScreen(
 
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(bottom = 24.dp)
+                        contentPadding = PaddingValues(bottom = 24.dp),
+                        state = listState
                     ) {
                         // Header (kept separate so everything below can have rounded top corners)
                         item {

@@ -18,6 +18,7 @@ import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -25,19 +26,40 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import rs.gospaleks.waterspot.domain.use_case.GetAllSpotsWithUserUseCase
+import rs.gospaleks.waterspot.domain.use_case.GetUserDataUseCase
+import rs.gospaleks.waterspot.domain.use_case.GetUsersWithLocationSharingUseCase
 import rs.gospaleks.waterspot.domain.use_case.LocationTrackingUseCase
 import javax.inject.Inject
 
 @HiltViewModel
 class MapViewModel @Inject constructor(
     private val locationTrackingUseCase: LocationTrackingUseCase,
-    private val getAllSpotsWithUserUseCase: GetAllSpotsWithUserUseCase
+    private val getAllSpotsWithUserUseCase: GetAllSpotsWithUserUseCase,
+    private val getUsersWithLocationSharingUseCase: GetUsersWithLocationSharingUseCase,
 ) : ViewModel() {
 
     var uiState by mutableStateOf(MapUiState())
         private set
 
     private var hasCenteredMap = false
+
+    init {
+        observeUsersWithLocationSharing()
+    }
+
+    private fun observeUsersWithLocationSharing() {
+        viewModelScope.launch {
+            getUsersWithLocationSharingUseCase().collect { result ->
+                result
+                    .onSuccess { users ->
+                        uiState = uiState.copy(usersWithLocationSharing = users)
+                    }
+                    .onFailure { error ->
+                        uiState = uiState.copy(error = error.message ?: "Unknown error")
+                    }
+            }
+        }
+    }
 
     // Znaci koja je ideja:
     // 1. Prvo se pokrene location tracking iz UI-a i onda on uzme trenutnu lokaciju i salje je use case-u da mu vrati sve spotove u okolini

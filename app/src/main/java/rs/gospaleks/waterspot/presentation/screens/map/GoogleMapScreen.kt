@@ -19,6 +19,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -45,7 +46,9 @@ import rs.gospaleks.waterspot.presentation.screens.map.components.MapTopAppBar
 import rs.gospaleks.waterspot.presentation.screens.map.components.PermissionDeniedPlaceholder
 import rs.gospaleks.waterspot.presentation.components.bottom_sheet.SpotDetailsBottomSheet
 import rs.gospaleks.waterspot.presentation.components.bottom_sheet.SpotDetailsBottomSheetViewModel
+import rs.gospaleks.waterspot.presentation.navigation.ProfileRouteScreen
 import rs.gospaleks.waterspot.presentation.screens.profile.ThemeViewModel
+import rs.gospaleks.waterspot.presentation.screens.map.components.rememberAvatarMarkerDescriptor
 
 @OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -170,6 +173,26 @@ fun GoogleMapScreen(
                             }
                         )
                     }
+
+                    // TODO: Preskociti aktivnog korisnika i dok se ne ucita slika ne prikazati najbolje nista (da nema flicker sa default makerom)
+//                    uiState.usersWithLocationSharing.forEach { user ->
+//                        val avatarDescriptor = rememberAvatarMarkerDescriptor(
+//                            imageUrl = user.profilePictureUrl,
+//                            name = user.fullName
+//                        )
+//                        Marker(
+//                            state = MarkerState(
+//                                position = LatLng(user.lat, user.lng),
+//                            ),
+//                            title = user.fullName,
+//                            onClick = {
+//                                rootNavHostController.navigate(ProfileRouteScreen.PublicProfile.createRoute(user.id))
+//                                true
+//                            },
+//                            icon = avatarDescriptor,
+//                            anchor = Offset(0.5f, 0.5f),
+//                        )
+//                    }
                 }
 
                 SpotDetailsBottomSheet(rootNavHostController = rootNavHostController, viewModel = bottomSheetViewModel)
