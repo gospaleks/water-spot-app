@@ -1,8 +1,6 @@
 package rs.gospaleks.waterspot.presentation.screens.all_spots.components
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -20,26 +18,24 @@ fun TypeFilterBottomSheetContent(
     selectedTypes: Set<SpotTypeEnum>,
     onToggleType: (SpotTypeEnum) -> Unit,
 ) {
-    Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp)) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp, vertical = 8.dp)
+    ) {
         Text(text = "Type", style = MaterialTheme.typography.headlineSmall)
         Spacer(Modifier.height(8.dp))
         HorizontalDivider()
         Spacer(Modifier.height(8.dp))
 
-        LazyColumn(
-            modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(2.dp)
-        ) {
-            items(SpotTypeEnum.entries) { type ->
-                FilterListItem(
-                    checked = selectedTypes.contains(type),
-                    onCheckedChange = { onToggleType(type) },
-                    leading = {
-                        Icon(imageVector = type.icon(), contentDescription = null)
-                    },
-                    title = type.toDisplayName()
-                )
-            }
+        // Non-scrollable list; parent provides scrolling
+        SpotTypeEnum.entries.forEach { type ->
+            FilterListItem(
+                checked = selectedTypes.contains(type),
+                onCheckedChange = { onToggleType(type) },
+                leading = { Icon(imageVector = type.icon(), contentDescription = null) },
+                title = type.toDisplayName()
+            )
         }
     }
 }
@@ -49,31 +45,31 @@ fun CleanlinessFilterBottomSheetContent(
     selectedCleanliness: Set<CleanlinessLevelEnum>,
     onToggleCleanliness: (CleanlinessLevelEnum) -> Unit,
 ) {
-    Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp)) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp, vertical = 8.dp)
+    ) {
         Text(text = "Cleanliness", style = MaterialTheme.typography.headlineSmall)
         Spacer(Modifier.height(8.dp))
         HorizontalDivider()
         Spacer(Modifier.height(8.dp))
 
-        LazyColumn(
-            modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(2.dp)
-        ) {
-            items(CleanlinessLevelEnum.entries) { level ->
-                FilterListItem(
-                    checked = selectedCleanliness.contains(level),
-                    onCheckedChange = { onToggleCleanliness(level) },
-                    leading = {
-                        Icon(
-                            imageVector = level.icon(),
-                            contentDescription = null,
-                            tint = level.getColor()
-                        )
-                    },
-                    title = level.toDisplayName(),
-                    titleColor = level.getColor()
-                )
-            }
+        // Non-scrollable list; parent provides scrolling
+        CleanlinessLevelEnum.entries.forEach { level ->
+            FilterListItem(
+                checked = selectedCleanliness.contains(level),
+                onCheckedChange = { onToggleCleanliness(level) },
+                leading = {
+                    Icon(
+                        imageVector = level.icon(),
+                        contentDescription = null,
+                        tint = level.getColor()
+                    )
+                },
+                title = level.toDisplayName(),
+                titleColor = level.getColor()
+            )
         }
     }
 }
@@ -105,7 +101,8 @@ fun RadiusFilterBottomSheetContent(
                 value = currentKm.toFloat(),
                 onValueChange = { km -> onMetersChange(km.toInt().coerceIn(1, 100) * 1000) },
                 valueRange = 1f..100f,
-                steps = 98
+                steps = 98,
+                onValueChangeFinished = { onApply() }
             )
             Text(text = "100 km")
         }
@@ -116,10 +113,13 @@ fun RadiusFilterBottomSheetContent(
         Text(text = "Meters", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Spacer(Modifier.height(6.dp))
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            listOf(100, 250, 500, 750, 1000).forEach { m ->
+            listOf(50, 100, 250, 500, 750, 1000).forEach { m ->
                 AssistChip(
-                    onClick = { onMetersChange(m) },
-                    label = { Text("${m} m") },
+                    onClick = {
+                        onMetersChange(m)
+                        onApply()
+                    },
+                    label = { Text("$m m") },
                     colors = AssistChipDefaults.assistChipColors()
                 )
             }
@@ -133,17 +133,14 @@ fun RadiusFilterBottomSheetContent(
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             listOf(2, 5, 10, 20, 50, 100).forEach { km ->
                 AssistChip(
-                    onClick = { onMetersChange(km * 1000) },
+                    onClick = {
+                        onMetersChange(km * 1000)
+                        onApply()
+                    },
                     label = { Text("$km km") }
                 )
             }
         }
-
-        Spacer(Modifier.height(16.dp))
-        Button(
-            onClick = onApply,
-            modifier = Modifier.fillMaxWidth()
-        ) { Text("Apply") }
     }
 }
 

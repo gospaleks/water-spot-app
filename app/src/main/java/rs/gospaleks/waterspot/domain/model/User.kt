@@ -8,7 +8,7 @@ data class User(
     val profilePictureUrl: String? = "",
     val points: Int = 0,
     val lat: Double = 44.7866,
-    val lng: Double = 20.4489
+    val lng: Double = 20.4489,
 )
 
 data class UserWithSpots (

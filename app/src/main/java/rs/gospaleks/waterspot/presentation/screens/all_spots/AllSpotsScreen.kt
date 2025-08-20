@@ -23,6 +23,8 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -33,6 +35,7 @@ import rs.gospaleks.waterspot.presentation.components.bottom_sheet.SpotDetailsBo
 import rs.gospaleks.waterspot.R
 import rs.gospaleks.waterspot.presentation.navigation.ProfileRouteScreen
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AllSpotsScreen(
     rootNavHostController: NavHostController,
@@ -42,6 +45,9 @@ fun AllSpotsScreen(
     val bottomSheetViewModel: SpotDetailsBottomSheetViewModel = hiltViewModel()
 
     val uiState = viewModel.uiState
+
+    // Pull to refresh
+    val refreshState = rememberPullToRefreshState()
 
     // Re-fetch spots on every screen entry (ON_START)
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -126,37 +132,45 @@ fun AllSpotsScreen(
                 }
             }
             else -> {
-                LazyColumn(
+                PullToRefreshBox(
+                    state = refreshState,
+                    isRefreshing = uiState.isRefreshing,
+                    onRefresh = {
+                        viewModel.refresh()
+                    },
                     modifier = Modifier
                         .weight(1f)
                         .padding(horizontal = outerPadding.calculateStartPadding(LayoutDirection.Ltr)),
-                    verticalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
-                    items(
-                        items = uiState.filteredSpots,
-                        key = { it.spot.id }
-                    ) { spotWithUser ->
-                        val index = uiState.filteredSpots.indexOf(spotWithUser)
+                    LazyColumn(
+                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                    ) {
+                        items(
+                            items = uiState.filteredSpots,
+                            key = { it.spot.id }
+                        ) { spotWithUser ->
+                            val index = uiState.filteredSpots.indexOf(spotWithUser)
 
-                        SpotCard(
-                            spotWithUser = spotWithUser,
-                            modifier = (if (index == 0) Modifier.padding(top = 8.dp) else Modifier)
-                                .animateItem(),
-                            onCardClick = {
-                                bottomSheetViewModel.onSpotClick(spotWithUser)
-                            },
-                            onUserClick = { userId ->
-                                if (userId.isNotBlank()) {
-                                    Log.d("AllSpotsScreen", "Navigating to user profile: $userId")
-                                    rootNavHostController.navigate(
-                                        ProfileRouteScreen.PublicProfile.createRoute(userId)
-                                    )
-                                } else {
-                                    Log.w("AllSpotsScreen", "User ID is blank, cannot navigate to profile")
-                                }
-                            },
-                        )
+                            SpotCard(
+                                spotWithUser = spotWithUser,
+                                modifier = (if (index == 0) Modifier.padding(top = 8.dp) else Modifier)
+                                    .animateItem(),
+                                onCardClick = {
+                                    bottomSheetViewModel.onSpotClick(spotWithUser)
+                                },
+                                onUserClick = { userId ->
+                                    if (userId.isNotBlank()) {
+                                        Log.d("AllSpotsScreen", "Navigating to user profile: $userId")
+                                        rootNavHostController.navigate(
+                                            ProfileRouteScreen.PublicProfile.createRoute(userId)
+                                        )
+                                    } else {
+                                        Log.w("AllSpotsScreen", "User ID is blank, cannot navigate to profile")
+                                    }
+                                },
+                            )
 
+                        }
                     }
                 }
             }

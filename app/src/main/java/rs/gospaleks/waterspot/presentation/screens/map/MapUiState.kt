@@ -1,8 +1,12 @@
 package rs.gospaleks.waterspot.presentation.screens.map
 
 import com.google.android.gms.maps.model.LatLng
+import rs.gospaleks.waterspot.domain.model.CleanlinessLevelEnum
+import rs.gospaleks.waterspot.domain.model.SpotTypeEnum
 import rs.gospaleks.waterspot.domain.model.SpotWithUser
 import rs.gospaleks.waterspot.domain.model.User
+
+const val DEFAULT_RADIUS_METERS_MAP = 5_000
 
 data class MapUiState(
     // Current user location
@@ -13,17 +17,19 @@ data class MapUiState(
     // List of users with location sharing enabled
     val usersWithLocationSharing: List<User> = emptyList(),
 
-    // List of spots
-    val spots: List<SpotWithUser> = emptyList(),
+    // Full list fetched from the backend for the applied radius
+    val allSpots: List<SpotWithUser> = emptyList(),
+    // Locally filtered list for display
+    val filteredSpots: List<SpotWithUser> = emptyList(),
     val isLoadingSpots: Boolean = false,
 
-    // Filter options
-    val filters: MapFilters = MapFilters(),
+    // Local filters (do not trigger backend calls)
+    val selectedTypeFilters: Set<SpotTypeEnum> = emptySet(),
+    val selectedCleanlinessFilters: Set<CleanlinessLevelEnum> = emptySet(),
+
+    // Radius UI state (meters) (trigger backend calls)
+    val radiusMeters: Int = DEFAULT_RADIUS_METERS_MAP,
 
     // Error handling
     val error: String? = null,
-)
-
-data class MapFilters(
-    val radius: Double = 500.0,
 )

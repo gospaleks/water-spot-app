@@ -255,10 +255,7 @@ fun SearchAndFilter(
                     FilterSheet.Radius -> RadiusFilterBottomSheetContent(
                         currentMeters = radiusMeters,
                         onMetersChange = onRadiusMetersChange,
-                        onApply = {
-                            onRadiusChangeFinished()
-                            showBottomSheet = false
-                        }
+                        onApply = { onRadiusChangeFinished() }
                     )
 
                     null -> {}

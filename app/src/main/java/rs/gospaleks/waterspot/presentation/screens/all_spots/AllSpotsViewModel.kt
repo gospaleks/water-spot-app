@@ -19,6 +19,7 @@ import javax.inject.Inject
 
 data class AllSpotsUiState(
     val isLoading: Boolean = false,
+    val isRefreshing: Boolean = false,
     // Full list fetched from the backend for the current radius
     val allSpots: List<SpotWithUser> = emptyList(),
     // List after applying local filters and search
@@ -116,13 +117,15 @@ class AllSpotsViewModel @Inject constructor(
                         uiState = uiState.copy(
                             allSpots = spots,
                             isLoading = false,
-                            error = null
+                            isRefreshing = false,
+                            error = null,
                         )
                         applyFilters()
                     }
                     .onFailure { error ->
                         uiState = uiState.copy(
                             isLoading = false,
+                            isRefreshing = false,
                             allSpots = emptyList(),
                             filteredSpots = emptyList(),
                             error = error.message ?: "Unknown error"
@@ -130,6 +133,12 @@ class AllSpotsViewModel @Inject constructor(
                     }
             }
         }
+    }
+
+    fun refresh() {
+        // Re-fetch spots with current radius and apply filters that were set
+        uiState = uiState.copy(isRefreshing = true)
+        observeSpots(radiusMeters = uiState.radiusMeters, forceLoading = true)
     }
 
     private fun applyFilters() {

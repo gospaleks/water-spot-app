@@ -64,7 +64,12 @@ fun GoogleMapScreen(
     val uiState = viewModel.uiState
 
     val locationPermissionState = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
-    val cameraPositionState = rememberCameraPositionState()
+    val cameraPositionState = rememberCameraPositionState {
+        position = com.google.android.gms.maps.model.CameraPosition.fromLatLngZoom(
+            LatLng(44.7866, 20.4489),
+            7f
+        )
+    }
     val context = LocalContext.current
 
     // Uzmi temu iz theme viewmodel-a i na osnovu nje promeni map style
@@ -117,10 +122,16 @@ fun GoogleMapScreen(
     Scaffold(
         topBar = {
             MapTopAppBar(
-                currentFilters = uiState.filters,
-                onFilterApply = { filters ->
-                    viewModel.updateFilters(filters)
-                }
+                selectedTypes = uiState.selectedTypeFilters,
+                onToggleType = viewModel::toggleTypeFilter,
+                selectedCleanliness = uiState.selectedCleanlinessFilters,
+                onToggleCleanliness = viewModel::toggleCleanlinessFilter,
+                radiusMeters = uiState.radiusMeters,
+                onRadiusMetersChange = viewModel::updateRadiusMeters,
+                onRadiusApply = viewModel::applyRadiusChange,
+                onClearAllFilters = viewModel::clearAllFilters,
+                activeFiltersCount = uiState.selectedTypeFilters.size + uiState.selectedCleanlinessFilters.size +
+                    if (uiState.radiusMeters != DEFAULT_RADIUS_METERS_MAP) 1 else 0,
             )
         },
         floatingActionButton = {
@@ -159,7 +170,7 @@ fun GoogleMapScreen(
                         compassEnabled = false,
                     )
                 ) {
-                    uiState.spots.forEach { item ->
+                    uiState.filteredSpots.forEach { item ->
                         Marker(
                             state = MarkerState(
                                 position = LatLng(item.spot.latitude, item.spot.longitude),
@@ -195,19 +206,19 @@ fun GoogleMapScreen(
                             )
                         }
                 }
-
-                SpotDetailsBottomSheet(rootNavHostController = rootNavHostController, viewModel = bottomSheetViewModel)
-
-                // Subtilan loading indikator dok se trenutna lokacija ne ucita
-                if (uiState.location == null || uiState.isLoadingSpots) {
-                    LinearProgressIndicator(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .align(Alignment.TopCenter)
-                    )
-                }
             } else {
                 PermissionDeniedPlaceholder()
+            }
+
+            SpotDetailsBottomSheet(rootNavHostController = rootNavHostController, viewModel = bottomSheetViewModel)
+
+            // Subtilan loading indikator dok se trenutna lokacija ne ucita ili pri fetch-u za radius
+            if (uiState.location == null || uiState.isLoadingSpots) {
+                LinearProgressIndicator(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.TopCenter)
+                )
             }
         }
     }

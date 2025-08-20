@@ -1,9 +1,10 @@
 package rs.gospaleks.waterspot.presentation.screens.map
 
 import android.Manifest
+import android.util.Log
 import androidx.annotation.RequiresPermission
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -12,6 +13,7 @@ import com.firebase.geofire.GeoLocation
 import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -19,6 +21,8 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import rs.gospaleks.waterspot.domain.auth.use_case.GetCurrentUserUseCase
+import rs.gospaleks.waterspot.domain.model.CleanlinessLevelEnum
+import rs.gospaleks.waterspot.domain.model.SpotTypeEnum
 import rs.gospaleks.waterspot.domain.use_case.GetAllSpotsWithUserUseCase
 import rs.gospaleks.waterspot.domain.use_case.GetUsersWithLocationSharingUseCase
 import rs.gospaleks.waterspot.domain.use_case.LocationTrackingUseCase
@@ -36,6 +40,7 @@ class MapViewModel @Inject constructor(
         private set
 
     private var hasCenteredMap = false
+    private var observeJob: Job? = null
 
     init {
         observeUsersWithLocationSharing()
@@ -62,10 +67,22 @@ class MapViewModel @Inject constructor(
         }
     }
 
-    // Znaci koja je ideja:
-    // 1. Prvo se pokrene location tracking iz UI-a i onda on uzme trenutnu lokaciju i salje je use case-u da mu vrati sve spotove u okolini
-    // 2. Use case uzima trenutnu lokaciju i vraca sve spotove
-    // 3. Kada se lokacija promeni (barem 15m od prethodne), use case salje novu lokaciju i vraca sve spotove u okolini
+//    @OptIn(FlowPreview::class)
+//    private fun observeLocation() {
+//        viewModelScope.launch {
+//            locationTrackingUseCase.currentLocation
+//                .filterNotNull()
+//                .debounce(10_000L)
+//                .collectLatest { location ->
+//                    Log.d("MapViewModel", "New location: $location")
+//                    uiState = uiState.copy(location = location)
+//                    observeSpots(location)
+//                }
+//        }
+//    }
+
+    // Znaci lokaciju ne uzimamo non stop vec na svakih 15 metara ili 10 sekundi ako se korisnik krece brzo
+    // Ovo je dovoljno da se ne spamuje backend i da se ne trose resursi
     @OptIn(FlowPreview::class)
     private fun observeLocation() {
         viewModelScope.launch {
@@ -79,8 +96,7 @@ class MapViewModel @Inject constructor(
                     distance < 15
                 }
                 .onEach { location ->
-                    // Ako je ovo prvi put, odmah pokreni
-                    if (uiState.spots.isEmpty()) {
+                    if (uiState.allSpots.isEmpty()) {
                         uiState = uiState.copy(location = location)
                         observeSpots(location)
                     }
@@ -94,23 +110,22 @@ class MapViewModel @Inject constructor(
     }
 
     private fun observeSpots(location: LatLng) {
-        viewModelScope.launch {
-            uiState = uiState.copy(
-                isLoadingSpots = true,
-                error = null
-            )
+        observeJob?.cancel()
+        observeJob = viewModelScope.launch {
+            uiState = uiState.copy(isLoadingSpots = true, error = null)
             getAllSpotsWithUserUseCase(
                 location.latitude,
                 location.longitude,
-                uiState.filters.radius
+                uiState.radiusMeters.toDouble(),
             ).collectLatest { result ->
                 result
                     .onSuccess { spots ->
                         uiState = uiState.copy(
-                            spots = spots,
+                            allSpots = spots,
                             isLoadingSpots = false,
                             error = null
                         )
+                        applyFilters()
                     }
                     .onFailure { error ->
                         uiState = uiState.copy(
@@ -122,37 +137,72 @@ class MapViewModel @Inject constructor(
         }
     }
 
+    private fun applyFilters() {
+        val types = uiState.selectedTypeFilters
+        val cleanliness = uiState.selectedCleanlinessFilters
+
+        val filtered = uiState.allSpots.filter { item ->
+            val spot = item.spot
+            val typeOk = if (types.isEmpty()) true else types.contains(spot.type)
+            val cleanlinessOk = if (cleanliness.isEmpty()) true else cleanliness.contains(spot.cleanliness)
+            typeOk && cleanlinessOk
+        }
+
+        uiState = uiState.copy(filteredSpots = filtered)
+    }
 
     // Location
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     fun startLocationUpdates() {
         locationTrackingUseCase.startTracking()
         observeLocation()
-
-        uiState = uiState.copy(
-            isLocationPermissionGranted = true
-        )
+        uiState = uiState.copy(isLocationPermissionGranted = true)
     }
 
     fun stopLocationUpdates() {
         locationTrackingUseCase.stopTracking()
     }
 
-    fun shouldCenterMap(): Boolean {
-        return !hasCenteredMap
+    fun shouldCenterMap(): Boolean = !hasCenteredMap
+
+    fun setCentered() { hasCenteredMap = true }
+
+    // Local filters management
+    fun toggleTypeFilter(type: SpotTypeEnum) {
+        val newSet = uiState.selectedTypeFilters.toMutableSet().apply {
+            if (contains(type)) remove(type) else add(type)
+        }.toSet()
+        uiState = uiState.copy(selectedTypeFilters = newSet)
+        applyFilters()
     }
 
-    fun setCentered() {
-        hasCenteredMap = true
+    fun toggleCleanlinessFilter(level: CleanlinessLevelEnum) {
+        val newSet = uiState.selectedCleanlinessFilters.toMutableSet().apply {
+            if (contains(level)) remove(level) else add(level)
+        }.toSet()
+        uiState = uiState.copy(selectedCleanlinessFilters = newSet)
+        applyFilters()
     }
 
-    fun updateFilters(newFilters: MapFilters) {
-        val oldRadius = uiState.filters.radius
-        uiState = uiState.copy(filters = newFilters)
-        if (newFilters.radius != oldRadius) {
-            uiState.location?.let { location ->
-                observeSpots(location)
-            }
+    // Slider moves (no fetch yet)
+    fun updateRadiusMeters(meters: Int) {
+        if (meters != uiState.radiusMeters) {
+            uiState = uiState.copy(radiusMeters = meters)
         }
+    }
+
+    // Called when Apply pressed in radius section
+    fun applyRadiusChange() {
+        uiState.location?.let { observeSpots(it) }
+    }
+
+    fun clearAllFilters() {
+        uiState = uiState.copy(
+            selectedTypeFilters = emptySet(),
+            selectedCleanlinessFilters = emptySet(),
+            radiusMeters = DEFAULT_RADIUS_METERS_MAP
+        )
+        applyRadiusChange()
+        applyFilters()
     }
 }
