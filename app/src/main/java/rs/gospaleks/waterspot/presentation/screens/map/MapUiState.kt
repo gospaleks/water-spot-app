@@ -1,7 +1,6 @@
 package rs.gospaleks.waterspot.presentation.screens.map
 
 import com.google.android.gms.maps.model.LatLng
-import rs.gospaleks.waterspot.domain.model.SpotTypeEnum
 import rs.gospaleks.waterspot.domain.model.SpotWithUser
 import rs.gospaleks.waterspot.domain.model.User
 
@@ -9,6 +8,7 @@ data class MapUiState(
     // Current user location
     var location : LatLng? = null,
     val isLocationPermissionGranted: Boolean = false,
+    val currentUserId: String? = null,
 
     // List of users with location sharing enabled
     val usersWithLocationSharing: List<User> = emptyList(),

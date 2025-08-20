@@ -19,7 +19,7 @@ import androidx.core.graphics.createBitmap
 import androidx.core.graphics.drawable.toBitmap
 import androidx.core.graphics.scale
 import androidx.core.graphics.toColorInt
-import coil.ImageLoader
+import coil.imageLoader
 import coil.request.ImageRequest
 import coil.request.SuccessResult
 import com.google.android.gms.maps.model.BitmapDescriptor
@@ -31,10 +31,51 @@ fun extractInitials(name: String): String {
     val first = parts.getOrNull(0)?.firstOrNull()?.uppercaseChar()
     val second = parts.getOrNull(1)?.firstOrNull()?.uppercaseChar()
     return when {
-        first != null && second != null -> "${'$'}first${'$'}second"
+        first != null && second != null -> "$first$second"
         first != null -> first.toString()
         else -> "?"
     }
+}
+
+// Synchronous placeholder (no network): initials on a colored circle with border
+fun createInitialsAvatarBitmap(
+    name: String,
+    sizePx: Int,
+): Bitmap {
+    val output = createBitmap(sizePx, sizePx)
+    val canvas = Canvas(output)
+    val radius = sizePx / 2f
+
+    // Background circle fill
+    val circlePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = "#2196F3".toColorInt() // blue-ish
+        style = Paint.Style.FILL
+    }
+    canvas.drawCircle(radius, radius, radius, circlePaint)
+
+    // Initials text
+    val initials = extractInitials(name)
+    val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = Color.WHITE
+        style = Paint.Style.FILL
+        textAlign = Paint.Align.CENTER
+        textSize = sizePx * 0.42f
+    }
+    val textBounds = android.graphics.Rect()
+    textPaint.getTextBounds(initials, 0, initials.length, textBounds)
+    val textY = radius - textBounds.exactCenterY()
+    canvas.drawText(initials, radius, textY, textPaint)
+
+    // White border
+    val borderPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = Color.WHITE
+        style = Paint.Style.STROKE
+        strokeWidth = sizePx * 0.06f
+    }
+    val inset = borderPaint.strokeWidth / 2
+    canvas.drawArc(RectF(inset, inset, sizePx - inset, sizePx - inset), 0f, 360f, false, borderPaint)
+
+    return output
 }
 
 suspend fun createCircularAvatarBitmap(
@@ -43,7 +84,7 @@ suspend fun createCircularAvatarBitmap(
     name: String,
     sizePx: Int,
 ): Bitmap {
-    val loader = ImageLoader(context)
+    val loader = context.imageLoader
     val drawableBitmap: Bitmap? = try {
         if (!imageUrl.isNullOrBlank()) {
             val request = ImageRequest.Builder(context)
@@ -119,13 +160,22 @@ fun rememberAvatarMarkerDescriptor(
     imageUrl: String?,
     name: String,
     size: Dp = 48.dp,
-): BitmapDescriptor? {
+): BitmapDescriptor {
     val context = LocalContext.current
     val density = LocalDensity.current
-    val (descriptor, setDescriptor) = remember(imageUrl, name) { mutableStateOf<BitmapDescriptor?>(null) }
+    // Compute size first to build an immediate placeholder
+    val sizePx = with(density) { size.roundToPx() }
 
-    LaunchedEffect(imageUrl, name) {
-        val sizePx = with(density) { size.roundToPx() }
+    // Create a non-null placeholder immediately to avoid default red marker flicker
+    val initialPlaceholder = remember(name, sizePx) {
+        BitmapDescriptorFactory.fromBitmap(createInitialsAvatarBitmap(name, sizePx))
+    }
+
+    val (descriptor, setDescriptor) = remember(imageUrl, name, sizePx) {
+        mutableStateOf<BitmapDescriptor>(initialPlaceholder)
+    }
+
+    LaunchedEffect(imageUrl, name, sizePx) {
         val bmp = createCircularAvatarBitmap(context, imageUrl, name, sizePx)
         setDescriptor(BitmapDescriptorFactory.fromBitmap(bmp))
     }

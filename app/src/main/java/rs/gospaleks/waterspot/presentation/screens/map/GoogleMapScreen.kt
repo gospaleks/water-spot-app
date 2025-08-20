@@ -174,25 +174,26 @@ fun GoogleMapScreen(
                         )
                     }
 
-                    // TODO: Preskociti aktivnog korisnika i dok se ne ucita slika ne prikazati najbolje nista (da nema flicker sa default makerom)
-//                    uiState.usersWithLocationSharing.forEach { user ->
-//                        val avatarDescriptor = rememberAvatarMarkerDescriptor(
-//                            imageUrl = user.profilePictureUrl,
-//                            name = user.fullName
-//                        )
-//                        Marker(
-//                            state = MarkerState(
-//                                position = LatLng(user.lat, user.lng),
-//                            ),
-//                            title = user.fullName,
-//                            onClick = {
-//                                rootNavHostController.navigate(ProfileRouteScreen.PublicProfile.createRoute(user.id))
-//                                true
-//                            },
-//                            icon = avatarDescriptor,
-//                            anchor = Offset(0.5f, 0.5f),
-//                        )
-//                    }
+                    uiState.usersWithLocationSharing
+                        .filter { user -> user.id != uiState.currentUserId }
+                        .forEach { user ->
+                            val avatarDescriptor = rememberAvatarMarkerDescriptor(
+                                imageUrl = user.profilePictureUrl,
+                                name = user.fullName
+                            )
+                            Marker(
+                                state = MarkerState(
+                                    position = LatLng(user.lat, user.lng),
+                                ),
+                                title = user.fullName,
+                                onClick = {
+                                    rootNavHostController.navigate(ProfileRouteScreen.PublicProfile.createRoute(user.id))
+                                    true
+                                },
+                                icon = avatarDescriptor,
+                                anchor = Offset(0.5f, 0.5f),
+                            )
+                        }
                 }
 
                 SpotDetailsBottomSheet(rootNavHostController = rootNavHostController, viewModel = bottomSheetViewModel)
