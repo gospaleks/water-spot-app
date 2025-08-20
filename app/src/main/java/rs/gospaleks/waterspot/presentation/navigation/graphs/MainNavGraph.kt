@@ -51,10 +51,12 @@ fun MainNavGraph(
                 innerPadding = innerPadding,
                 onLogout = onLogout,
                 onEditProfileClick = {
-                    rootNavHostController.navigate(ProfileRouteScreen.EditProfile.route)
+                    // TODO
                 },
                 onMyWaterSpotsClick = {},
-                onChangePasswordClick = {},
+                onChangePasswordClick = {
+                    rootNavHostController.navigate(ProfileRouteScreen.ChangePassword.route)
+                },
             )
         }
     }

@@ -73,4 +73,11 @@ class AuthRepositoryImpl @Inject constructor(
 
         return Result.success(userId)
     }
+
+    override suspend fun changePassword(
+        currentPassword: String,
+        newPassword: String
+    ): Result<Unit> {
+        return authDataSource.changePassword(currentPassword, newPassword)
+    }
 }

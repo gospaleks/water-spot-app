@@ -29,6 +29,7 @@ sealed class AddSpotRouteScreen(val route: String) {
 
 sealed class ProfileRouteScreen(val route: String) {
     object EditProfile : ProfileRouteScreen("edit_profile")
+    object ChangePassword : ProfileRouteScreen("change_password")
     object PublicProfile : ProfileRouteScreen("public_profile/{userId}") {
         fun createRoute(userId: String) = "public_profile/$userId"
     }

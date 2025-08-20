@@ -95,9 +95,6 @@ fun LoginScreen(
                 )
             }
         },
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
         topBar = {
             BasicTopAppBar(
                 title = stringResource(id = R.string.login_title),
@@ -109,9 +106,8 @@ fun LoginScreen(
         Column(
             modifier = Modifier
                 .padding(innerPadding)
-                .consumeWindowInsets(innerPadding)
-                .padding(horizontal = dimensionResource(R.dimen.padding_extra_large))
                 .verticalScroll(rememberScrollState())
+                .padding(horizontal = dimensionResource(R.dimen.padding_extra_large))
                 .imePadding()
         ) {
             Text(
@@ -232,6 +228,8 @@ fun LoginScreen(
                     )
                 }
             }
+
+            Spacer(modifier = Modifier.height(8.dp))
         }
     }
 }

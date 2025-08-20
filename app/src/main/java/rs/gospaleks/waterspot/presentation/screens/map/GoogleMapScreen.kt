@@ -29,6 +29,7 @@ import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.maps.android.compose.GoogleMap
@@ -65,9 +66,9 @@ fun GoogleMapScreen(
 
     val locationPermissionState = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
     val cameraPositionState = rememberCameraPositionState {
-        position = com.google.android.gms.maps.model.CameraPosition.fromLatLngZoom(
-            LatLng(44.7866, 20.4489),
-            7f
+        position = CameraPosition.fromLatLngZoom(
+            LatLng(44.0165, 21.0059), // Coordinates for Serbia
+            6f
         )
     }
     val context = LocalContext.current

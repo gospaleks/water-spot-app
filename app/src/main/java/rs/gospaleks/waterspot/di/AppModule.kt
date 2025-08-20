@@ -20,6 +20,7 @@ import rs.gospaleks.waterspot.data.repository.AuthRepositoryImpl
 import rs.gospaleks.waterspot.data.repository.SpotRepositoryImpl
 import rs.gospaleks.waterspot.data.repository.UserRepositoryImpl
 import rs.gospaleks.waterspot.domain.auth.repository.AuthRepository
+import rs.gospaleks.waterspot.domain.auth.use_case.ChangePasswordUseCase
 import rs.gospaleks.waterspot.domain.auth.use_case.GetCurrentUserUseCase
 import rs.gospaleks.waterspot.domain.auth.use_case.IsUserLoggedInUseCase
 import rs.gospaleks.waterspot.domain.auth.use_case.LoginUseCase
@@ -178,6 +179,11 @@ object AppModule {
     }
 
     // Auth Use Cases
+    @Provides
+    fun provideChangePasswordUseCase(authRepository: AuthRepository) : ChangePasswordUseCase {
+        return ChangePasswordUseCase(authRepository)
+    }
+
     @Provides
     fun provideGetAllUsersUse(userRepository: UserRepository) : GetAllUsersUseCase {
         return GetAllUsersUseCase(userRepository)

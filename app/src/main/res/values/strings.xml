@@ -72,6 +72,13 @@
     <!-- Edit Profile Screen -->
     <string name="edit_profile_title">Edit Profile</string>
 
+    <!-- Change Password Screen -->
+    <string name="change_password_title">Change Password</string>
+    <string name="current_password_label">Current password</string>
+    <string name="new_password_label">New password</string>
+    <string name="confirm_new_password_label">Confirm new password</string>
+    <string name="edit_profile_header_icon_cd">Edit profile illustration</string>
+
     <!-- Public Profile Screen -->
     <string name="public_profile_title">Public Profile</string>
     <string name="public_profile_spots_title">Water spots</string>

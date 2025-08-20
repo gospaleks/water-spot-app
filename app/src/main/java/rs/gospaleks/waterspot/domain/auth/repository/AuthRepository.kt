@@ -22,4 +22,9 @@ interface AuthRepository {
     fun logout()
 
     fun getCurrentUserId(): Result<String?>
+
+    suspend fun changePassword(
+        currentPassword: String,
+        newPassword: String
+    ): Result<Unit>
 }

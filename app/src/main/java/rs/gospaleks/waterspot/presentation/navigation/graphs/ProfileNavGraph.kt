@@ -8,7 +8,7 @@ import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import rs.gospaleks.waterspot.presentation.navigation.Graph
 import rs.gospaleks.waterspot.presentation.navigation.ProfileRouteScreen
-import rs.gospaleks.waterspot.presentation.screens.profile.EditProfileScreen
+import rs.gospaleks.waterspot.presentation.screens.profile.change_password.ChangePasswordScreen
 import rs.gospaleks.waterspot.presentation.screens.public_profile.PublicProfileScreen
 
 fun NavGraphBuilder.profileNavGraph(
@@ -19,7 +19,11 @@ fun NavGraphBuilder.profileNavGraph(
         startDestination = ProfileRouteScreen.EditProfile.route
     ) {
         composable (ProfileRouteScreen.EditProfile.route) {
-            EditProfileScreen(
+            // TODO: Implement EditProfileScreen (display all info and allow chaning name and phone number)
+        }
+
+        composable (ProfileRouteScreen.ChangePassword.route) {
+            ChangePasswordScreen(
                 onBackClick = {
                     rootNavHostController.popBackStack()
                 }

@@ -1,5 +1,6 @@
 package rs.gospaleks.waterspot.data.remote.firebase
 
+import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
@@ -40,6 +41,24 @@ class FirebaseAuthDataSource @Inject constructor(
             }
 
             Result.success(result.user!!.uid)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun changePassword(
+        currentPassword: String,
+        newPassword: String
+    ): Result<Unit> {
+        return try {
+            val user = firebaseAuth.currentUser ?: return Result.failure(Exception("No user logged in"))
+            val credential = EmailAuthProvider.getCredential(user.email!!, currentPassword)
+
+            user.reauthenticate(credential).await()
+
+            user.updatePassword(newPassword).await()
+
+            Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
         }
