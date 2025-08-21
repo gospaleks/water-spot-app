@@ -24,6 +24,7 @@ import rs.gospaleks.waterspot.data.model.FirestoreSpotDto
 import rs.gospaleks.waterspot.data.model.FirestoreUserDto
 import rs.gospaleks.waterspot.domain.model.ReviewWithUser
 import rs.gospaleks.waterspot.domain.model.Spot
+import rs.gospaleks.waterspot.domain.model.SpotPhotoDomain
 import rs.gospaleks.waterspot.domain.model.SpotWithUser
 import rs.gospaleks.waterspot.domain.model.User
 import javax.inject.Inject
@@ -160,7 +161,6 @@ class FirestoreSpotDataSource @Inject constructor(
         emit(result)
     }
 
-
     fun getAllReviewsForSpotWithUsers(spotId: String): Flow<Result<List<ReviewWithUser>>> = callbackFlow {
         val reviewsCollection = firestore.collection("spots")
             .document(spotId)
@@ -273,7 +273,7 @@ class FirestoreSpotDataSource @Inject constructor(
         }
     }
 
-    suspend fun addAdditionalPhotoToSpot(spotId: String, photoUrl: String): Result<String> {
+    suspend fun isAlreadyUploadedPhotoForSpot(spotId: String, userId: String): Result<Boolean> {
         return try {
             val spotRef = firestore.collection("spots").document(spotId)
             val spotSnapshot = spotRef.get().await()
@@ -282,9 +282,28 @@ class FirestoreSpotDataSource @Inject constructor(
                 return Result.failure(Exception("Spot not found"))
             }
 
-            // Add the new photo URL to the additionalPhotos array
-            spotRef.update("additionalPhotos", FieldValue.arrayUnion(photoUrl)).await()
-            Result.success(photoUrl)
+            val spotDto = spotSnapshot.toObject(FirestoreSpotDto::class.java)
+            val alreadyUploaded = spotDto?.additionalPhotos?.any { it.userId == userId } ?: false
+
+            Result.success(alreadyUploaded)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Result.failure(e)
+        }
+    }
+
+    suspend fun addAdditionalPhotoToSpot(spotId: String, spotPhoto: SpotPhotoDomain): Result<SpotPhotoDomain> {
+        return try {
+            val spotRef = firestore.collection("spots").document(spotId)
+            val spotSnapshot = spotRef.get().await()
+
+            if (!spotSnapshot.exists()) {
+                return Result.failure(Exception("Spot not found"))
+            }
+
+            // Add the new SpotPhoto object to the additionalPhotos array
+            spotRef.update("additionalPhotos", FieldValue.arrayUnion(spotPhoto)).await()
+            Result.success(spotPhoto)
         } catch (e: Exception) {
             e.printStackTrace()
             Result.failure(e)

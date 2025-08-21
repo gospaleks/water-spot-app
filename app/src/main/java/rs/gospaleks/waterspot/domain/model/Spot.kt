@@ -1,5 +1,6 @@
 package rs.gospaleks.waterspot.domain.model
 
+import com.google.firebase.Timestamp
 import rs.gospaleks.waterspot.R
 
 enum class SpotTypeEnum {
@@ -35,7 +36,7 @@ data class Spot(
     val latitude: Double,
     val longitude: Double,
     val photoUrl: String? = null,
-    val additionalPhotos: List<String> = emptyList(), // URLs of additional photos
+    val additionalPhotos: List<SpotPhotoDomain> = emptyList(), // sada lista objekata
     val type: SpotTypeEnum,
     val cleanliness: CleanlinessLevelEnum,
     val description: String?,
@@ -44,6 +45,12 @@ data class Spot(
     val updatedAt: Long?,
     val averageRating: Double = 0.0, // Average rating from reviews
     val reviewCount: Int = 0 // Number of reviews
+)
+
+data class SpotPhotoDomain(
+    val url: String = "",
+    val userId: String = "",
+    val addedAt: Timestamp? = null
 )
 
 data class SpotWithUser (

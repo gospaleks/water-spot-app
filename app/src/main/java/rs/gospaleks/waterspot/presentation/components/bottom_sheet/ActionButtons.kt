@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddAPhoto
+import androidx.compose.material.icons.filled.AddLocationAlt
 import androidx.compose.material.icons.filled.Navigation
 import androidx.compose.material.icons.filled.RateReview
 import androidx.compose.material3.CircularProgressIndicator
@@ -58,6 +59,15 @@ fun ActionsButtons(
             showProgress = isUploadingPhoto,
             modifier = Modifier.weight(1f)
         )
+        // TODO: Dodaj opciju za oznacavanje lokacije kao posecene (2 points)
+//        ActionItem(
+//            icon = Icons.Default.AddLocationAlt,
+//            label = "Visit",
+//            enabled = true,
+//            onClick = {},
+//            showProgress = false,
+//            modifier = Modifier.weight(1f)
+//        )
     }
 }
 

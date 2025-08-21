@@ -12,6 +12,7 @@ import rs.gospaleks.waterspot.data.remote.firebase.FirestoreUserDataSource
 import rs.gospaleks.waterspot.domain.model.Review
 import rs.gospaleks.waterspot.domain.model.ReviewWithUser
 import rs.gospaleks.waterspot.domain.model.Spot
+import rs.gospaleks.waterspot.domain.model.SpotPhotoDomain
 import rs.gospaleks.waterspot.domain.model.SpotWithUser
 import rs.gospaleks.waterspot.domain.repository.SpotRepository
 import javax.inject.Inject
@@ -79,17 +80,34 @@ class SpotRepositoryImpl @Inject constructor(
         val currentUserIdResult = firebaseAuthDataSource.getCurrentUserId()
         val uid = currentUserIdResult ?: return Result.failure(Exception("No authenticated user found"))
 
-        // 2. Upload the photo to Cloudinary
+        // 2. Check if user already uploaded photo for this spot
+        val alreadyUploaded = firestoreSpotDataSource.isAlreadyUploadedPhotoForSpot(spotId, uid)
+        if (alreadyUploaded.isSuccess) {
+            if (alreadyUploaded.getOrNull() == true) {
+                return Result.failure(Exception("You have already uploaded a photo for this spot"))
+            }
+        } else {
+            return Result.failure(alreadyUploaded.exceptionOrNull() ?: Exception("Failed to check if photo already uploaded"))
+        }
+
+        // 3. Upload the photo to Cloudinary
         val url = cloudinaryDataSource.uploadSpotImage(photoUri)
             ?: return Result.failure(Exception("Failed to upload additional photo"))
 
-        // 3. Add the photo URL to the spot's additional photos in Firestore
-        val saveUrlResult = firestoreSpotDataSource.addAdditionalPhotoToSpot(spotId, url)
+        // 4. Create a SpotPhoto object to store additional photo details
+        val spotPhotoObject = SpotPhotoDomain(
+            url = url,
+            userId = uid,
+            addedAt = com.google.firebase.Timestamp.now()
+        )
+
+        // 5. Add the SpotPhoto object to the spot's additional photos in Firestore
+        val saveUrlResult = firestoreSpotDataSource.addAdditionalPhotoToSpot(spotId, spotPhotoObject)
         if (saveUrlResult.isFailure) {
-            return Result.failure(saveUrlResult.exceptionOrNull() ?: Exception("Failed to save additional photo URL"))
+            return Result.failure(saveUrlResult.exceptionOrNull() ?: Exception("Failed to save additional photo"))
         }
 
-        // 4. Add points to user for adding an additional photo (gamification logic)
+        // 6. Add points to user for adding an additional photo (gamification logic)
         firestoreUserDataSource.addPoints(uid, 5)
 
         return Result.success(url)

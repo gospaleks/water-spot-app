@@ -1,5 +1,6 @@
 package rs.gospaleks.waterspot.data.mapper
 
+import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.GeoPoint
 import rs.gospaleks.waterspot.data.model.FirestoreSpotDto

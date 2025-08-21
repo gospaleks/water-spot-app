@@ -214,7 +214,7 @@ fun SpotDetailsContent(
                             }
 
                             // Additional photos (if any)
-                            items(additional) { url ->
+                            items(additional) { spotPhoto ->
                                 Box(
                                     modifier = Modifier
                                         .fillParentMaxWidth()
@@ -222,7 +222,7 @@ fun SpotDetailsContent(
                                         .animateContentSize()
                                 ) {
                                     SubcomposeAsyncImage(
-                                        model = url,
+                                        model = spotPhoto.url,
                                         contentDescription = "Additional photo",
                                         contentScale = ContentScale.Crop,
                                         modifier = Modifier
@@ -255,6 +255,28 @@ fun SpotDetailsContent(
                                                 )
                                             )
                                     )
+
+                                    // Bottom-right date indicator
+                                    Box(
+                                        modifier = Modifier
+                                            .align(Alignment.BottomEnd)
+                                            .padding(12.dp)
+                                            .clip(RoundedCornerShape(8.dp))
+                                            .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.85f))
+                                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                                    ) {
+                                        val photoDate = remember(spotPhoto.addedAt) {
+                                            spotPhoto.addedAt?.let { millis ->
+                                                java.text.SimpleDateFormat("MMM d, yyyy", java.util.Locale.getDefault())
+                                                    .format(java.util.Date(millis.toDate().time))
+                                            } ?: ""
+                                        }
+                                        Text(
+                                            text = photoDate,
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
 
                                     // Bottom-left expand/collapse toggle (same global state)
                                     Box(
