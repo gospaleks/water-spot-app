@@ -99,6 +99,9 @@ class SpotDetailsBottomSheetViewModel @Inject constructor(
             if (result.isSuccess) {
                 openDetails()
                 eventFlow.emit(UiEvent.ShowToast("Submitted successfully!"))
+
+                // Refresh spot data to show new average and cleanliness level if changed
+                refreshSpotData(uiState.selectedSpot!!.spot.id)
             } else {
                 eventFlow.emit(UiEvent.ShowToast(result.exceptionOrNull()?.message ?: "Failed to submit review"))
                 result.exceptionOrNull()?.printStackTrace()
@@ -119,28 +122,32 @@ class SpotDetailsBottomSheetViewModel @Inject constructor(
                 eventFlow.emit(UiEvent.ShowToast("Photo added successfully!"))
                 uiState = uiState.copy(isUploadingPhoto = false)
 
-                // Refresh spot data to include new photo
-                val spotResult = getSpotByIdUseCase(uiState.selectedSpot!!.spot.id)
-                if (spotResult.isSuccess) {
-                    val updatedSpot = spotResult.getOrNull()
-                    if (updatedSpot == null) {
-                        eventFlow.emit(UiEvent.ShowToast("Failed to refresh spot data"))
-                    }
-
-                    uiState = uiState.copy(
-                        selectedSpot = SpotWithUser(
-                            spot = updatedSpot!!,
-                            user = uiState.selectedSpot?.user
-                        )
-                    )
-                } else {
-                    eventFlow.emit(UiEvent.ShowToast("Failed to refresh spot data"))
-                }
+                // Refresh spot data to show the new photo
+                refreshSpotData(uiState.selectedSpot!!.spot.id)
             } else {
                 eventFlow.emit(UiEvent.ShowToast(result.exceptionOrNull()?.message ?: "Failed to add photo"))
                 result.exceptionOrNull()?.printStackTrace()
                 uiState = uiState.copy(isUploadingPhoto = false)
             }
+        }
+    }
+
+    private suspend fun refreshSpotData(spotId: String) {
+        val spotResult = getSpotByIdUseCase(spotId)
+        if (spotResult.isSuccess) {
+            val updatedSpot = spotResult.getOrNull()
+            if (updatedSpot == null) {
+                eventFlow.emit(UiEvent.ShowToast("Failed to refresh spot data"))
+            }
+
+            uiState = uiState.copy(
+                selectedSpot = SpotWithUser(
+                    spot = updatedSpot!!,
+                    user = uiState.selectedSpot?.user
+                )
+            )
+        } else {
+            eventFlow.emit(UiEvent.ShowToast("Failed to refresh spot data"))
         }
     }
 

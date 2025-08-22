@@ -80,11 +80,11 @@ class SpotRepositoryImpl @Inject constructor(
         val currentUserIdResult = firebaseAuthDataSource.getCurrentUserId()
         val uid = currentUserIdResult ?: return Result.failure(Exception("No authenticated user found"))
 
-        // 2. Check if user already uploaded photo for this spot
+        // 2. Check if user already uploaded photo within one month (one user can upload one photo per spot per month)
         val alreadyUploaded = firestoreSpotDataSource.isAlreadyUploadedPhotoForSpot(spotId, uid)
         if (alreadyUploaded.isSuccess) {
             if (alreadyUploaded.getOrNull() == true) {
-                return Result.failure(Exception("You have already uploaded a photo for this spot"))
+                return Result.failure(Exception("You have already uploaded a photo for this spot this month"))
             }
         } else {
             return Result.failure(alreadyUploaded.exceptionOrNull() ?: Exception("Failed to check if photo already uploaded"))

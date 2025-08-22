@@ -244,29 +244,50 @@ class FirestoreSpotDataSource @Inject constructor(
             val existingReview = reviewRef.get().await()
 
             if (existingReview.exists()) {
-                Result.failure(Exception("Review already exists"))
-            } else {
-                reviewRef.set(review).await()
-
-                // Azuriraj prosecnu ocenu i broj review-a
-                firestore.runTransaction { transaction ->
-                    val snapshot = transaction.get(spotRef)
-                    val currentAvg = snapshot.getDouble("averageRating") ?: 0.0
-                    val currentCount = snapshot.getLong("reviewCount")?.toInt() ?: 0
-
-                    val newCount = currentCount + 1
-                    val newAvg = ((currentAvg * currentCount) + rating) / newCount
-
-                    transaction.update(spotRef, mapOf(
-                        "averageRating" to newAvg,
-                        "reviewCount" to newCount
-                    ))
-                }.await()
-
-                // TODO: Dodaj poene korisniku za ostavljenu recenziju
-
-                Result.success(Unit)
+                // Allow overwrite only if the existing review is older than one month
+                val existingCreatedAt = existingReview.getDate("createdAt")
+                val oneMonthAgo = java.util.Calendar.getInstance().apply {
+                    add(java.util.Calendar.MONTH, -1)
+                }.time
+                val isOlderThanMonth = existingCreatedAt?.before(oneMonthAgo) == true
+                if (!isOlderThanMonth) {
+                    return Result.failure(Exception("Review already exists for this month"))
+                }
             }
+
+            // Either no existing review or it's older than a month -> overwrite with the new review
+            reviewRef.set(review).await()
+
+            // Azuriraj prosecnu ocenu i broj review-a
+            firestore.runTransaction { transaction ->
+                val snapshot = transaction.get(spotRef)
+                val currentAvg = snapshot.getDouble("averageRating") ?: 0.0
+                val currentCount = snapshot.getLong("reviewCount")?.toInt() ?: 0
+
+                val newCount = currentCount + 1
+                val newAvg = ((currentAvg * currentCount) + rating) / newCount
+
+                transaction.update(spotRef, mapOf(
+                    "averageRating" to newAvg,
+                    "reviewCount" to newCount
+                ))
+            }.await()
+
+            // Na osnovu nove prosecne ocene, azuriraj cleanlinesLevel (dinamicki se menja na osnovu ocena korisnika kako ne bi ostala zastarela informacija)
+            val spotSnapshot = spotRef.get().await()
+            val averageRating = spotSnapshot.getDouble("averageRating") ?: 0.0
+            val cleanlinessLevel = when {
+                averageRating >= 4.0 -> "CLEAN"
+                averageRating >= 2.5 -> "MODERATE"
+                else -> "DIRTY"
+            }
+
+            spotRef.update("cleanliness", cleanlinessLevel).await()
+
+            // Update updatedAt field on spot
+            spotRef.update("updatedAt", FieldValue.serverTimestamp()).await()
+
+            Result.success(Unit)
         } catch (e: Exception) {
             e.printStackTrace()
             Result.failure(e)
@@ -283,9 +304,19 @@ class FirestoreSpotDataSource @Inject constructor(
             }
 
             val spotDto = spotSnapshot.toObject(FirestoreSpotDto::class.java)
-            val alreadyUploaded = spotDto?.additionalPhotos?.any { it.userId == userId } ?: false
+            val oneMonthAgo = java.util.Calendar.getInstance().apply {
+                add(java.util.Calendar.MONTH, -1)
+            }.time
 
-            Result.success(alreadyUploaded)
+            // Return true only if the user has a photo added within the last month
+            val hasRecentPhoto = spotDto?.additionalPhotos
+                ?.filter { it.userId == userId }
+                ?.any { photo ->
+                    val date = photo.addedAt?.toDate()
+                    date != null && !date.before(oneMonthAgo)
+                } ?: false
+
+            Result.success(hasRecentPhoto)
         } catch (e: Exception) {
             e.printStackTrace()
             Result.failure(e)
@@ -303,6 +334,10 @@ class FirestoreSpotDataSource @Inject constructor(
 
             // Add the new SpotPhoto object to the additionalPhotos array
             spotRef.update("additionalPhotos", FieldValue.arrayUnion(spotPhoto)).await()
+
+            // Update updatedAt field on spot
+            spotRef.update("updatedAt", FieldValue.serverTimestamp()).await()
+
             Result.success(spotPhoto)
         } catch (e: Exception) {
             e.printStackTrace()
