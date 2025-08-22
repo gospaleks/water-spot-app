@@ -17,6 +17,9 @@ import rs.gospaleks.waterspot.domain.use_case.GetAllSpotsWithUserUseCase
 import rs.gospaleks.waterspot.domain.use_case.LocationTrackingUseCase
 import javax.inject.Inject
 
+// Date filter presets for updatedAt field
+enum class DateFilterPreset { ANY, OLDER_WEEK, OLDER_MONTH, OLDER_6_MONTHS, OLDER_YEAR, CUSTOM }
+
 data class AllSpotsUiState(
     val isLoading: Boolean = false,
     val isRefreshing: Boolean = false,
@@ -30,6 +33,10 @@ data class AllSpotsUiState(
     val searchQuery: String = "",
     // Store radius in meters for finer control (supports sub-km)
     val radiusMeters: Int = DEFAULT_RADIUS_METERS,
+    // Date filter
+    val dateFilterPreset: DateFilterPreset = DateFilterPreset.ANY,
+    val customStartDateMillis: Long? = null,
+    val customEndDateMillis: Long? = null,
     val error: String? = null
 )
 
@@ -76,6 +83,27 @@ class AllSpotsViewModel @Inject constructor(
         applyFilters()
     }
 
+    // Date filter: preset selection
+    fun setDatePreset(preset: DateFilterPreset) {
+        uiState = uiState.copy(
+            dateFilterPreset = preset,
+            // Clear custom range when switching away from CUSTOM
+            customStartDateMillis = if (preset == DateFilterPreset.CUSTOM) uiState.customStartDateMillis else null,
+            customEndDateMillis = if (preset == DateFilterPreset.CUSTOM) uiState.customEndDateMillis else null,
+        )
+        applyFilters()
+    }
+
+    // Date filter: set custom range (also sets preset to CUSTOM)
+    fun setCustomDateRange(startMillis: Long?, endMillis: Long?) {
+        uiState = uiState.copy(
+            dateFilterPreset = DateFilterPreset.CUSTOM,
+            customStartDateMillis = startMillis,
+            customEndDateMillis = endMillis
+        )
+        applyFilters()
+    }
+
     // Slider moves (no fetch yet)
     fun updateRadiusMeters(meters: Int) {
         if (meters != uiState.radiusMeters) {
@@ -92,7 +120,10 @@ class AllSpotsViewModel @Inject constructor(
         val reset = uiState.copy(
             selectedTypeFilters = emptySet(),
             selectedCleanlinessFilters = emptySet(),
-            radiusMeters = DEFAULT_RADIUS_METERS
+            radiusMeters = DEFAULT_RADIUS_METERS,
+            dateFilterPreset = DateFilterPreset.ANY,
+            customStartDateMillis = null,
+            customEndDateMillis = null
         )
         uiState = reset
         applyFilters()
@@ -145,6 +176,18 @@ class AllSpotsViewModel @Inject constructor(
         val query = uiState.searchQuery.trim().lowercase()
         val types = uiState.selectedTypeFilters
         val cleanliness = uiState.selectedCleanlinessFilters
+        val preset = uiState.dateFilterPreset
+        val customStart = uiState.customStartDateMillis
+        val customEnd = uiState.customEndDateMillis
+
+        val now = System.currentTimeMillis()
+        val olderThanMillis = when (preset) {
+            DateFilterPreset.OLDER_WEEK -> 7L * 24 * 60 * 60 * 1000
+            DateFilterPreset.OLDER_MONTH -> 30L * 24 * 60 * 60 * 1000
+            DateFilterPreset.OLDER_6_MONTHS -> 182L * 24 * 60 * 60 * 1000 // approx 6 months
+            DateFilterPreset.OLDER_YEAR -> 365L * 24 * 60 * 60 * 1000
+            else -> null
+        }
 
         val filtered = uiState.allSpots.filter { item ->
             val spot = item.spot
@@ -166,7 +209,25 @@ class AllSpotsViewModel @Inject constructor(
                 haystack.contains(query)
             }
 
-            typeOk && cleanlinessOk && searchOk
+            val updatedAt = spot.updatedAt
+            val dateOk = when (preset) {
+                DateFilterPreset.ANY -> true
+                DateFilterPreset.CUSTOM -> {
+                    if (updatedAt == null) false else {
+                        val lowerOk = customStart?.let { updatedAt >= it } ?: true
+                        val upperOk = customEnd?.let { updatedAt <= it } ?: true
+                        lowerOk && upperOk
+                    }
+                }
+                else -> {
+                    if (updatedAt == null) false else {
+                        val threshold = now - (olderThanMillis ?: 0L)
+                        updatedAt <= threshold
+                    }
+                }
+            }
+
+            typeOk && cleanlinessOk && searchOk && dateOk
         }
 
         uiState = uiState.copy(filteredSpots = filtered)

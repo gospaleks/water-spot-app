@@ -38,8 +38,9 @@ import rs.gospaleks.waterspot.presentation.components.ReusableBottomSheetHost
 import rs.gospaleks.waterspot.presentation.screens.all_spots.components.CleanlinessFilterBottomSheetContent
 import rs.gospaleks.waterspot.presentation.screens.all_spots.components.RadiusFilterBottomSheetContent
 import rs.gospaleks.waterspot.presentation.screens.all_spots.components.TypeFilterBottomSheetContent
+import rs.gospaleks.waterspot.presentation.screens.all_spots.components.DateFilterBottomSheetContent
 
-private enum class FilterSheet { Type, Cleanliness, Radius }
+private enum class FilterSheet { Type, Cleanliness, Radius, Date }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -55,6 +56,12 @@ fun SearchAndFilter(
     onRadiusChangeFinished: () -> Unit,
     onQueryChange: (String) -> Unit,
     onClearAllFilters: () -> Unit,
+    // Date filter
+    dateFilterPreset: DateFilterPreset,
+    customStartDateMillis: Long?,
+    customEndDateMillis: Long?,
+    onSetDatePreset: (DateFilterPreset) -> Unit,
+    onSetCustomDateRange: (Long?, Long?) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var expanded by rememberSaveable { mutableStateOf(false) }
@@ -177,9 +184,10 @@ fun SearchAndFilter(
         Spacer(Modifier.height(8.dp))
 
         // Gmail-like filters row -> LazyRow with chips + clear icon
-        val hasActiveFilters = selectedTypes.isNotEmpty() || selectedCleanliness.isNotEmpty() || radiusMeters != DEFAULT_RADIUS_METERS
+        val hasActiveFilters = selectedTypes.isNotEmpty() || selectedCleanliness.isNotEmpty() || radiusMeters != DEFAULT_RADIUS_METERS || dateFilterPreset != DateFilterPreset.ANY || (customStartDateMillis != null || customEndDateMillis != null)
         LazyRow(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
+            modifier = Modifier.fillMaxWidth(),
+            contentPadding = PaddingValues(horizontal = 24.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -222,15 +230,33 @@ fun SearchAndFilter(
                 )
             }
             item {
+                val dateLabel = when (dateFilterPreset) {
+                    DateFilterPreset.ANY -> "Date"
+                    DateFilterPreset.OLDER_WEEK -> "Older than a week"
+                    DateFilterPreset.OLDER_MONTH -> "Older than a month"
+                    DateFilterPreset.OLDER_6_MONTHS -> "Older than 6 mont..."
+                    DateFilterPreset.OLDER_YEAR -> "Older than a year"
+                    DateFilterPreset.CUSTOM -> "Date: Custom"
+                }
+
+                val dateSelected = dateFilterPreset != DateFilterPreset.ANY || (customStartDateMillis != null || customEndDateMillis != null)
+
+                FilterChip(
+                    selected = dateSelected,
+                    onClick = {
+                        currentSheet = FilterSheet.Date
+                        showBottomSheet = true
+                    },
+                    label = { Text(dateLabel) }
+                )
+            }
+            item {
                 if (hasActiveFilters) {
-                    IconButton(
+                    TextButton (
                         onClick = onClearAllFilters,
                         enabled = true
                     ) {
-                        Icon(
-                            imageVector = Icons.Filled.Close,
-                            contentDescription = "Clear filters"
-                        )
+                        Text("Clear all")
                     }
                 }
             }
@@ -256,6 +282,13 @@ fun SearchAndFilter(
                         currentMeters = radiusMeters,
                         onMetersChange = onRadiusMetersChange,
                         onApply = { onRadiusChangeFinished() }
+                    )
+                    FilterSheet.Date -> DateFilterBottomSheetContent(
+                        selectedPreset = dateFilterPreset,
+                        onPresetChange = onSetDatePreset,
+                        onCustomRangeSelected = { start, end -> onSetCustomDateRange(start, end) },
+                        currentStartDateMillis = customStartDateMillis,
+                        currentEndDateMillis = customEndDateMillis,
                     )
 
                     null -> {}

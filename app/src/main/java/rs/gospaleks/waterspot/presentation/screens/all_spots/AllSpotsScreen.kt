@@ -81,6 +81,12 @@ fun AllSpotsScreen(
             onRadiusChangeFinished = viewModel::applyRadiusChange,
             onQueryChange = viewModel::setSearchQuery,
             onClearAllFilters = viewModel::clearAllFilters,
+            // Date filter wiring
+            dateFilterPreset = uiState.dateFilterPreset,
+            customStartDateMillis = uiState.customStartDateMillis,
+            customEndDateMillis = uiState.customEndDateMillis,
+            onSetDatePreset = viewModel::setDatePreset,
+            onSetCustomDateRange = viewModel::setCustomDateRange,
         )
 
         // Lightweight loading bar for background refresh (e.g., radius change)
