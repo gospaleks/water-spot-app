@@ -45,6 +45,7 @@ fun AllSpotsScreen(
     val bottomSheetViewModel: SpotDetailsBottomSheetViewModel = hiltViewModel()
 
     val uiState = viewModel.uiState
+    val filteredSpots by viewModel.filteredSpots
 
     // Pull to refresh
     val refreshState = rememberPullToRefreshState()
@@ -71,7 +72,7 @@ fun AllSpotsScreen(
         SearchAndFilter(
             textFieldState = viewModel.textFieldState,
             // Pass full items for rich suggestions
-            searchResults = uiState.filteredSpots,
+            searchResults = filteredSpots,
             selectedTypes = uiState.selectedTypeFilters,
             onToggleType = viewModel::toggleTypeFilter,
             selectedCleanliness = uiState.selectedCleanlinessFilters,
@@ -90,13 +91,13 @@ fun AllSpotsScreen(
         )
 
         // Lightweight loading bar for background refresh (e.g., radius change)
-        if (uiState.isLoading && uiState.filteredSpots.isNotEmpty()) {
+        if (uiState.isLoading && filteredSpots.isNotEmpty()) {
             LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
         }
 
         // Content area (list/loading/empty)
         when {
-            uiState.isLoading && uiState.filteredSpots.isEmpty() -> {
+            uiState.isLoading && filteredSpots.isEmpty() -> {
                 // Shimmer skeleton list (only for initial load when list is empty)
                 LazyColumn(
                     modifier = Modifier
@@ -110,7 +111,7 @@ fun AllSpotsScreen(
                     }
                 }
             }
-            uiState.filteredSpots.isEmpty() -> {
+            filteredSpots.isEmpty() -> {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -150,16 +151,16 @@ fun AllSpotsScreen(
                 ) {
                     LazyColumn(
                         verticalArrangement = Arrangement.spacedBy(4.dp),
+                        contentPadding = PaddingValues(vertical = 8.dp)
                     ) {
                         items(
-                            items = uiState.filteredSpots,
-                            key = { it.spot.id }
+                            items = filteredSpots,
+                            key = { it.spot.id },
+                            contentType = { "spot_card" }
                         ) { spotWithUser ->
-                            val index = uiState.filteredSpots.indexOf(spotWithUser)
-
                             SpotCard(
                                 spotWithUser = spotWithUser,
-                                modifier = (if (index == 0) Modifier.padding(top = 8.dp) else Modifier)
+                                modifier = Modifier
                                     .animateItem(),
                                 onCardClick = {
                                     bottomSheetViewModel.onSpotClick(spotWithUser)

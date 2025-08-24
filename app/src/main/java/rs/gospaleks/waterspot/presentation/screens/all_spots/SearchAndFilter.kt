@@ -17,8 +17,10 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -28,6 +30,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.delay
 import rs.gospaleks.waterspot.domain.model.CleanlinessLevelEnum
 import rs.gospaleks.waterspot.domain.model.SpotTypeEnum
 import rs.gospaleks.waterspot.domain.model.SpotWithUser
@@ -69,6 +72,17 @@ fun SearchAndFilter(
     // Bottom sheet host state
     var showBottomSheet by rememberSaveable { mutableStateOf(false) }
     var currentSheet by rememberSaveable { mutableStateOf<FilterSheet?>(null) }
+
+    var showSuggestions by remember { mutableStateOf(false) }
+
+    LaunchedEffect(expanded) {
+        if (expanded) {
+            delay(200) // sačekaj da animacija završi da se rastereti lag
+            showSuggestions = true
+        } else {
+            showSuggestions = false
+        }
+    }
 
     Column(
         modifier
@@ -147,34 +161,44 @@ fun SearchAndFilter(
                 onExpandedChange = { expanded = it },
             ) {
                 // Fullscreen, scrollable suggestions area
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize(),
-                    contentPadding = PaddingValues(horizontal = 24.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    if (searchResults.isEmpty()) {
-                        item { NoResultsRow() }
-                    } else {
-                        items(searchResults.size) { idx ->
-                            val item = searchResults[idx]
-                            val spot = item.spot
-                            val isFirst = idx == 0
-                            val isLast = idx == searchResults.lastIndex
-                            SearchSuggestionItem(
-                                isFirst = isFirst,
-                                isLast = isLast,
-                                title = spot.description?.ifBlank { spot.type.toDisplayName() } ?: spot.type.toDisplayName(),
-                                type = spot.type,
-                                cleanliness = spot.cleanliness,
-                                author = item.user?.fullName,
-                                onClick = {
-                                    val queryToApply = spot.description?.takeIf { it.isNotBlank() } ?: spot.type.name
-                                    textFieldState.edit { replace(0, length, queryToApply) }
-                                    onQueryChange(queryToApply)
-                                    expanded = false
-                                }
-                            )
+                if (showSuggestions && queryString.isNotBlank()) {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize(),
+                        contentPadding = PaddingValues(horizontal = 24.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        if (searchResults.isEmpty()) {
+                            item { NoResultsRow() }
+                        } else {
+                            val maxItems = 30
+                            val count =
+                                if (searchResults.size > maxItems) maxItems else searchResults.size
+                            items(
+                                count = count,
+                                key = { idx -> searchResults[idx].spot.id }) { idx ->
+                                val item = searchResults[idx]
+                                val spot = item.spot
+                                val isFirst = idx == 0
+                                val isLast = idx == count - 1
+                                SearchSuggestionItem(
+                                    isFirst = isFirst,
+                                    isLast = isLast,
+                                    title = spot.description?.ifBlank { spot.type.toDisplayName() }
+                                        ?: spot.type.toDisplayName(),
+                                    type = spot.type,
+                                    cleanliness = spot.cleanliness,
+                                    author = item.user?.fullName,
+                                    onClick = {
+                                        val queryToApply =
+                                            spot.description?.takeIf { it.isNotBlank() }
+                                                ?: spot.type.name
+                                        textFieldState.edit { replace(0, length, queryToApply) }
+                                        onQueryChange(queryToApply)
+                                        expanded = false
+                                    }
+                                )
+                            }
                         }
                     }
                 }
@@ -397,5 +421,5 @@ private fun SearchSuggestionItem(
 }
 
 private fun formatRadius(meters: Int): String {
-    return if (meters < 1000) "${meters} m" else "${meters / 1000} km"
+    return if (meters < 1000) "$meters m" else "${meters / 1000} km"
 }

@@ -1,5 +1,6 @@
 package rs.gospaleks.waterspot.presentation.components.card
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -14,19 +15,27 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import coil.compose.SubcomposeAsyncImage
+import coil.request.ImageRequest
 import rs.gospaleks.waterspot.domain.model.SpotWithUser
 import rs.gospaleks.waterspot.presentation.components.CleanlinessChip
 import rs.gospaleks.waterspot.presentation.components.icon
 import rs.gospaleks.waterspot.presentation.components.toDisplayName
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @Composable
 fun SpotCard(
@@ -38,11 +47,19 @@ fun SpotCard(
 ) {
     val spot = spotWithUser.spot
     val user = spotWithUser.user
-    val createdDate = remember(spot.createdAt) {
-        spot.createdAt?.let { millis ->
-            java.text.SimpleDateFormat("MMM d, yyyy", java.util.Locale.getDefault())
-                .format(java.util.Date(millis))
-        } ?: ""
+    val createdDate = spot.createdAt?.let { millis ->
+        SimpleDateFormat("MMM d, yyyy", Locale.getDefault())
+            .format(Date(millis))
+    } ?: ""
+
+    // Precompute target pixel sizes for images to avoid decoding huge bitmaps
+    val density = LocalDensity.current
+    val context = LocalContext.current
+    val mainImagePx = with(density) { 110.dp.roundToPx() } to with(density) { 110.dp.roundToPx() }
+    val avatarPx = with(density) { 22.dp.roundToPx() } to with(density) { 22.dp.roundToPx() }
+
+    SideEffect {
+        Log.d("Recompose", "SpotCard recomposed for ${spotWithUser.spot.id}")
     }
 
     Card(
@@ -59,7 +76,7 @@ fun SpotCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(IntrinsicSize.Min)
+                .height(110.dp)
         ) {
             // 📷 Image with optional rating overlay
             Box(
@@ -71,27 +88,13 @@ fun SpotCard(
                 contentAlignment = Alignment.BottomStart
             ) {
                 if (!spot.photoUrl.isNullOrEmpty()) {
-                    SubcomposeAsyncImage(
+                    AsyncImage(
                         model = spot.photoUrl,
                         contentDescription = "Spot Image",
+                        contentScale = ContentScale.Crop,
                         modifier = Modifier
                             .fillMaxSize()
-                            .aspectRatio(1f),
-                        contentScale = ContentScale.Crop,
-                        loading = {
-                            Box(
-                                Modifier
-                                    .fillMaxSize()
-                                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f))
-                            )
-                        },
-                        error = {
-                            Box(
-                                Modifier
-                                    .fillMaxSize()
-                                    .background(MaterialTheme.colorScheme.surfaceVariant)
-                            )
-                        }
+                            .aspectRatio(1f)
                     )
 
                     // gradient overlay
@@ -184,7 +187,13 @@ fun SpotCard(
                         user?.let {
                             if (!it.profilePictureUrl.isNullOrBlank()) {
                                 coil.compose.AsyncImage(
-                                    model = it.profilePictureUrl,
+                                    model = remember(it.profilePictureUrl) {
+                                        ImageRequest.Builder(context)
+                                            .data(it.profilePictureUrl)
+                                            .size(avatarPx.first, avatarPx.second)
+                                            .crossfade(false)
+                                            .build()
+                                    },
                                     contentDescription = "User Avatar",
                                     modifier = Modifier
                                         .size(22.dp)
