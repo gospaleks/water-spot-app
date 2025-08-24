@@ -94,4 +94,20 @@ class UserRepositoryImpl @Inject constructor(
             kotlinx.coroutines.flow.flow { emit(Result.failure(Exception("No authenticated user found"))) }
         }
     }
+
+    override suspend fun getUsersWithLocationSharingInRadius(
+        center: GeoLocation,
+        radius: Double
+    ): List<User> {
+        val result = firestoreUserDataSource.getUsersWithLocationSharingInRadius(center, radius)
+        val currentUserId = firebaseAuthDataSource.getCurrentUserId()
+
+        return if (result.isSuccess) {
+            result.getOrNull()?.filter { user ->
+                user.id != currentUserId && !user.isLocationShared
+            } ?: emptyList()
+        } else {
+            emptyList()
+        }
+    }
 }

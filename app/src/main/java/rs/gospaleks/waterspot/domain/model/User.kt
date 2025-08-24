@@ -9,6 +9,7 @@ data class User(
     val points: Int = 0,
     val lat: Double = 44.7866,
     val lng: Double = 20.4489,
+    val isLocationShared: Boolean = false,
 )
 
 data class UserWithSpots (

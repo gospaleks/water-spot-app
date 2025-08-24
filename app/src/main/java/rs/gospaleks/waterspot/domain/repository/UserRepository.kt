@@ -1,6 +1,7 @@
 package rs.gospaleks.waterspot.domain.repository
 
 import android.net.Uri
+import com.firebase.geofire.GeoLocation
 import kotlinx.coroutines.flow.Flow
 import rs.gospaleks.waterspot.domain.model.User
 import rs.gospaleks.waterspot.domain.model.UserWithSpots
@@ -23,4 +24,6 @@ interface UserRepository {
     suspend fun markSpotAsVisited(spotId: String): Result<Unit>
 
     fun isSpotVisitedByUser(spotId: String): Flow<Result<Boolean>>
+
+    suspend fun getUsersWithLocationSharingInRadius(center: GeoLocation, radius: Double) : List<User>
 }

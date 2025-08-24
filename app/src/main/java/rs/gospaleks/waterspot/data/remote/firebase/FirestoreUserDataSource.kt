@@ -1,5 +1,7 @@
 package rs.gospaleks.waterspot.data.remote.firebase
 
+import com.firebase.geofire.GeoFireUtils
+import com.firebase.geofire.GeoLocation
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.channels.awaitClose
@@ -228,6 +230,54 @@ class FirestoreUserDataSource @Inject constructor(
         }
 
         awaitClose { snapshotListener.remove() }
+    }
+
+    suspend fun getUsersWithLocationSharingInRadius(
+        center: GeoLocation = GeoLocation(43.1571, 22.5840),
+        radius: Double = 10_000.0 // u metrima
+    ): Result<List<User>> {
+        return try {
+            // Koristimo GeoFireUtils da dobijemo listu geohash opsega (query bounds)
+            val bounds = GeoFireUtils.getGeoHashQueryBounds(center, radius)
+
+            val seenIds = mutableSetOf<String>()
+            val results = mutableListOf<User>()
+
+            for (b in bounds) {
+                // Napomena: Dodavanje whereEqualTo("isLocationShared", true) uz orderBy("geohash")
+                // moze zahtevati kompozitni indeks. Da izbegnemo runtime gresku, filtriramo kasnije u kodu.
+                val snapshot = firestore.collection("users")
+                    .orderBy("geohash")
+                    .startAt(b.startHash)
+                    .endAt(b.endHash)
+                    .get()
+                    .await()
+
+                for (doc in snapshot.documents) {
+                    val dto = try { doc.toObject(FirestoreUserDto::class.java) } catch (_: Exception) { null }
+                    val lat = dto?.lat
+                    val lng = dto?.lng
+
+                    if (dto != null && dto.geohash != null && lat != null && lng != null) {
+                        val docLocation = GeoLocation(lat, lng)
+                        // Precizna distanca u metrima
+                        val distance = GeoFireUtils.getDistanceBetween(docLocation, center)
+                        if (distance <= radius) {
+                            val id = doc.id
+                            if (seenIds.add(id)) {
+                                // Mapiranje u domain model
+                                results.add(dto.copy(id = id).toDomain())
+                            }
+                        }
+                    }
+                }
+            }
+
+            Result.success(results)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Result.failure(e)
+        }
     }
 
     suspend fun markAsVisitedSpot(uid: String, spotId: String) : Result<Unit> {
