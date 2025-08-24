@@ -19,4 +19,8 @@ interface UserRepository {
     suspend fun setUserLocation(latitude: Double, longitude: Double): Result<Unit>
 
     fun getUsersWithLocationSharing(): Flow<Result<List<User>>>
+
+    suspend fun markSpotAsVisited(spotId: String): Result<Unit>
+
+    fun isSpotVisitedByUser(spotId: String): Flow<Result<Boolean>>
 }

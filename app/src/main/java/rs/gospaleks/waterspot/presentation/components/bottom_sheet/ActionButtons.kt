@@ -5,6 +5,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddAPhoto
 import androidx.compose.material.icons.filled.AddLocationAlt
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.CheckCircleOutline
 import androidx.compose.material.icons.filled.Navigation
 import androidx.compose.material.icons.filled.RateReview
 import androidx.compose.material3.CircularProgressIndicator
@@ -28,6 +30,8 @@ fun ActionsButtons(
     onNavigateClick: () -> Unit,
     onReviewClick: () -> Unit,
     onAddPhotoClick: () -> Unit = {},
+    onVisitClick: () -> Unit = {},
+    isVisited: Boolean = false,
     isAddPhotoEnabled: Boolean = false,
     isUploadingPhoto: Boolean = false,
 ) {
@@ -59,15 +63,14 @@ fun ActionsButtons(
             showProgress = isUploadingPhoto,
             modifier = Modifier.weight(1f)
         )
-        // TODO: Dodaj opciju za oznacavanje lokacije kao posecene (2 points)
-//        ActionItem(
-//            icon = Icons.Default.AddLocationAlt,
-//            label = "Visit",
-//            enabled = true,
-//            onClick = {},
-//            showProgress = false,
-//            modifier = Modifier.weight(1f)
-//        )
+        ActionItem(
+            icon = if (isVisited) Icons.Filled.CheckCircle else Icons.Default.CheckCircleOutline,
+            label = if (isVisited) "Visited" else "Visit",
+            enabled = isAddPhotoEnabled && !isVisited, // Isto mora da bude u krugu od 50m kao i za dodavanje fotografije
+            onClick = onVisitClick,
+            showProgress = false,
+            modifier = Modifier.weight(1f)
+        )
     }
 }
 

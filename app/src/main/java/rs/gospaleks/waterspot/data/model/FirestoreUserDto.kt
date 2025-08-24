@@ -2,7 +2,6 @@ package rs.gospaleks.waterspot.data.model
 
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentId
-import com.google.firebase.firestore.GeoPoint
 
 data class FirestoreUserDto(
     // Osnovni podaci
@@ -24,4 +23,6 @@ data class FirestoreUserDto(
     val geohash: String? = null,
     val lat: Double? = null,
     val lng: Double? = null,
+
+    val visitedSpots: List<String> = emptyList()
 )

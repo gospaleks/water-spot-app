@@ -229,4 +229,46 @@ class FirestoreUserDataSource @Inject constructor(
 
         awaitClose { snapshotListener.remove() }
     }
+
+    suspend fun markAsVisitedSpot(uid: String, spotId: String) : Result<Unit> {
+        return try {
+            val userDocRef = firestore.collection("users").document(uid)
+            userDocRef.update("visitedSpots", FieldValue.arrayUnion(spotId)).await()
+
+            // Add points for visiting a spot (2 points)
+            userDocRef.update("points", FieldValue.increment(2)).await()
+
+            Result.success(Unit)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Result.failure(e)
+        }
+    }
+
+    fun isSpotVisitedByUser(uid: String, spotId: String): Flow<Result<Boolean>> = callbackFlow {
+        val userDocRef = firestore.collection("users").document(uid)
+        val listener = userDocRef.addSnapshotListener { snapshot, e ->
+            if (e != null) {
+                trySend(Result.failure(e))
+                return@addSnapshotListener
+            }
+
+            if (snapshot != null && snapshot.exists()) {
+                try {
+                    val dto = snapshot.toObject(FirestoreUserDto::class.java)
+                    val visitedSpots = dto?.visitedSpots ?: emptyList()
+                    val isVisited = visitedSpots.contains(spotId)
+
+                    trySend(Result.success(isVisited))
+                } catch (ex: Exception) {
+                    ex.printStackTrace()
+                    trySend(Result.failure(ex))
+                }
+            } else {
+                trySend(Result.failure(Exception("User document does not exist")))
+            }
+        }
+
+        awaitClose { listener.remove() }
+    }
 }

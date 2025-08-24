@@ -24,6 +24,8 @@ import rs.gospaleks.waterspot.domain.model.ReviewWithUser
 import rs.gospaleks.waterspot.domain.use_case.AddAditionalPhotoToSpotUseCase
 import rs.gospaleks.waterspot.domain.use_case.GetAllReviewsForSpotUseCase
 import rs.gospaleks.waterspot.domain.use_case.GetSpotByIdUseCase
+import rs.gospaleks.waterspot.domain.use_case.IsSpotVisitedUseCase
+import rs.gospaleks.waterspot.domain.use_case.MarkSpotAsVisitedUseCase
 
 data class SpotDetailsBottomSheetUiState(
     val isModalOpen: Boolean = false,
@@ -33,6 +35,7 @@ data class SpotDetailsBottomSheetUiState(
     val reviews: List<ReviewWithUser> = emptyList(),
     val isLoading: Boolean = false,
     val isUploadingPhoto: Boolean = false,
+    val isSpotVisited: Boolean = false,
 )
 
 enum class BottomSheetMode { DETAILS, REVIEW }
@@ -45,6 +48,8 @@ class SpotDetailsBottomSheetViewModel @Inject constructor(
     private val getAllReviewsForSpotUseCase: GetAllReviewsForSpotUseCase,
     private val addAditionalPhotoToSpotUseCase: AddAditionalPhotoToSpotUseCase,
     private val getSpotByIdUseCase: GetSpotByIdUseCase,
+    private val markSpotAsVisitedUseCase: MarkSpotAsVisitedUseCase,
+    private val isSpotVisitedUseCase: IsSpotVisitedUseCase
 ) : ViewModel() {
 
     var uiState by mutableStateOf(SpotDetailsBottomSheetUiState())
@@ -132,6 +137,35 @@ class SpotDetailsBottomSheetViewModel @Inject constructor(
         }
     }
 
+    fun markSpotAsVisited() {
+        val spotId = uiState.selectedSpot?.spot?.id ?: return
+
+        viewModelScope.launch {
+            val result = markSpotAsVisitedUseCase(spotId)
+
+            if (result.isSuccess) {
+                eventFlow.emit(UiEvent.ShowToast("Spot marked as visited!"))
+            } else {
+                eventFlow.emit(UiEvent.ShowToast(result.exceptionOrNull()?.message ?: "Failed to mark spot as visited"))
+                result.exceptionOrNull()?.printStackTrace()
+            }
+        }
+    }
+
+    fun observeIsSpotVisited(spotId: String) {
+        viewModelScope.launch {
+            isSpotVisitedUseCase(spotId).collect { result ->
+                result
+                    .onSuccess { isVisited ->
+                        uiState = uiState.copy(isSpotVisited = isVisited)
+                    }
+                    .onFailure { error ->
+                        eventFlow.emit(UiEvent.ShowToast("Failed to check if spot is visited"))
+                    }
+            }
+        }
+    }
+
     private suspend fun refreshSpotData(spotId: String) {
         val spotResult = getSpotByIdUseCase(spotId)
         if (spotResult.isSuccess) {
@@ -169,6 +203,7 @@ class SpotDetailsBottomSheetViewModel @Inject constructor(
         )
 
         observeReviews()
+        observeIsSpotVisited(spot.spot.id)
     }
 
     fun dismissBottomSheet() {

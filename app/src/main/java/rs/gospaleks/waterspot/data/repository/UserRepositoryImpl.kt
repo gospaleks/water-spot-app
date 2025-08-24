@@ -75,4 +75,23 @@ class UserRepositoryImpl @Inject constructor(
     override fun getUsersWithLocationSharing(): Flow<Result<List<User>>> {
         return firestoreUserDataSource.getUsersWithLocationSharing()
     }
+
+    override suspend fun markSpotAsVisited(spotId: String): Result<Unit> {
+        val uid = firebaseAuthDataSource.getCurrentUserId()
+
+        if (uid == null) {
+            return Result.failure(Exception("No authenticated user found"))
+        }
+
+        return firestoreUserDataSource.markAsVisitedSpot(uid, spotId)
+    }
+
+    override fun isSpotVisitedByUser(spotId: String): Flow<Result<Boolean>> {
+        val uid = firebaseAuthDataSource.getCurrentUserId()
+        return if (uid != null) {
+            firestoreUserDataSource.isSpotVisitedByUser(uid, spotId)
+        } else {
+            kotlinx.coroutines.flow.flow { emit(Result.failure(Exception("No authenticated user found"))) }
+        }
+    }
 }

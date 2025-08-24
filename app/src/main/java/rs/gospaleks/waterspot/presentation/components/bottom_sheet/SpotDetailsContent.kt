@@ -50,6 +50,8 @@ fun SpotDetailsContent(
     onNavigateClick: () -> Unit = {},
     onUserProfileClick: () -> Unit = {},
     onAddPhotoClick: () -> Unit = {},
+    onVisitClick: () -> Unit = {},
+    isVisited: Boolean = false,
     isAddPhotoEnabled: Boolean = false,
     isUploadingPhoto: Boolean = false,
     onReviewerProfileClick: (String) -> Unit = {},
@@ -526,6 +528,8 @@ fun SpotDetailsContent(
                 onNavigateClick = onNavigateClick,
                 onReviewClick = onReviewClick,
                 onAddPhotoClick = onAddPhotoClick,
+                onVisitClick = onVisitClick,
+                isVisited = isVisited,
                 isAddPhotoEnabled = isAddPhotoEnabled,
                 isUploadingPhoto = isUploadingPhoto,
             )

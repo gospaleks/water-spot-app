@@ -196,6 +196,12 @@ fun SpotDetailsBottomSheet(
                                         cameraLauncher.launch(uri)
                                     }
                                 },
+                                onVisitClick = {
+                                    if (isInZone && distanceMeters != null) {
+                                        viewModel.markSpotAsVisited()
+                                    }
+                                },
+                                isVisited = uiState.isSpotVisited,
                                 isAddPhotoEnabled = isInZone,
                                 isUploadingPhoto = uiState.isUploadingPhoto,
                                 onReviewerProfileClick = { reviewerId ->
