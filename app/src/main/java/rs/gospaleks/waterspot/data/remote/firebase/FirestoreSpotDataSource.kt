@@ -344,4 +344,56 @@ class FirestoreSpotDataSource @Inject constructor(
             Result.failure(e)
         }
     }
+
+    suspend fun getSpotsWithUsersByIds(spotIds: List<String>) : Result<List<SpotWithUser>> {
+        return try {
+            if (spotIds.isEmpty()) return Result.success(emptyList())
+
+            val spotsSnap = firestore.collection("spots")
+                .whereIn(FieldPath.documentId(), spotIds)
+                .get()
+                .await()
+
+            val spotDtos = spotsSnap.documents.mapNotNull { doc ->
+                try {
+                    doc.toObject(FirestoreSpotDto::class.java)?.copy(id = doc.id)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    null
+                }
+            }
+
+            val spots = spotDtos.map { it.toDomain() }
+            val userIds = spots.map { it.userId }.filter { it.isNotBlank() }.toSet()
+            val usersById = mutableMapOf<String, User>()
+
+            if (userIds.isNotEmpty()) {
+                val chunks = userIds.chunked(10)
+                for (chunk in chunks) {
+                    try {
+                        val userSnap = firestore.collection("users")
+                            .whereIn(FieldPath.documentId(), chunk)
+                            .get()
+                            .await()
+                        for (doc in userSnap.documents) {
+                            val user = doc.toObject(FirestoreUserDto::class.java)
+                                ?.copy(id = doc.id)
+                                ?.toDomain()
+                            if (user != null) {
+                                usersById[doc.id] = user
+                            }
+                        }
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+            }
+
+            val spotsWithUsers = spots.map { spot -> SpotWithUser(spot, usersById[spot.userId]) }
+            Result.success(spotsWithUsers)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Result.failure(e)
+        }
+    }
 }

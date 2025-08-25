@@ -43,6 +43,7 @@ import rs.gospaleks.waterspot.domain.use_case.GetUserDataUseCase
 import rs.gospaleks.waterspot.domain.use_case.GetUserWithSpotsUseCase
 import rs.gospaleks.waterspot.domain.use_case.GetUsersWithLocationSharingInRadiusUseCase
 import rs.gospaleks.waterspot.domain.use_case.GetUsersWithLocationSharingUseCase
+import rs.gospaleks.waterspot.domain.use_case.GetVisitedSpotsUseCase
 import rs.gospaleks.waterspot.domain.use_case.IsSpotVisitedUseCase
 import rs.gospaleks.waterspot.domain.use_case.LocationTrackingUseCase
 import rs.gospaleks.waterspot.domain.use_case.MarkSpotAsVisitedUseCase
@@ -115,6 +116,11 @@ object AppModule {
     }
 
     // Use Cases
+    @Provides
+    fun provideGetVisitedSpotsUseCase(spotRepository: SpotRepository, userRepository: UserRepository) : GetVisitedSpotsUseCase {
+        return GetVisitedSpotsUseCase(spotRepository, userRepository)
+    }
+
     @Provides
     fun provideGetUsersWithLocationSharingInRadiusUseCase(userRepository: UserRepository): GetUsersWithLocationSharingInRadiusUseCase {
         return GetUsersWithLocationSharingInRadiusUseCase(userRepository)

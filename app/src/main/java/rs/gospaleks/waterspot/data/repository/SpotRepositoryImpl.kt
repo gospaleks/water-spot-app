@@ -112,4 +112,8 @@ class SpotRepositoryImpl @Inject constructor(
 
         return Result.success(url)
     }
+
+    override suspend fun getSpotsWithUsersByIds(ids: List<String>): Result<List<SpotWithUser>> {
+        return firestoreSpotDataSource.getSpotsWithUsersByIds(ids)
+    }
 }

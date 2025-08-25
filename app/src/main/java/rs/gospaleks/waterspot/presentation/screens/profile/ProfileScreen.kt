@@ -16,11 +16,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.WaterDrop
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -53,7 +56,7 @@ fun ProfileScreen(
     innerPadding: PaddingValues,
     onLogout: () -> Unit,
     onEditProfileClick: () -> Unit,
-    onMyWaterSpotsClick: () -> Unit,
+    onVisitedSpotsClick: () -> Unit,
     onChangePasswordClick: () -> Unit,
     viewModel: ProfileViewModel = hiltViewModel(),
     themeViewModel: ThemeViewModel = hiltViewModel(),
@@ -207,24 +210,18 @@ fun ProfileScreen(
                     title = stringResource(R.string.edit_profile),
                     onClick = onEditProfileClick
                 )
-//                ProfileOptionItem(
-//                    icon = Icons.Default.WaterDrop,
-//                    iconTint = MaterialTheme.colorScheme.primary,
-//                    title = stringResource(R.string.my_spots),
-//                    onClick = onMyWaterSpotsClick
-//                )
+                ProfileOptionItem(
+                    icon = Icons.Default.WaterDrop,
+                    iconTint = MaterialTheme.colorScheme.primary,
+                    title = "Visited Spots",
+                    onClick = onVisitedSpotsClick
+                )
                 ProfileOptionItem(
                     icon = Icons.Default.Lock,
                     iconTint = MaterialTheme.colorScheme.primary,
                     title = stringResource(R.string.change_password),
                     onClick = onChangePasswordClick
                 )
-//                ProfileOptionItem(
-//                    icon = Icons.Default.Translate,
-//                    iconTint = MaterialTheme.colorScheme.primary,
-//                    title = stringResource(R.string.change_language),
-//                    onClick = {} // TODO: Implement language change with bottom sheet
-//                )
                 ProfileOptionItem(
                     icon = if (selectedTheme == AppTheme.DARK) Icons.Default.DarkMode else Icons.Default.LightMode,
                     iconTint = MaterialTheme.colorScheme.primary,
@@ -262,14 +259,16 @@ fun ProfileScreen(
                     }
                 )
 
-                Spacer(modifier = Modifier.weight(1f))
-
                 Button(
                     onClick = onLogout,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 16.dp)
+                    modifier = Modifier.fillMaxWidth()
                 ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.Logout,
+                        contentDescription = stringResource(R.string.logout),
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
                     Text(text = stringResource(R.string.logout))
                 }
             }
@@ -356,7 +355,7 @@ fun ProfileScreenPreview() {
         innerPadding = PaddingValues(0.dp),
         onLogout = {},
         onEditProfileClick = {},
-        onMyWaterSpotsClick = {},
+        onVisitedSpotsClick = {},
         onChangePasswordClick = {},
     )
 }

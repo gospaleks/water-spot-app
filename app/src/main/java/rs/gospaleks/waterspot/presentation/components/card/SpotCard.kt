@@ -1,6 +1,5 @@
 package rs.gospaleks.waterspot.presentation.components.card
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -15,7 +14,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,7 +25,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
 import rs.gospaleks.waterspot.domain.model.SpotWithUser
 import rs.gospaleks.waterspot.presentation.components.CleanlinessChip
@@ -47,7 +44,7 @@ fun SpotCard(
 ) {
     val spot = spotWithUser.spot
     val user = spotWithUser.user
-    val createdDate = spot.createdAt?.let { millis ->
+    val updatedDate = spot.updatedAt?.let { millis ->
         SimpleDateFormat("MMM d, yyyy", Locale.getDefault())
             .format(Date(millis))
     } ?: ""
@@ -55,12 +52,7 @@ fun SpotCard(
     // Precompute target pixel sizes for images to avoid decoding huge bitmaps
     val density = LocalDensity.current
     val context = LocalContext.current
-    val mainImagePx = with(density) { 110.dp.roundToPx() } to with(density) { 110.dp.roundToPx() }
     val avatarPx = with(density) { 22.dp.roundToPx() } to with(density) { 22.dp.roundToPx() }
-
-    SideEffect {
-        Log.d("Recompose", "SpotCard recomposed for ${spotWithUser.spot.id}")
-    }
 
     Card(
         onClick = onCardClick,
@@ -214,9 +206,9 @@ fun SpotCard(
                             )
                         }
                     }
-                    if (createdDate.isNotEmpty()) {
+                    if (updatedDate.isNotEmpty()) {
                         Text(
-                            text = if (showAuthor) "· $createdDate" else createdDate,
+                            text = if (showAuthor) "· $updatedDate" else updatedDate,
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )

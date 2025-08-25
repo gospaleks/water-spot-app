@@ -321,4 +321,22 @@ class FirestoreUserDataSource @Inject constructor(
 
         awaitClose { listener.remove() }
     }
+
+    suspend fun getVisitedSpotIds(uid: String): Result<List<String>> {
+        return try {
+            val userDocRef = firestore.collection("users").document(uid)
+            val snapshot = userDocRef.get().await()
+
+            if (snapshot.exists()) {
+                val dto = snapshot.toObject(FirestoreUserDto::class.java)
+                val visitedSpots = dto?.visitedSpots ?: emptyList()
+                Result.success(visitedSpots)
+            } else {
+                Result.failure(Exception("User document does not exist"))
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Result.failure(e)
+        }
+    }
 }

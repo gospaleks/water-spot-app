@@ -95,6 +95,12 @@ class UserRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun getVisitedSpotIds(): List<String> {
+        val uid = firebaseAuthDataSource.getCurrentUserId() ?: return emptyList()
+        val result = firestoreUserDataSource.getVisitedSpotIds(uid)
+        return result.getOrDefault(emptyList())
+    }
+
     override suspend fun getUsersWithLocationSharingInRadius(
         center: GeoLocation,
         radius: Double

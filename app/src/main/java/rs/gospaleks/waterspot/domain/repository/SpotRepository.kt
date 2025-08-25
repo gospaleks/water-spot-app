@@ -25,6 +25,8 @@ interface SpotRepository {
     fun getReviewsForSpot(spotId: String): Flow<Result<List<ReviewWithUser>>>
 
     suspend fun uploadAdditionalPhoto(spotId: String, photoUri: Uri): Result<String>
+
+    suspend fun getSpotsWithUsersByIds(ids: List<String>): Result<List<SpotWithUser>>
 //
 //
 //    suspend fun updateSpot(spot: Spot): Result<Unit>

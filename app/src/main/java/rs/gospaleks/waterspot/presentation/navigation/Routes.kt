@@ -33,4 +33,5 @@ sealed class ProfileRouteScreen(val route: String) {
     object PublicProfile : ProfileRouteScreen("public_profile/{userId}") {
         fun createRoute(userId: String) = "public_profile/$userId"
     }
+    object VisitedSpots : ProfileRouteScreen("visited_spots")
 }

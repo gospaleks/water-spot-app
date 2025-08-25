@@ -53,7 +53,9 @@ fun MainNavGraph(
                 onEditProfileClick = {
                     // TODO
                 },
-                onMyWaterSpotsClick = {},
+                onVisitedSpotsClick = {
+                    rootNavHostController.navigate(ProfileRouteScreen.VisitedSpots.route)
+                },
                 onChangePasswordClick = {
                     rootNavHostController.navigate(ProfileRouteScreen.ChangePassword.route)
                 },

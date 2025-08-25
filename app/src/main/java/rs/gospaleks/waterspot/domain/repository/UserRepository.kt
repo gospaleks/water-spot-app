@@ -25,5 +25,7 @@ interface UserRepository {
 
     fun isSpotVisitedByUser(spotId: String): Flow<Result<Boolean>>
 
+    suspend fun getVisitedSpotIds(): List<String>
+
     suspend fun getUsersWithLocationSharingInRadius(center: GeoLocation, radius: Double) : List<User>
 }
