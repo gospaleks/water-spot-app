@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.WaterSpot.MySplash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">#FF102027</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/logo_v1_providno_512</item>
+        <item name="postSplashScreenTheme">@style/Theme.WaterSpot</item>
+    </style>
+</resources>

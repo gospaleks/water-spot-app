@@ -3,6 +3,7 @@ accompanistPermissions = "0.37.3"
 agp = "8.12.1"
 cloudinaryAndroid = "3.1.1"
 coilCompose = "2.7.0"
+coreSplashscreen = "1.0.1"
 datastorePreferences = "1.1.7"
 geofireAndroidCommon = "3.2.0"
 hiltAndroid = "2.57"
@@ -29,6 +30,7 @@ secretsGradlePlugin = "2.0.1"
 [libraries]
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreen" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
 androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
 androidx-lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycleRuntimeKtx" }
