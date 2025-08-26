@@ -3,9 +3,7 @@ package rs.gospaleks.waterspot.presentation.screens.all_spots
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -23,6 +21,9 @@ import javax.inject.Inject
 // Date filter presets for updatedAt field
 enum class DateFilterPreset { ANY, OLDER_WEEK, OLDER_MONTH, OLDER_6_MONTHS, OLDER_YEAR, CUSTOM }
 
+// Sort options for the list
+enum class SortByOption { UPDATED_DESC, UPDATED_ASC, CREATED_DESC, CREATED_ASC }
+
 data class AllSpotsUiState(
     val isLoading: Boolean = false,
     val isRefreshing: Boolean = false,
@@ -38,6 +39,8 @@ data class AllSpotsUiState(
     val dateFilterPreset: DateFilterPreset = DateFilterPreset.ANY,
     val customStartDateMillis: Long? = null,
     val customEndDateMillis: Long? = null,
+    // Sort
+    val sortBy: SortByOption = SortByOption.UPDATED_DESC,
     val error: String? = null
 )
 
@@ -68,7 +71,7 @@ class AllSpotsViewModel @Inject constructor(
             else -> null
         }
 
-        uiState.allSpots.filter { item ->
+        val filtered = uiState.allSpots.filter { item ->
             val spot = item.spot
             val typeOk = types.isEmpty() || types.contains(spot.type)
             val cleanlinessOk = cleanliness.isEmpty() || cleanliness.contains(spot.cleanliness)
@@ -105,6 +108,13 @@ class AllSpotsViewModel @Inject constructor(
             }
 
             typeOk && cleanlinessOk && searchOk && dateOk
+        }
+
+        when (uiState.sortBy) {
+            SortByOption.UPDATED_DESC -> filtered.sortedByDescending { it.spot.updatedAt ?: Long.MIN_VALUE }
+            SortByOption.UPDATED_ASC -> filtered.sortedBy { it.spot.updatedAt ?: Long.MAX_VALUE }
+            SortByOption.CREATED_DESC -> filtered.sortedByDescending { it.spot.createdAt ?: Long.MIN_VALUE }
+            SortByOption.CREATED_ASC -> filtered.sortedBy { it.spot.createdAt ?: Long.MAX_VALUE }
         }
     }
 
@@ -158,6 +168,13 @@ class AllSpotsViewModel @Inject constructor(
         )
     }
 
+    // Sort: set selected sort
+    fun setSortBy(option: SortByOption) {
+        if (uiState.sortBy != option) {
+            uiState = uiState.copy(sortBy = option)
+        }
+    }
+
     // Slider moves (no fetch yet)
     fun updateRadiusMeters(meters: Int) {
         if (meters != uiState.radiusMeters) {
@@ -177,7 +194,8 @@ class AllSpotsViewModel @Inject constructor(
             radiusMeters = DEFAULT_RADIUS_METERS,
             dateFilterPreset = DateFilterPreset.ANY,
             customStartDateMillis = null,
-            customEndDateMillis = null
+            customEndDateMillis = null,
+            sortBy = SortByOption.UPDATED_DESC
         )
         uiState = reset
         // Refresh for default radius

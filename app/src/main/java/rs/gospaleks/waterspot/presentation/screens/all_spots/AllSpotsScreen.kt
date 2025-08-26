@@ -83,11 +83,16 @@ fun AllSpotsScreen(
             customEndDateMillis = uiState.customEndDateMillis,
             onSetDatePreset = viewModel::setDatePreset,
             onSetCustomDateRange = viewModel::setCustomDateRange,
+            // Sort
+            sortBy = uiState.sortBy,
+            onSetSortBy = viewModel::setSortBy,
         )
 
         // Lightweight loading bar for background refresh (e.g., radius change)
         if (uiState.isLoading && filteredSpots.isNotEmpty()) {
             LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+        } else {
+            Spacer(modifier = Modifier.height(4.dp))
         }
 
         // Content area (list/loading/empty)

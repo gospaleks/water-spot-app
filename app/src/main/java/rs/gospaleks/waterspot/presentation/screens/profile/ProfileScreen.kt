@@ -9,6 +9,7 @@ import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import rs.gospaleks.waterspot.R
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -20,7 +21,6 @@ import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.WaterDrop
@@ -55,6 +55,7 @@ import rs.gospaleks.waterspot.service.LocationTrackingService
 fun ProfileScreen(
     innerPadding: PaddingValues,
     onLogout: () -> Unit,
+    onMyProfileClick: (String) -> Unit,
     onEditProfileClick: () -> Unit,
     onVisitedSpotsClick: () -> Unit,
     onChangePasswordClick: () -> Unit,
@@ -162,7 +163,11 @@ fun ProfileScreen(
                     Text(
                         text = fullName,
                         style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.onPrimary
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier
+                            .clickable {
+                                onMyProfileClick(viewModel.uiState.user.id)
+                            }
                     )
 
                     Spacer(modifier = Modifier.height(12.dp))
@@ -354,6 +359,7 @@ fun ProfileScreenPreview() {
     ProfileScreen(
         innerPadding = PaddingValues(0.dp),
         onLogout = {},
+        onMyProfileClick = {},
         onEditProfileClick = {},
         onVisitedSpotsClick = {},
         onChangePasswordClick = {},

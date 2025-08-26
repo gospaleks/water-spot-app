@@ -50,6 +50,9 @@ fun MainNavGraph(
             ProfileScreen(
                 innerPadding = innerPadding,
                 onLogout = onLogout,
+                onMyProfileClick = { userId ->
+                    rootNavHostController.navigate(ProfileRouteScreen.PublicProfile.createRoute(userId))
+                },
                 onEditProfileClick = {
                     // TODO
                 },

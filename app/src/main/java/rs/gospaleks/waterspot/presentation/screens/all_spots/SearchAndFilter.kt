@@ -42,8 +42,9 @@ import rs.gospaleks.waterspot.presentation.screens.all_spots.components.Cleanlin
 import rs.gospaleks.waterspot.presentation.screens.all_spots.components.RadiusFilterBottomSheetContent
 import rs.gospaleks.waterspot.presentation.screens.all_spots.components.TypeFilterBottomSheetContent
 import rs.gospaleks.waterspot.presentation.screens.all_spots.components.DateFilterBottomSheetContent
+import rs.gospaleks.waterspot.presentation.screens.all_spots.components.SortByBottomSheetContent
 
-private enum class FilterSheet { Type, Cleanliness, Radius, Date }
+private enum class FilterSheet { Type, Cleanliness, Radius, Date, SortBy }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -65,6 +66,9 @@ fun SearchAndFilter(
     customEndDateMillis: Long?,
     onSetDatePreset: (DateFilterPreset) -> Unit,
     onSetCustomDateRange: (Long?, Long?) -> Unit,
+    // Sort by
+    sortBy: SortByOption,
+    onSetSortBy: (SortByOption) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var expanded by rememberSaveable { mutableStateOf(false) }
@@ -271,7 +275,24 @@ fun SearchAndFilter(
                         currentSheet = FilterSheet.Date
                         showBottomSheet = true
                     },
-                    label = { Text(dateLabel) }
+                    label = { Text(text = dateLabel) }
+                )
+            }
+            item {
+                val sortLabel = when (sortBy) {
+                    SortByOption.UPDATED_DESC -> "Updated: Newest"
+                    SortByOption.UPDATED_ASC -> "Updated: Oldest"
+                    SortByOption.CREATED_DESC -> "Created: Newest"
+                    SortByOption.CREATED_ASC -> "Created: Oldest"
+                }
+
+                FilterChip(
+                    selected = true,
+                    onClick = {
+                        currentSheet = FilterSheet.SortBy
+                        showBottomSheet = true
+                    },
+                    label = { Text(text = sortLabel) },
                 )
             }
             item {
@@ -314,7 +335,13 @@ fun SearchAndFilter(
                         currentStartDateMillis = customStartDateMillis,
                         currentEndDateMillis = customEndDateMillis,
                     )
-
+                    FilterSheet.SortBy -> SortByBottomSheetContent(
+                        selected = sortBy,
+                        onSelectedChange = { option ->
+                            onSetSortBy(option)
+                            showBottomSheet = false
+                        }
+                    )
                     null -> {}
                 }
             }

@@ -20,6 +20,7 @@ import rs.gospaleks.waterspot.presentation.components.getColor
 import rs.gospaleks.waterspot.presentation.components.icon
 import rs.gospaleks.waterspot.presentation.components.toDisplayName
 import rs.gospaleks.waterspot.presentation.screens.all_spots.DateFilterPreset
+import rs.gospaleks.waterspot.presentation.screens.all_spots.SortByOption
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -96,11 +97,11 @@ fun RadiusFilterBottomSheetContent(
     Column(modifier = Modifier
         .fillMaxWidth()
         .padding(horizontal = 20.dp, vertical = 12.dp)) {
-        Text(text = "Radius", style = MaterialTheme.typography.headlineSmall)
-        Spacer(Modifier.height(4.dp))
-        Text(text = "Selected: ${formatRadius(currentMeters)}", style = MaterialTheme.typography.bodyMedium)
+        Text(text = "Radius - ${formatRadius(currentMeters)}", style = MaterialTheme.typography.headlineSmall)
         Spacer(Modifier.height(8.dp))
+
         HorizontalDivider()
+
         Spacer(Modifier.height(8.dp))
 
         // Slider 1..100 km
@@ -112,12 +113,12 @@ fun RadiusFilterBottomSheetContent(
             Slider(
                 modifier = Modifier.weight(1f),
                 value = currentKm.toFloat(),
-                onValueChange = { km -> onMetersChange(km.toInt().coerceIn(1, 100) * 1000) },
-                valueRange = 1f..100f,
-                steps = 98,
+                onValueChange = { km -> onMetersChange(km.toInt().coerceIn(1, 200) * 1000) },
+                valueRange = 1f..200f,
+                steps = 199,
                 onValueChangeFinished = { onApply() }
             )
-            Text(text = "100 km")
+            Text(text = "200 km")
         }
 
         Spacer(Modifier.height(12.dp))
@@ -125,7 +126,7 @@ fun RadiusFilterBottomSheetContent(
         // Quick picks - meters
         Text(text = "Meters", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Spacer(Modifier.height(6.dp))
-        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             listOf(50, 100, 250, 500, 750, 1000).forEach { m ->
                 AssistChip(
                     onClick = {
@@ -145,8 +146,8 @@ fun RadiusFilterBottomSheetContent(
         // Quick picks - kilometers
         Text(text = "Kilometers", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Spacer(Modifier.height(6.dp))
-        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            listOf(2, 5, 10, 20, 50, 100).forEach { km ->
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            listOf(2, 5, 10, 20, 50, 100, 200).forEach { km ->
                 AssistChip(
                     onClick = {
                         onMetersChange(km * 1000)
@@ -272,6 +273,44 @@ fun DateFilterBottomSheetContent(
 }
 
 @Composable
+fun SortByBottomSheetContent(
+    selected: SortByOption,
+    onSelectedChange: (SortByOption) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp, vertical = 8.dp)
+    ) {
+        Text(text = "Sort by", style = MaterialTheme.typography.headlineSmall)
+        Spacer(Modifier.height(8.dp))
+        HorizontalDivider()
+        Spacer(Modifier.height(8.dp))
+
+        PresetRadioRow(
+            title = "Updated: Newest first",
+            selected = selected == SortByOption.UPDATED_DESC,
+            onClick = { onSelectedChange(SortByOption.UPDATED_DESC) }
+        )
+        PresetRadioRow(
+            title = "Updated: Oldest first",
+            selected = selected == SortByOption.UPDATED_ASC,
+            onClick = { onSelectedChange(SortByOption.UPDATED_ASC) }
+        )
+        PresetRadioRow(
+            title = "Created: Newest first",
+            selected = selected == SortByOption.CREATED_DESC,
+            onClick = { onSelectedChange(SortByOption.CREATED_DESC) }
+        )
+        PresetRadioRow(
+            title = "Created: Oldest first",
+            selected = selected == SortByOption.CREATED_ASC,
+            onClick = { onSelectedChange(SortByOption.CREATED_ASC) }
+        )
+    }
+}
+
+@Composable
 private fun PresetRadioRow(title: String, selected: Boolean, onClick: () -> Unit) {
     Row(
         modifier = Modifier
@@ -300,6 +339,9 @@ private fun FilterListItem(
     titleColor: Color? = null
 ) {
     ListItem(
+        modifier = Modifier
+            .clip(MaterialTheme.shapes.small)
+            .clickable { onCheckedChange(!checked) },
         headlineContent = {
             Text(text = title, color = titleColor ?: LocalContentColor.current)
         },
