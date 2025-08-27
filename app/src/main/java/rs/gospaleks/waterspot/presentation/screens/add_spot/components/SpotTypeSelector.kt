@@ -5,9 +5,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.HelpOutline
-import androidx.compose.material.icons.filled.Water
-import androidx.compose.material.icons.filled.LocalDrink
-import androidx.compose.material.icons.filled.WaterDrop
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -26,24 +23,24 @@ data class SpotType(
 
 @Composable
 fun SpotTypeSelector(
-    selectedType: SpotTypeEnum?, // ✅ promenjeno sa String na enum
-    onTypeSelected: (SpotTypeEnum) -> Unit // ✅ promenjeno
+    selectedType: SpotTypeEnum?,
+    onTypeSelected: (SpotTypeEnum) -> Unit
 ) {
     val types = listOf(
-        SpotType(
-            label = stringResource(R.string.add_spot_details_type_fountain),
-            icon = ImageVector.vectorResource(id = R.drawable.ic_fountain_type)
-        ) to SpotTypeEnum.FOUNTAIN,
-
         SpotType(
             label = stringResource(R.string.add_spot_details_type_public),
             icon = ImageVector.vectorResource(id = R.drawable.ic_public_type)
         ) to SpotTypeEnum.PUBLIC,
 
         SpotType(
-            label = stringResource(R.string.add_spot_details_type_refill_station),
-            icon = Icons.Default.LocalDrink
-        ) to SpotTypeEnum.REFILL_STATION,
+            label = stringResource(R.string.add_spot_details_type_spring),
+            icon = ImageVector.vectorResource(id = R.drawable.ic_spring)
+        ) to SpotTypeEnum.SPRING,
+
+        SpotType(
+            label = stringResource(R.string.add_spot_details_type_well),
+            icon = ImageVector.vectorResource(id = R.drawable.ic_well)
+        ) to SpotTypeEnum.WELL,
 
         SpotType(
             label = stringResource(R.string.add_spot_details_type_other),
@@ -106,7 +103,7 @@ fun SpotTypeSelector(
 fun SpotTypeSelectorPreview() {
     MaterialTheme {
         SpotTypeSelector(
-            selectedType = SpotTypeEnum.FOUNTAIN,
+            selectedType = SpotTypeEnum.WELL,
             onTypeSelected = {}
         )
     }

@@ -29,9 +29,9 @@ fun CleanlinessLevelEnum.toDisplayName(): String = stringResource(id = toStringR
 @Composable
 fun SpotTypeEnum.icon(): ImageVector {
     return when (this) {
-        SpotTypeEnum.FOUNTAIN -> ImageVector.vectorResource(id = R.drawable.ic_fountain_type)
+        SpotTypeEnum.WELL -> ImageVector.vectorResource(id = R.drawable.ic_well)
         SpotTypeEnum.PUBLIC -> ImageVector.vectorResource(id = R.drawable.ic_public_type)
-        SpotTypeEnum.REFILL_STATION -> Icons.Default.LocalDrink
+        SpotTypeEnum.SPRING -> ImageVector.vectorResource(id = R.drawable.ic_spring)
         SpotTypeEnum.OTHER -> Icons.AutoMirrored.Filled.HelpOutline
     }
 }

@@ -42,9 +42,9 @@ fun Spot.toFirestoreMap(): Map<String, Any?> {
 }
 
 fun String.toSpotTypeEnum(): SpotTypeEnum = when (this.uppercase()) {
-    "FOUNTAIN" -> SpotTypeEnum.FOUNTAIN
+    "WELL" -> SpotTypeEnum.WELL
     "PUBLIC" -> SpotTypeEnum.PUBLIC
-    "REFILL_STATION" -> SpotTypeEnum.REFILL_STATION
+    "SPRING" -> SpotTypeEnum.SPRING
     else -> SpotTypeEnum.OTHER
 }
 

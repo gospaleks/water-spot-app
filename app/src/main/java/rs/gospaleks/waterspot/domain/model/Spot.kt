@@ -4,17 +4,17 @@ import com.google.firebase.Timestamp
 import rs.gospaleks.waterspot.R
 
 enum class SpotTypeEnum {
-    FOUNTAIN,
     PUBLIC,
-    REFILL_STATION,
-    OTHER
+    SPRING,
+    WELL,
+    OTHER,
 }
 
 fun SpotTypeEnum.toStringResId(): Int {
     return when (this) {
-        SpotTypeEnum.FOUNTAIN -> R.string.add_spot_details_type_fountain
         SpotTypeEnum.PUBLIC -> R.string.add_spot_details_type_public
-        SpotTypeEnum.REFILL_STATION -> R.string.add_spot_details_type_refill_station
+        SpotTypeEnum.SPRING -> R.string.add_spot_details_type_spring
+        SpotTypeEnum.WELL -> R.string.add_spot_details_type_well
         SpotTypeEnum.OTHER -> R.string.add_spot_details_type_other
     }
 }

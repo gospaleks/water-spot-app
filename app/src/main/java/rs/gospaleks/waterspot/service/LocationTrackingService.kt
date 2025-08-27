@@ -236,9 +236,9 @@ class LocationTrackingService : Service() {
     }
 
     private fun formatSpotType(type: SpotTypeEnum): String = when (type) {
-        SpotTypeEnum.FOUNTAIN -> "Fountain"
+        SpotTypeEnum.WELL -> "Well"
         SpotTypeEnum.PUBLIC -> "Public"
-        SpotTypeEnum.REFILL_STATION -> "Refill station"
+        SpotTypeEnum.SPRING -> "Spring"
         SpotTypeEnum.OTHER -> "Other"
     }
 
