@@ -109,9 +109,7 @@ class UserRepositoryImpl @Inject constructor(
         val currentUserId = firebaseAuthDataSource.getCurrentUserId()
 
         return if (result.isSuccess) {
-            result.getOrNull()?.filter { user ->
-                user.id != currentUserId && !user.isLocationShared
-            } ?: emptyList()
+            result.getOrNull()?.filter { it.id != currentUserId } ?: emptyList()
         } else {
             emptyList()
         }

@@ -13,6 +13,6 @@ fun FirestoreUserDto.toDomain(): User {
         points = points,
         lat = lat ?: 44.7866,
         lng = lng ?: 20.4489,
-        isLocationShared = isLocationShared,
+        isLocationShared = locationShared,
     )
 }

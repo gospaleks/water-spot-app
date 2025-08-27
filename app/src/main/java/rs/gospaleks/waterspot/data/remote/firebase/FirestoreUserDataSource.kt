@@ -180,7 +180,7 @@ class FirestoreUserDataSource @Inject constructor(
     suspend fun toggleLocationSharing(uid: String, isShared: Boolean): Result<Unit> {
         return try {
             val userDocRef = firestore.collection("users").document(uid)
-            userDocRef.update("isLocationShared", isShared).await()
+            userDocRef.update("locationShared", isShared).await()
             Result.success(Unit)
         } catch (e: Exception) {
             e.printStackTrace()
@@ -207,7 +207,7 @@ class FirestoreUserDataSource @Inject constructor(
 
     fun getUsersWithLocationSharing(): Flow<Result<List<User>>> = callbackFlow {
         val userCollectionRef = firestore.collection("users")
-            .whereEqualTo("isLocationShared", true)
+            .whereEqualTo("locationShared", true)
 
         val snapshotListener = userCollectionRef.addSnapshotListener { snapshot, e ->
             if (e != null) {
@@ -244,7 +244,7 @@ class FirestoreUserDataSource @Inject constructor(
             val results = mutableListOf<User>()
 
             for (b in bounds) {
-                // Napomena: Dodavanje whereEqualTo("isLocationShared", true) uz orderBy("geohash")
+                // Napomena: Dodavanje whereEqualTo("locationShared", true) uz orderBy("geohash")
                 // moze zahtevati kompozitni indeks. Da izbegnemo runtime gresku, filtriramo kasnije u kodu.
                 val snapshot = firestore.collection("users")
                     .orderBy("geohash")
@@ -258,7 +258,7 @@ class FirestoreUserDataSource @Inject constructor(
                     val lat = dto?.lat
                     val lng = dto?.lng
 
-                    if (dto != null && dto.geohash != null && lat != null && lng != null) {
+                    if (dto != null && dto.geohash != null && lat != null && lng != null && dto.locationShared) {
                         val docLocation = GeoLocation(lat, lng)
                         // Precizna distanca u metrima
                         val distance = GeoFireUtils.getDistanceBetween(docLocation, center)

@@ -50,6 +50,20 @@ import rs.gospaleks.waterspot.presentation.components.bottom_sheet.SpotDetailsBo
 import rs.gospaleks.waterspot.presentation.navigation.ProfileRouteScreen
 import rs.gospaleks.waterspot.presentation.screens.profile.ThemeViewModel
 import rs.gospaleks.waterspot.presentation.screens.map.components.rememberAvatarMarkerDescriptor
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.ui.unit.dp
+import rs.gospaleks.waterspot.domain.model.SpotTypeEnum
+import rs.gospaleks.waterspot.domain.model.CleanlinessLevelEnum
+import rs.gospaleks.waterspot.presentation.components.icon
+import rs.gospaleks.waterspot.presentation.components.getColor
 
 @OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -212,6 +226,79 @@ fun GoogleMapScreen(
             }
 
             SpotDetailsBottomSheet(rootNavHostController = rootNavHostController, viewModel = bottomSheetViewModel)
+
+            // Top overlay: filter chips row (Type + Cleanliness)
+            LazyRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.TopStart)
+                    .padding(vertical = 8.dp),
+                contentPadding = PaddingValues(horizontal = 24.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                // Type chips
+                items(count = SpotTypeEnum.entries.size, key = { idx -> SpotTypeEnum.entries[idx].name }) { idx ->
+                    val type = SpotTypeEnum.entries[idx]
+                    val selected = uiState.selectedTypeFilters.contains(type)
+                    FilterChip(
+                        selected = selected,
+                        onClick = { viewModel.toggleTypeFilter(type) },
+                        label = { Text(type.toDisplayName()) },
+                        leadingIcon = { Icon(imageVector = type.icon(), contentDescription = null) },
+                        colors = FilterChipDefaults.filterChipColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                            labelColor = MaterialTheme.colorScheme.onSurface,
+                            iconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                            selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                            selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                        ),
+                        border = FilterChipDefaults.filterChipBorder(
+                            enabled = true,
+                            selected = selected,
+                            borderColor = MaterialTheme.colorScheme.outline,
+                            selectedBorderColor = MaterialTheme.colorScheme.outlineVariant,
+                            borderWidth = 1.dp,
+                            selectedBorderWidth = 0.dp
+                        ),
+                        elevation = FilterChipDefaults.filterChipElevation(
+                            elevation = 4.dp,
+                        )
+                    )
+                }
+
+                // Cleanliness chips
+                items(count = CleanlinessLevelEnum.entries.size, key = { idx -> CleanlinessLevelEnum.entries[idx].name }) { idx ->
+                    val level = CleanlinessLevelEnum.entries[idx]
+                    val selected = uiState.selectedCleanlinessFilters.contains(level)
+                    val levelColor = level.getColor()
+                    FilterChip(
+                        selected = selected,
+                        onClick = { viewModel.toggleCleanlinessFilter(level) },
+                        label = { Text(level.toDisplayName()) },
+                        leadingIcon = { Icon(imageVector = level.icon(), contentDescription = null) },
+                        colors = FilterChipDefaults.filterChipColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                            labelColor = MaterialTheme.colorScheme.onSurface,
+                            iconColor = levelColor,
+                            selectedContainerColor = levelColor.copy(alpha = 0.30f),
+                            selectedLabelColor = levelColor,
+                            selectedLeadingIconColor = levelColor,
+                        ),
+                        border = FilterChipDefaults.filterChipBorder(
+                            enabled = true,
+                            selected = selected,
+                            borderColor = MaterialTheme.colorScheme.outline,
+                            selectedBorderColor = levelColor,
+                            borderWidth = 1.dp,
+                            selectedBorderWidth = 1.dp
+                        ),
+                        elevation = FilterChipDefaults.filterChipElevation(
+                            elevation = if (selected) 0.dp else 4.dp
+                        )
+                    )
+                }
+            }
 
             // Subtilan loading indikator dok se trenutna lokacija ne ucita ili pri fetch-u za radius
             if (uiState.location == null || uiState.isLoadingSpots) {

@@ -104,6 +104,15 @@ fun MapTopAppBar(
                     .padding(bottom = 12.dp)
                     .navigationBarsPadding()
             ) {
+                // Radius section
+                RadiusFilterBottomSheetContent(
+                    currentMeters = radiusMeters,
+                    onMetersChange = onRadiusMetersChange,
+                    onApply = { onRadiusApply() }
+                )
+
+                Spacer(Modifier.height(4.dp))
+
                 // Type section
                 TypeFilterBottomSheetContent(
                     selectedTypes = selectedTypes,
@@ -116,15 +125,6 @@ fun MapTopAppBar(
                 CleanlinessFilterBottomSheetContent(
                     selectedCleanliness = selectedCleanliness,
                     onToggleCleanliness = onToggleCleanliness
-                )
-
-                Spacer(Modifier.height(4.dp))
-
-                // Radius section
-                RadiusFilterBottomSheetContent(
-                    currentMeters = radiusMeters,
-                    onMetersChange = onRadiusMetersChange,
-                    onApply = { onRadiusApply() }
                 )
 
                 Spacer(Modifier.height(8.dp))
