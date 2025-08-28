@@ -28,7 +28,7 @@ class AuthRepositoryImpl @Inject constructor(
         }
 
         // 2. Upload Profile Picture to Cloudinary
-        var photoUrl: String? = null;
+        var photoUrl: String? = null
         if (photoUri != null) {
             photoUrl = cloudinaryDataSource.uploadAvatar(photoUri, uid)
         }
@@ -79,5 +79,9 @@ class AuthRepositoryImpl @Inject constructor(
         newPassword: String
     ): Result<Unit> {
         return authDataSource.changePassword(currentPassword, newPassword)
+    }
+
+    override suspend fun sendPasswordResetEmail(email: String): Result<Unit> {
+        return authDataSource.sendPasswordResetEmail(email)
     }
 }

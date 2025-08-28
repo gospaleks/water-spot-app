@@ -12,6 +12,7 @@ sealed class AuthRouteScreen(val route: String) {
     object Welcome : AuthRouteScreen("welcome")
     object Login : AuthRouteScreen("login")
     object Register : AuthRouteScreen("register")
+    object ForgotPassword : AuthRouteScreen("forgot_password")
 }
 
 sealed class MainRouteScreen(val route: String) {

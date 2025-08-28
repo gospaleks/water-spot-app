@@ -26,6 +26,7 @@ import rs.gospaleks.waterspot.domain.auth.use_case.IsUserLoggedInUseCase
 import rs.gospaleks.waterspot.domain.auth.use_case.LoginUseCase
 import rs.gospaleks.waterspot.domain.auth.use_case.LogoutUseCase
 import rs.gospaleks.waterspot.domain.auth.use_case.RegisterUseCase
+import rs.gospaleks.waterspot.domain.auth.use_case.SendPasswordResetEmailUseCase
 import rs.gospaleks.waterspot.domain.auth.use_case.ValidateEmailUseCase
 import rs.gospaleks.waterspot.domain.auth.use_case.ValidateFullNameUseCase
 import rs.gospaleks.waterspot.domain.auth.use_case.ValidateLoginPasswordUseCase
@@ -209,6 +210,11 @@ object AppModule {
     }
 
     // Auth Use Cases
+    @Provides
+    fun provideSendPasswordResetEmailUseCase(authRepository: AuthRepository) : SendPasswordResetEmailUseCase {
+        return SendPasswordResetEmailUseCase(authRepository)
+    }
+
     @Provides
     fun provideChangePasswordUseCase(authRepository: AuthRepository) : ChangePasswordUseCase {
         return ChangePasswordUseCase(authRepository)

@@ -11,6 +11,7 @@ import rs.gospaleks.waterspot.presentation.screens.auth.WelcomeScreen
 import rs.gospaleks.waterspot.presentation.screens.auth.login.LoginScreen
 import rs.gospaleks.waterspot.presentation.navigation.AuthRouteScreen
 import rs.gospaleks.waterspot.presentation.navigation.Graph
+import rs.gospaleks.waterspot.presentation.screens.auth.forgot_password.ForgotPasswordScreen
 
 fun NavGraphBuilder.authNavGraph(
     rootNavHostController: NavHostController,
@@ -32,6 +33,7 @@ fun NavGraphBuilder.authNavGraph(
         ) {
             LoginScreen(
                 onBackClick = { rootNavHostController.popBackStack() },
+                onForgotPasswordClick = { rootNavHostController.navigate(AuthRouteScreen.ForgotPassword.route) },
                 onLoginSuccess = {
                     rootNavHostController.navigate(Graph.MAIN_SCREEN_GRAPH) {
                         popUpTo(Graph.AUTH_GRAPH) {
@@ -55,6 +57,14 @@ fun NavGraphBuilder.authNavGraph(
                         }
                     }
                 },
+            )
+        }
+
+        composable (
+            AuthRouteScreen.ForgotPassword.route,
+        ) {
+            ForgotPasswordScreen (
+                onBackClick = { rootNavHostController.popBackStack() },
             )
         }
     }

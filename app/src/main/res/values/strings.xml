@@ -17,6 +17,10 @@
     <string name="login_button">Login</string>
     <string name="register_button">Register</string>
 
+    <!-- Forgot Password Screen -->
+    <string name="forgot_password_title">Forgot Password</string>
+    <string name="send_reset_email">Send reset email</string>
+
     <!-- Login Screen -->
     <string name="login_title">Login</string>
     <string name="login_welcome">Welcome back!</string>

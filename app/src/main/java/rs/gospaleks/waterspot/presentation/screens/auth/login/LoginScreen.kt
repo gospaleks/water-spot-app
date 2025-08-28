@@ -1,6 +1,5 @@
 package rs.gospaleks.waterspot.presentation.screens.auth.login
 
-import androidx.compose.foundation.background
 import androidx.compose.material.icons.Icons
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
@@ -47,6 +46,7 @@ import rs.gospaleks.waterspot.presentation.components.UiEvent
 @Composable
 fun LoginScreen(
     onBackClick: () -> Unit,
+    onForgotPasswordClick: () -> Unit,
     onLoginSuccess: () -> Unit,
     viewModel: LoginViewModel = hiltViewModel()
 ) {
@@ -194,7 +194,7 @@ fun LoginScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.End
             ) {
-                TextButton(onClick = {}) {
+                TextButton(onClick = onForgotPasswordClick) {
                     Text(
                         text = stringResource(id = R.string.forgot_password),
                         style = MaterialTheme.typography.bodySmall
@@ -239,6 +239,7 @@ fun LoginScreen(
 fun LoginScreenPreview() {
     LoginScreen(
         onBackClick = {},
+        onForgotPasswordClick = {},
         onLoginSuccess = {}
     )
 }
