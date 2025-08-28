@@ -25,7 +25,13 @@ fun MainNavGraph(
         route = Graph.MAIN_SCREEN_GRAPH,
         startDestination = MainRouteScreen.Map.route
     ) {
-        composable (route = MainRouteScreen.Map.route) {
+        composable(
+            route = MainRouteScreen.Map.route,
+            enterTransition = { null },
+            exitTransition = { null },
+            popEnterTransition = { null },
+            popExitTransition = { null }
+        ) {
             GoogleMapScreen(
                 rootNavHostController = rootNavHostController,
                 navigateToAddSpotScreen = {
@@ -34,19 +40,37 @@ fun MainNavGraph(
                 outerPadding = innerPadding
             )
         }
-        composable (route = MainRouteScreen.AllSpots.route) {
+        composable(
+            route = MainRouteScreen.AllSpots.route,
+            enterTransition = { null },
+            exitTransition = { null },
+            popEnterTransition = { null },
+            popExitTransition = { null }
+        ) {
             AllSpotsScreen(
                 rootNavHostController = rootNavHostController,
                 outerPadding = innerPadding
             )
         }
-        composable (route = MainRouteScreen.Scoreboard.route) {
+        composable(
+            route = MainRouteScreen.Scoreboard.route,
+            enterTransition = { null },
+            exitTransition = { null },
+            popEnterTransition = { null },
+            popExitTransition = { null }
+        ) {
             ScoreboardScreen(
                 rootNavHostController = rootNavHostController,
                 outerPadding = innerPadding
             )
         }
-        composable (route = MainRouteScreen.Profile.route) {
+        composable(
+            route = MainRouteScreen.Profile.route,
+            enterTransition = { null },
+            exitTransition = { null },
+            popEnterTransition = { null },
+            popExitTransition = { null }
+        ) {
             ProfileScreen(
                 innerPadding = innerPadding,
                 onLogout = onLogout,

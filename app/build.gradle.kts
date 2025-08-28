@@ -99,6 +99,9 @@ dependencies {
     // Icons
     implementation(libs.androidx.material.icons.extended)
 
+    // Compose Animation for transitions
+    implementation(libs.androidx.animation)
+
     // Coil for image loading
     implementation(libs.coil.compose)
 
