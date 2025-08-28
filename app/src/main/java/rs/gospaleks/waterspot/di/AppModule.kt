@@ -50,6 +50,7 @@ import rs.gospaleks.waterspot.domain.use_case.MarkSpotAsVisitedUseCase
 import rs.gospaleks.waterspot.domain.use_case.NearbyTrackingUseCase
 import rs.gospaleks.waterspot.domain.use_case.SetUserLocationUseCase
 import rs.gospaleks.waterspot.domain.use_case.ToggleLocationSharingUseCase
+import rs.gospaleks.waterspot.domain.use_case.UpdateUserDataUseCase
 import rs.gospaleks.waterspot.domain.use_case.UploadAvatarUseCase
 import javax.inject.Singleton
 
@@ -116,6 +117,11 @@ object AppModule {
     }
 
     // Use Cases
+    @Provides
+    fun provideUpdateUserDataUseCase(userRepository: UserRepository): UpdateUserDataUseCase {
+        return UpdateUserDataUseCase(userRepository)
+    }
+
     @Provides
     fun provideGetVisitedSpotsUseCase(spotRepository: SpotRepository, userRepository: UserRepository) : GetVisitedSpotsUseCase {
         return GetVisitedSpotsUseCase(spotRepository, userRepository)

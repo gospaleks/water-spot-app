@@ -339,4 +339,19 @@ class FirestoreUserDataSource @Inject constructor(
             Result.failure(e)
         }
     }
+
+    suspend fun updateUserData(uid: String, fullName: String, phoneNumber: String): Result<Unit> {
+        return try {
+            val userDocRef = firestore.collection("users").document(uid)
+            val updates = mapOf(
+                "fullName" to fullName,
+                "phoneNumber" to phoneNumber
+            )
+            userDocRef.update(updates).await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Result.failure(e)
+        }
+    }
 }

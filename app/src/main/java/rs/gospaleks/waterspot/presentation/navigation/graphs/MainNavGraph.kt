@@ -78,7 +78,7 @@ fun MainNavGraph(
                     rootNavHostController.navigate(ProfileRouteScreen.PublicProfile.createRoute(userId))
                 },
                 onEditProfileClick = {
-                    // TODO
+                    rootNavHostController.navigate(ProfileRouteScreen.EditProfile.route)
                 },
                 onVisitedSpotsClick = {
                     rootNavHostController.navigate(ProfileRouteScreen.VisitedSpots.route)

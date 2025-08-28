@@ -114,4 +114,14 @@ class UserRepositoryImpl @Inject constructor(
             emptyList()
         }
     }
+
+    override suspend fun updateUserData(
+        fullName: String,
+        phoneNumber: String
+    ): Result<Unit> {
+        val uid = firebaseAuthDataSource.getCurrentUserId()
+            ?: return Result.failure(Exception("No authenticated user found"))
+
+        return firestoreUserDataSource.updateUserData(uid, fullName, phoneNumber)
+    }
 }

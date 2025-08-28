@@ -71,6 +71,7 @@
 
     <!-- Edit Profile Screen -->
     <string name="edit_profile_title">Edit Profile</string>
+    <string name="save">Save</string>
 
     <!-- Change Password Screen -->
     <string name="change_password_title">Change Password</string>
