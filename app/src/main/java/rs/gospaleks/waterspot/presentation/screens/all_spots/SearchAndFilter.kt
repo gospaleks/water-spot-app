@@ -21,6 +21,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -31,6 +32,8 @@ import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import rs.gospaleks.waterspot.domain.model.CleanlinessLevelEnum
 import rs.gospaleks.waterspot.domain.model.SpotTypeEnum
 import rs.gospaleks.waterspot.domain.model.SpotWithUser
@@ -79,6 +82,19 @@ fun SearchAndFilter(
 
     var showSuggestions by remember { mutableStateOf(false) }
 
+    // Debounce onQueryChange to avoid filtering on every single keystroke
+    val coroutineScope = rememberCoroutineScope()
+    var searchJob by remember { mutableStateOf<Job?>(null) }
+    val debouncedOnQueryChange = remember(onQueryChange) {
+        { q: String ->
+            searchJob?.cancel()
+            searchJob = coroutineScope.launch {
+                delay(300)
+                onQueryChange(q)
+            }
+        }
+    }
+
     LaunchedEffect(expanded) {
         if (expanded) {
             delay(200) // sačekaj da animacija završi da se rastereti lag
@@ -115,7 +131,8 @@ fun SearchAndFilter(
                         query = queryString,
                         onQueryChange = {
                             textFieldState.edit { replace(0, length, it) }
-                            onQueryChange(it)
+                            // Debounced propagation to ViewModel
+                            debouncedOnQueryChange(it)
                         },
                         onSearch = {
                             onQueryChange(queryString)

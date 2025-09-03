@@ -8,7 +8,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import rs.gospaleks.waterspot.domain.model.UserWithSpots
-import rs.gospaleks.waterspot.domain.use_case.GetUserWithSpotsUseCase
+import rs.gospaleks.waterspot.domain.use_case.user.GetUserWithSpotsUseCase
 import javax.inject.Inject
 
 data class PublicProfileUiState(

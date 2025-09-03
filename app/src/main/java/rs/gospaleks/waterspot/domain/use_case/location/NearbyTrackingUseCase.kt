@@ -1,4 +1,4 @@
-package rs.gospaleks.waterspot.domain.use_case
+package rs.gospaleks.waterspot.domain.use_case.location
 
 import com.firebase.geofire.GeoLocation
 import kotlinx.coroutines.flow.first

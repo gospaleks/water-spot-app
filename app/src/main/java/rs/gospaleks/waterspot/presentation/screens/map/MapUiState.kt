@@ -6,7 +6,7 @@ import rs.gospaleks.waterspot.domain.model.SpotTypeEnum
 import rs.gospaleks.waterspot.domain.model.SpotWithUser
 import rs.gospaleks.waterspot.domain.model.User
 
-const val DEFAULT_RADIUS_METERS_MAP = 5_000
+const val DEFAULT_RADIUS_METERS_MAP = 20_000
 
 data class MapUiState(
     // Current user location

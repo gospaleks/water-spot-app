@@ -1,7 +1,6 @@
 package rs.gospaleks.waterspot.presentation.screens.map
 
 import android.Manifest
-import android.util.Log
 import androidx.annotation.RequiresPermission
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -23,9 +22,9 @@ import kotlinx.coroutines.launch
 import rs.gospaleks.waterspot.domain.auth.use_case.GetCurrentUserUseCase
 import rs.gospaleks.waterspot.domain.model.CleanlinessLevelEnum
 import rs.gospaleks.waterspot.domain.model.SpotTypeEnum
-import rs.gospaleks.waterspot.domain.use_case.GetAllSpotsWithUserUseCase
-import rs.gospaleks.waterspot.domain.use_case.GetUsersWithLocationSharingUseCase
-import rs.gospaleks.waterspot.domain.use_case.LocationTrackingUseCase
+import rs.gospaleks.waterspot.domain.use_case.spot.GetAllSpotsWithUserUseCase
+import rs.gospaleks.waterspot.domain.use_case.user.GetUsersWithLocationSharingUseCase
+import rs.gospaleks.waterspot.domain.use_case.location.LocationTrackingUseCase
 import javax.inject.Inject
 
 @HiltViewModel
@@ -66,20 +65,6 @@ class MapViewModel @Inject constructor(
             }
         }
     }
-
-//    @OptIn(FlowPreview::class)
-//    private fun observeLocation() {
-//        viewModelScope.launch {
-//            locationTrackingUseCase.currentLocation
-//                .filterNotNull()
-//                .debounce(10_000L)
-//                .collectLatest { location ->
-//                    Log.d("MapViewModel", "New location: $location")
-//                    uiState = uiState.copy(location = location)
-//                    observeSpots(location)
-//                }
-//        }
-//    }
 
     // Znaci lokaciju ne uzimamo non stop vec na svakih 15 metara ili 10 sekundi ako se korisnik krece brzo
     // Ovo je dovoljno da se ne spamuje backend i da se ne trose resursi

@@ -1,5 +1,6 @@
-package rs.gospaleks.waterspot.domain.use_case
+package rs.gospaleks.waterspot.domain.use_case.location
 
+import android.Manifest
 import android.os.Looper
 import android.util.Log
 import androidx.annotation.RequiresPermission
@@ -39,7 +40,7 @@ class LocationTrackingUseCase @Inject constructor(
     }
 
     @Synchronized
-    @RequiresPermission(allOf = [android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION])
+    @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     fun startTracking() {
         if (activeTrackers == 0) {
             // Trazi svezu (current) lokaciju umesto poslednje poznate

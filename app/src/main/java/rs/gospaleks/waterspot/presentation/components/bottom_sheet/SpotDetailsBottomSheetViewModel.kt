@@ -17,15 +17,15 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import rs.gospaleks.waterspot.domain.auth.use_case.GetCurrentUserUseCase
 import rs.gospaleks.waterspot.domain.model.Review
 import rs.gospaleks.waterspot.domain.model.SpotWithUser
-import rs.gospaleks.waterspot.domain.use_case.AddReviewUseCase
-import rs.gospaleks.waterspot.domain.use_case.LocationTrackingUseCase
+import rs.gospaleks.waterspot.domain.use_case.review.AddReviewUseCase
+import rs.gospaleks.waterspot.domain.use_case.location.LocationTrackingUseCase
 import rs.gospaleks.waterspot.presentation.components.UiEvent
 import rs.gospaleks.waterspot.domain.model.ReviewWithUser
-import rs.gospaleks.waterspot.domain.use_case.AddAditionalPhotoToSpotUseCase
-import rs.gospaleks.waterspot.domain.use_case.GetAllReviewsForSpotUseCase
-import rs.gospaleks.waterspot.domain.use_case.GetSpotByIdUseCase
-import rs.gospaleks.waterspot.domain.use_case.IsSpotVisitedUseCase
-import rs.gospaleks.waterspot.domain.use_case.MarkSpotAsVisitedUseCase
+import rs.gospaleks.waterspot.domain.use_case.spot.AddAditionalPhotoToSpotUseCase
+import rs.gospaleks.waterspot.domain.use_case.review.GetAllReviewsForSpotUseCase
+import rs.gospaleks.waterspot.domain.use_case.spot.GetSpotByIdUseCase
+import rs.gospaleks.waterspot.domain.use_case.spot.IsSpotVisitedUseCase
+import rs.gospaleks.waterspot.domain.use_case.spot.MarkSpotAsVisitedUseCase
 
 data class SpotDetailsBottomSheetUiState(
     val isModalOpen: Boolean = false,

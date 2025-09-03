@@ -11,7 +11,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
-import rs.gospaleks.waterspot.domain.use_case.GetVisitedSpotsUseCase
+import rs.gospaleks.waterspot.domain.use_case.spot.GetVisitedSpotsUseCase
 
 data class VisitedSpotsUiState(
     val visitedSpots: List<SpotWithUser> = emptyList(),

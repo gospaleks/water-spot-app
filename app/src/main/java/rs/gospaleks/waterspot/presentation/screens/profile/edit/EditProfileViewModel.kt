@@ -3,17 +3,16 @@ package rs.gospaleks.waterspot.presentation.screens.profile.edit
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import rs.gospaleks.waterspot.domain.use_case.GetUserDataUseCase
+import rs.gospaleks.waterspot.domain.use_case.user.GetUserDataUseCase
 import javax.inject.Inject
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
-import rs.gospaleks.waterspot.domain.auth.model.getErrorMessageFromType
 import rs.gospaleks.waterspot.domain.auth.use_case.GetCurrentUserUseCase
 import rs.gospaleks.waterspot.domain.auth.use_case.ValidatePhoneNumberUseCase
-import rs.gospaleks.waterspot.domain.use_case.UpdateUserDataUseCase
+import rs.gospaleks.waterspot.domain.use_case.user.UpdateUserDataUseCase
 import rs.gospaleks.waterspot.presentation.components.UiEvent
 
 data class EditProfileUiState(

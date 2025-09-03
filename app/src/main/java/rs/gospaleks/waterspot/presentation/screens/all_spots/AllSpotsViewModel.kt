@@ -10,12 +10,13 @@ import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import rs.gospaleks.waterspot.domain.model.CleanlinessLevelEnum
 import rs.gospaleks.waterspot.domain.model.SpotTypeEnum
 import rs.gospaleks.waterspot.domain.model.SpotWithUser
-import rs.gospaleks.waterspot.domain.use_case.GetAllSpotsWithUserUseCase
-import rs.gospaleks.waterspot.domain.use_case.LocationTrackingUseCase
+import rs.gospaleks.waterspot.domain.use_case.spot.GetAllSpotsWithUserUseCase
+import rs.gospaleks.waterspot.domain.use_case.location.LocationTrackingUseCase
 import javax.inject.Inject
 
 // Date filter presets for updatedAt field
@@ -44,7 +45,7 @@ data class AllSpotsUiState(
     val error: String? = null
 )
 
-const val DEFAULT_RADIUS_METERS = 5_000
+const val DEFAULT_RADIUS_METERS = 20_000
 
 @HiltViewModel
 class AllSpotsViewModel @Inject constructor(
@@ -123,6 +124,7 @@ class AllSpotsViewModel @Inject constructor(
 
     private var currLocation: LatLng = LatLng(0.0, 0.0)
     private var observeJob: Job? = null
+    private var searchDebounceJob: Job? = null
 
     init {
         currLocation = locationTrackingUseCase.currentLocation.value ?: currLocation
@@ -146,7 +148,16 @@ class AllSpotsViewModel @Inject constructor(
     }
 
     fun setSearchQuery(query: String) {
-        uiState = uiState.copy(searchQuery = query)
+        // Debounce updates to state so filtering doesn't run on every keystroke
+        searchDebounceJob?.cancel()
+        if (query.isEmpty()) {
+            uiState = uiState.copy(searchQuery = "")
+            return
+        }
+        searchDebounceJob = viewModelScope.launch {
+            delay(300)
+            uiState = uiState.copy(searchQuery = query)
+        }
     }
 
     // Date filter: preset selection

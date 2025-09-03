@@ -25,9 +25,9 @@ import rs.gospaleks.waterspot.data.local.LocationTrackingPreferences
 import rs.gospaleks.waterspot.domain.model.CleanlinessLevelEnum
 import rs.gospaleks.waterspot.domain.model.SpotTypeEnum
 import rs.gospaleks.waterspot.domain.model.User
-import rs.gospaleks.waterspot.domain.use_case.GetUsersWithLocationSharingInRadiusUseCase
-import rs.gospaleks.waterspot.domain.use_case.NearbyTrackingUseCase
-import rs.gospaleks.waterspot.domain.use_case.SetUserLocationUseCase
+import rs.gospaleks.waterspot.domain.use_case.user.GetUsersWithLocationSharingInRadiusUseCase
+import rs.gospaleks.waterspot.domain.use_case.location.NearbyTrackingUseCase
+import rs.gospaleks.waterspot.domain.use_case.user.SetUserLocationUseCase
 
 @AndroidEntryPoint
 class LocationTrackingService : Service() {

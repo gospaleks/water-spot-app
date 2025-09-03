@@ -6,7 +6,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import rs.gospaleks.waterspot.domain.model.User
-import rs.gospaleks.waterspot.domain.use_case.GetAllUsersUseCase
+import rs.gospaleks.waterspot.domain.use_case.user.GetAllUsersUseCase
 import javax.inject.Inject
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue

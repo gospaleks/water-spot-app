@@ -1,4 +1,4 @@
-package rs.gospaleks.waterspot.domain.use_case
+package rs.gospaleks.waterspot.domain.use_case.review
 
 import rs.gospaleks.waterspot.domain.repository.SpotRepository
 import javax.inject.Inject

@@ -7,7 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import rs.gospaleks.waterspot.domain.use_case.GetUserDataUseCase
+import rs.gospaleks.waterspot.domain.use_case.user.GetUserDataUseCase
 import javax.inject.Inject
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
@@ -20,8 +20,8 @@ import kotlinx.coroutines.launch
 import rs.gospaleks.waterspot.data.local.LocationTrackingPreferences
 import rs.gospaleks.waterspot.domain.auth.use_case.GetCurrentUserUseCase
 import rs.gospaleks.waterspot.domain.model.User
-import rs.gospaleks.waterspot.domain.use_case.ToggleLocationSharingUseCase
-import rs.gospaleks.waterspot.domain.use_case.UploadAvatarUseCase
+import rs.gospaleks.waterspot.domain.use_case.location.ToggleLocationSharingUseCase
+import rs.gospaleks.waterspot.domain.use_case.user.UploadAvatarUseCase
 
 data class ProfileUiState(
     val user: User = User(),

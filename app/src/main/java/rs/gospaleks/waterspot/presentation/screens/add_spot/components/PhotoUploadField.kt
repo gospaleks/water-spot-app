@@ -1,9 +1,6 @@
 package rs.gospaleks.waterspot.presentation.screens.add_spot.components
 
-import android.Manifest
 import android.net.Uri
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -20,13 +17,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.core.content.FileProvider
 import coil.compose.rememberAsyncImagePainter
 import com.google.accompanist.permissions.*
-import java.io.File
 import rs.gospaleks.waterspot.R
 import rs.gospaleks.waterspot.presentation.components.PhotoSourceDialog
 
@@ -99,6 +93,7 @@ fun PhotoUploadField(
             onPhotoSelected(it)
             showSourceDialog = false
         },
-        tempFileNamePrefix = "spot_"
+        tempFileNamePrefix = "spot_",
+        justCamera = true,
     )
 }

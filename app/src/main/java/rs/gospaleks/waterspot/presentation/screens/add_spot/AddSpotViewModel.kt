@@ -6,7 +6,6 @@ import android.util.Log
 import androidx.annotation.RequiresPermission
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -16,13 +15,12 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 import rs.gospaleks.waterspot.domain.auth.use_case.GetCurrentUserUseCase
 import rs.gospaleks.waterspot.domain.model.CleanlinessLevelEnum
 import rs.gospaleks.waterspot.domain.model.Spot
 import rs.gospaleks.waterspot.domain.model.SpotTypeEnum
-import rs.gospaleks.waterspot.domain.use_case.AddSpotUseCase
-import rs.gospaleks.waterspot.domain.use_case.LocationTrackingUseCase
+import rs.gospaleks.waterspot.domain.use_case.spot.AddSpotUseCase
+import rs.gospaleks.waterspot.domain.use_case.location.LocationTrackingUseCase
 import rs.gospaleks.waterspot.presentation.components.UiEvent
 
 @HiltViewModel

@@ -107,7 +107,9 @@
 
     <!-- Add Spot Photo Screen (step 2) -->
     <string name="add_spot_photo_title">Add Spot: Photo</string>
-    <string name="add_spot_photo_instructions">Take a photo of water source \nor select one from your gallery.</string>
+    <string name="add_spot_photo_instructions">
+        Take a photo of the water source.\nMake sure it\'s clear and well-lit.
+    </string>
     <string name="add_spot_photo_placeholder">Click to add</string>
     <string name="add_spot_photo_confirmation">Use Photo</string>
     <string name="add_spot_photo_dialog_title">Add Photo</string>

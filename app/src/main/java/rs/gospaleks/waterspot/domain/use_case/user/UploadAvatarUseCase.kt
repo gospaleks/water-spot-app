@@ -1,4 +1,4 @@
-package rs.gospaleks.waterspot.domain.use_case
+package rs.gospaleks.waterspot.domain.use_case.user
 
 import android.net.Uri
 import rs.gospaleks.waterspot.domain.repository.UserRepository

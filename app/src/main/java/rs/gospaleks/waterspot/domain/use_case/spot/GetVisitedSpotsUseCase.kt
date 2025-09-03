@@ -1,4 +1,4 @@
-package rs.gospaleks.waterspot.domain.use_case
+package rs.gospaleks.waterspot.domain.use_case.spot
 
 import rs.gospaleks.waterspot.domain.model.SpotWithUser
 import rs.gospaleks.waterspot.domain.repository.SpotRepository

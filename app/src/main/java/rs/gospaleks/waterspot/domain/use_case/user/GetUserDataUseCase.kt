@@ -1,4 +1,4 @@
-package rs.gospaleks.waterspot.domain.use_case
+package rs.gospaleks.waterspot.domain.use_case.user
 
 import kotlinx.coroutines.flow.Flow
 import rs.gospaleks.waterspot.domain.model.User

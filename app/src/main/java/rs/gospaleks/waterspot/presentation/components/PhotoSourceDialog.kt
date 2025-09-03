@@ -2,7 +2,6 @@ package rs.gospaleks.waterspot.presentation.components
 
 import android.Manifest
 import android.net.Uri
-import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
@@ -20,6 +19,9 @@ import com.google.accompanist.permissions.rememberPermissionState
 import androidx.compose.ui.res.stringResource
 import com.google.accompanist.permissions.isGranted
 import rs.gospaleks.waterspot.R
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
@@ -28,7 +30,8 @@ fun PhotoSourceDialog(
     onDismiss: () -> Unit,
     onImageSelected: (Uri) -> Unit,
     tempFileNamePrefix: String,
-    permission: String = Manifest.permission.CAMERA
+    permission: String = Manifest.permission.CAMERA,
+    justCamera: Boolean = false
 ) {
     val context = LocalContext.current
     val permissionState = rememberPermissionState(permission = permission)
@@ -57,6 +60,30 @@ fun PhotoSourceDialog(
         contract = ActivityResultContracts.GetContent()
     ) { uri ->
         uri?.let { onImageSelected(it) }
+    }
+
+    // If justCamera is requested, skip showing dialog and auto-handle camera flow
+    if (justCamera && showDialog) {
+        var permissionRequested by remember(showDialog) { mutableStateOf(false) }
+        var cameraLaunched by remember(showDialog) { mutableStateOf(false) }
+
+        LaunchedEffect(permissionState.status.isGranted, showDialog, cameraLaunched, permissionRequested) {
+            if (!cameraLaunched && showDialog) {
+                if (permissionState.status.isGranted) {
+                    cameraLaunched = true
+                    onDismiss()
+                    takePictureLauncher.launch(imageUri)
+                } else if (!permissionRequested) {
+                    permissionRequested = true
+                    permissionState.launchPermissionRequest()
+                } else if (!permissionState.status.isGranted) {
+                    // Permission was denied after request; dismiss to avoid stuck state
+                    onDismiss()
+                }
+            }
+        }
+        // Do not render the dialog UI when justCamera is true
+        return
     }
 
     if (showDialog) {
